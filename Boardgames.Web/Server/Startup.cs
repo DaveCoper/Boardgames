@@ -1,3 +1,5 @@
+using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 using System.Security.Claims;
 using Boardgames.Web.Server.Data;
 using Boardgames.Web.Server.Models;
@@ -34,27 +36,50 @@ namespace Boardgames.Web.Server
             services.AddDefaultIdentity<ApplicationUser>(options =>
             {
                 options.SignIn.RequireConfirmedAccount = true;
+
                 options.Password.RequiredLength = 6;
                 options.Password.RequiredUniqueChars = 0;
                 options.Password.RequireNonAlphanumeric = false;
                 options.Password.RequireLowercase = false;
                 options.Password.RequireUppercase = false;
                 options.Password.RequireDigit = false;
+
                 options.ClaimsIdentity.UserIdClaimType = ClaimTypes.NameIdentifier;
             })
+                .AddRoles<ApplicationRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>();
 
             services.AddIdentityServer()
-                .AddApiAuthorization<ApplicationUser, ApplicationDbContext>();
+                .AddApiAuthorization<ApplicationUser, ApplicationDbContext>(options =>
+                {
+                    var identityResource = options.IdentityResources["openid"];
+                    var apiResource = options.ApiResources.Single();
+                    
+                    /*
+                    identityResource.UserClaims.Add(nameof(ApplicationUser.UserName));
+                    apiResource.UserClaims.Add("name");
+
+                    identityResource.UserClaims.Add("role");
+                    apiResource.UserClaims.Add("role");
+                    */
+                    
+                    identityResource.UserClaims.Add(nameof(ApplicationUser.Avatar));
+                    apiResource.UserClaims.Add(nameof(ApplicationUser.Avatar));
+                });
+
+            JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Remove("role");
 
             services.AddAuthentication()
                 .AddIdentityServerJwt();
 
+            services.AddApiAuthorization()
+                .AddAccountClaimsPrincipalFactory<Identity.CustomUserFactory>();
+
             services.AddControllersWithViews();
             services.AddRazorPages();
 
-            services.Configure<IdentityOptions>(options =>
-                options.ClaimsIdentity.UserIdClaimType = ClaimTypes.NameIdentifier);
+            // TODO: Figure out why login page and API have different claims.
+            services.Configure<IdentityOptions>(options => options.ClaimsIdentity.UserIdClaimType = "sub");
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

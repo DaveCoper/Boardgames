@@ -34,7 +34,7 @@ namespace Boardgames.Web.Server.Controllers
         public IEnumerable<WeatherForecast> Get()
         {
             var rng = new Random();
-
+            var userId = this.userManager.GetUserId(this.User);
             return Enumerable.Range(1, 5).Select(index => new WeatherForecast
             {
                 Date = DateTime.Now.AddDays(index),
