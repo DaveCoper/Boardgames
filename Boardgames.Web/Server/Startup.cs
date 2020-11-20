@@ -1,8 +1,10 @@
+using System.Security.Claims;
 using Boardgames.Web.Server.Data;
 using Boardgames.Web.Server.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -38,6 +40,7 @@ namespace Boardgames.Web.Server
                 options.Password.RequireLowercase = false;
                 options.Password.RequireUppercase = false;
                 options.Password.RequireDigit = false;
+                options.ClaimsIdentity.UserIdClaimType = ClaimTypes.NameIdentifier;
             })
                 .AddEntityFrameworkStores<ApplicationDbContext>();
 
@@ -49,6 +52,9 @@ namespace Boardgames.Web.Server
 
             services.AddControllersWithViews();
             services.AddRazorPages();
+
+            services.Configure<IdentityOptions>(options =>
+                options.ClaimsIdentity.UserIdClaimType = ClaimTypes.NameIdentifier);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

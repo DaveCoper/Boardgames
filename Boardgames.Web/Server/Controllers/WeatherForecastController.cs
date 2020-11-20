@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Boardgames.Web.Server.Models;
 using Boardgames.Web.Shared;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
@@ -20,16 +22,19 @@ namespace Boardgames.Web.Server.Controllers
         };
 
         private readonly ILogger<WeatherForecastController> _logger;
+        private readonly UserManager<ApplicationUser> userManager;
 
-        public WeatherForecastController(ILogger<WeatherForecastController> logger)
+        public WeatherForecastController(ILogger<WeatherForecastController> logger, UserManager<ApplicationUser> userManager)
         {
             _logger = logger;
+            this.userManager = userManager;
         }
 
         [HttpGet]
         public IEnumerable<WeatherForecast> Get()
         {
             var rng = new Random();
+
             return Enumerable.Range(1, 5).Select(index => new WeatherForecast
             {
                 Date = DateTime.Now.AddDays(index),
