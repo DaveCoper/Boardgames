@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Net;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -21,7 +22,9 @@ namespace Boardgames.Wpf.Client
                 throw new Exception("Windows XP SP2 or Server 2003 is required to use the HttpListener class.");
             }
 
-            HttpListener listener = new HttpListener();
+            cancellationToken.ThrowIfCancellationRequested();
+            
+            using HttpListener listener = new HttpListener();
             listener.Prefixes.Add(options.EndUrl);
             listener.Start();
 
@@ -30,8 +33,10 @@ namespace Boardgames.Wpf.Client
                 FileName = options.StartUrl,
                 UseShellExecute = true
             };
+
             Process.Start(psi);
 
+            cancellationToken.ThrowIfCancellationRequested();
             var context = await listener.GetContextAsync();
 
             var result = new BrowserResult
@@ -41,12 +46,22 @@ namespace Boardgames.Wpf.Client
             };
 
             context.Response.StatusCode = (int)HttpStatusCode.OK;
-            await context.Response.OutputStream.WriteAsync(Encoding.UTF8.GetBytes("Return to application"));
-            
+            context.Response.ContentType = "text/html";
+            context.Response.ContentEncoding = Encoding.UTF8;
+
+            var assembly = Assembly.GetExecutingAssembly();
+            var resourceName = "Boardgames.Wpf.Client.Resources.LoginSuccessful.html";
+
+            using (var stream = assembly.GetManifestResourceStream(resourceName))
+            {
+                await stream.CopyToAsync(context.Response.OutputStream);
+                await context.Response.OutputStream.FlushAsync();
+            }
+
             context.Response.Close();
             listener.Stop();
 
-
+            cancellationToken.ThrowIfCancellationRequested();
             return result;
         }
     }

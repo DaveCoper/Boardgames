@@ -7,6 +7,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Resources\LoginSuccessful.html" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\LoginSuccessful.html" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="IdentityModel.OidcClient" Version="3.1.2" />
   </ItemGroup>
 

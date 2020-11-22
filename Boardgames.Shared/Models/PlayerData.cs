@@ -1,4 +1,6 @@
-﻿namespace Boardgames.Shared.Model
+﻿using System;
+
+namespace Boardgames.Shared.Models
 {
     public class PlayerData
     {
@@ -6,6 +8,6 @@
 
         public string Name { get; set; }
 
-        public string Avatar { get; set; }
+        public Uri AvatarUri { get; set; }
     }
 }
