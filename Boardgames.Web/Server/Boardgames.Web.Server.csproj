@@ -12,7 +12,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Client\Boardgames.Web.Client.csproj" />
-    <ProjectReference Include="..\Shared\Boardgames.Web.Shared.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -3,6 +3,8 @@ using System.Linq;
 using System.Security.Claims;
 using Boardgames.Web.Server.Data;
 using Boardgames.Web.Server.Models;
+using IdentityServer4;
+using IdentityServer4.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -52,9 +54,11 @@ namespace Boardgames.Web.Server
             services.AddIdentityServer()
                 .AddApiAuthorization<ApplicationUser, ApplicationDbContext>(options =>
                 {
-                    var identityResource = options.IdentityResources["openid"];
+                    options.Clients.Add(CreateWpfClient());
+
+                    var identityResource = options.IdentityResources[(string)"openid"];
                     var apiResource = options.ApiResources.Single();
-                    
+
                     /*
                     identityResource.UserClaims.Add(nameof(ApplicationUser.UserName));
                     apiResource.UserClaims.Add("name");
@@ -62,18 +66,13 @@ namespace Boardgames.Web.Server
                     identityResource.UserClaims.Add("role");
                     apiResource.UserClaims.Add("role");
                     */
-                    
+
                     identityResource.UserClaims.Add(nameof(ApplicationUser.Avatar));
                     apiResource.UserClaims.Add(nameof(ApplicationUser.Avatar));
                 });
 
-            JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Remove("role");
-
             services.AddAuthentication()
                 .AddIdentityServerJwt();
-
-            services.AddApiAuthorization()
-                .AddAccountClaimsPrincipalFactory<Identity.CustomUserFactory>();
 
             services.AddControllersWithViews();
             services.AddRazorPages();
@@ -105,6 +104,7 @@ namespace Boardgames.Web.Server
             app.UseRouting();
 
             app.UseIdentityServer();
+
             app.UseAuthentication();
             app.UseAuthorization();
 
@@ -114,6 +114,42 @@ namespace Boardgames.Web.Server
                 endpoints.MapControllers();
                 endpoints.MapFallbackToFile("index.html");
             });
+        }
+
+        private static IdentityServer4.Models.Client CreateWpfClient()
+        {
+            var client = new IdentityServer4.Models.Client
+            {
+                ClientId = "Boardgames.Wpf.Client",
+                ClientName = "Wpf Client for boardgames",
+
+                RedirectUris = { "http://127.0.0.1:8080/boardgames/" },
+                //PostLogoutRedirectUris = { "https://notused" },
+               
+                RequireClientSecret = false,
+
+                AllowedGrantTypes = GrantTypes.Code,
+                AllowAccessTokensViaBrowser = true,
+                RequirePkce = true,
+                AllowedScopes =
+                {
+                    IdentityServerConstants.StandardScopes.OpenId,
+                    IdentityServerConstants.StandardScopes.Profile,
+                    IdentityServerConstants.StandardScopes.OfflineAccess,
+                    "Boardgames.Web.ServerAPI"
+                },
+
+                AllowOfflineAccess = true,
+
+                //Access token life time is 7200 seconds (2 hour)
+                AccessTokenLifetime = 7200,
+
+                //Identity token life time is 7200 seconds (2 hour)
+                IdentityTokenLifetime = 7200,
+                RefreshTokenUsage = TokenUsage.ReUse,
+            };
+
+            return client;
         }
     }
 }
