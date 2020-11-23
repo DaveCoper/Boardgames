@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Boardgames.Web.Server.Data.EntityMappings;
 using Boardgames.Web.Server.Models;
 using IdentityServer4.EntityFramework.Entities;
 using IdentityServer4.EntityFramework.Extensions;
@@ -9,6 +10,7 @@ using IdentityServer4.EntityFramework.Options;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using NinthPlanetGameState = Boardgames.NinthPlanet.Models.GameState;
 
 namespace Boardgames.Web.Server.Data
 {
@@ -33,15 +35,19 @@ namespace Boardgames.Web.Server.Data
         /// </summary>
         public DbSet<DeviceFlowCodes> DeviceFlowCodes { get; set; }
 
+        public DbSet<DbGameInfo> Games { get; set; }
+
+        public DbSet<NinthPlanetGameState> NinthPlanetGames { get; set; }
+
         public override int SaveChanges()
         {
             var entries = ChangeTracker
                 .Entries()
-                .Where(e => e.Entity is EntityBase && (e.State == EntityState.Added || e.State == EntityState.Modified));
+                .Where(e => e.Entity is IEntity && (e.State == EntityState.Added || e.State == EntityState.Modified));
 
             foreach (var entityEntry in entries)
             {
-                var entity = (EntityBase)entityEntry.Entity;
+                var entity = (IEntity)entityEntry.Entity;
                 entity.UpdatedAt = DateTime.UtcNow;
 
                 if (entityEntry.State == EntityState.Added)
@@ -59,6 +65,9 @@ namespace Boardgames.Web.Server.Data
         {
             base.OnModelCreating(builder);
             builder.ConfigurePersistedGrantContext(operationalStoreOptions.Value);
+
+            DbGameInfoMapping.MapEntity(builder.Entity<DbGameInfo>());
+            NinthPlanetGameStateMapping.MapEntity(builder.Entity<NinthPlanetGameState>());
         }
     }
 }

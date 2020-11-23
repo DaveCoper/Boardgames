@@ -1,18 +1,22 @@
-using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
 using Boardgames.Web.Server.Data;
+using Boardgames.Web.Server.Hubs;
 using Boardgames.Web.Server.Models;
 using IdentityServer4;
 using IdentityServer4.Models;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 
 namespace Boardgames.Web.Server
 {
@@ -77,6 +81,14 @@ namespace Boardgames.Web.Server
             services.AddControllersWithViews();
             services.AddRazorPages();
 
+            services.AddSignalR();
+            services.AddResponseCompression(opts =>
+            {
+                opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(new[] { "application/octet-stream" });
+            });
+
+            services.TryAddEnumerable(ServiceDescriptor.Singleton<IPostConfigureOptions<JwtBearerOptions>, ConfigureJwtBearerOptions>());
+
             // TODO: Figure out why login page and API have different claims.
             services.Configure<IdentityOptions>(options => options.ClaimsIdentity.UserIdClaimType = "sub");
         }
@@ -112,6 +124,7 @@ namespace Boardgames.Web.Server
             {
                 endpoints.MapRazorPages();
                 endpoints.MapControllers();
+                endpoints.MapHub<GameHub>("/hubs/GameHub");
                 endpoints.MapFallbackToFile("index.html");
             });
         }
@@ -125,7 +138,7 @@ namespace Boardgames.Web.Server
 
                 RedirectUris = { "http://127.0.0.1:8080/boardgames/" },
                 //PostLogoutRedirectUris = { "https://notused" },
-               
+
                 RequireClientSecret = false,
 
                 AllowedGrantTypes = GrantTypes.Code,

@@ -1,16 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using Boardgames.Game.Models;
 
 namespace Boardgames.Web.Server.Models
 {
-    public class EntityBase : IEntity
+    public class DbGameInfo : GameInfo, IEntity
     {
-        public int Id { get; set; }
-
         public DateTime CreatedAt { get; set; }
 
         public DateTime UpdatedAt { get; set; }
+
+        public ApplicationUser Owner { get; set; }
     }
 }

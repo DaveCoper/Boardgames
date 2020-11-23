@@ -1,27 +1,23 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
+using Boardgames.Shared.Brookers;
 using Boardgames.Shared.Caches;
 using Boardgames.Shared.Models;
-
-/*
-using Newtonsoft.Json;
 
 namespace Boardgames.Shared.Services
 {
     public class PlayerDataService : IPlayerDataService
     {
-        private const string controllerUrl = "/api/playerData";
+        private const string controllerName = "PlayerData";
 
-        private readonly HttpClient httpClient;
+        private readonly IWebApiBrooker apiBrooker;
+
         private readonly IPlayerDataCache cache;
 
-        public PlayerDataService(HttpClient httpClient, IPlayerDataCache cache)
+        public PlayerDataService(IWebApiBrooker apiBrooker, IPlayerDataCache cache)
         {
-            this.httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
+            this.apiBrooker = apiBrooker ?? throw new ArgumentNullException(nameof(apiBrooker));
             this.cache = cache ?? throw new ArgumentNullException(nameof(cache));
         }
 
@@ -32,60 +28,54 @@ namespace Boardgames.Shared.Services
                 return playerData;
             }
 
-            using (var result = await httpClient.GetAsync($"{controllerUrl}/{playerId}"))
+            playerData = await apiBrooker.GetAsync<PlayerData>(
+                controllerName: controllerName,
+                actionName: playerId.ToString());
+
+            if (cache.TryAddValue(playerId, playerData))
             {
-                result.EnsureSuccessStatusCode();
-
-                var json = await result.Content.ReadAsStringAsync();
-                playerData = JsonConvert.DeserializeObject<PlayerData>(json);
-                if (cache.TryAddValue(playerId, playerData))
-                {
-                    return playerData;
-                }
-
-                if (cache.TryGetValue(playerId, out playerData))
-                {
-                    return playerData;
-                }
+                return playerData;
             }
 
+            if (cache.TryGetValue(playerId, out playerData))
+            {
+                return playerData;
+            }
             throw new InvalidOperationException("Failed to load player data.");
         }
 
         public async Task<List<PlayerData>> GetPlayerData(IEnumerable<int> playerIds)
         {
-            var idSet = new HashSet<int>();
-            var list = new List<PlayerData>();
+            var idsToLoad = new HashSet<int>();
+            var result = new List<PlayerData>();
 
             foreach (var id in playerIds)
             {
                 if (cache.TryGetValue(id, out var playerData))
                 {
-                    list.Add(playerData);
+                    result.Add(playerData);
                 }
                 else
                 {
-                    idSet.Add(id);
+                    idsToLoad.Add(id);
                 }
             }
 
-            if (idSet.Count > 0)
+            if (idsToLoad.Count > 0)
             {
-                var outJson = JsonConvert.SerializeObject(idSet);
-                using (var content = new StringContent(outJson, Encoding.UTF8, "application/json"))
-                {
-                    using (var result = await httpClient.PostAsync($"{controllerUrl}", content))
-                    {
-                        result.EnsureSuccessStatusCode();
-                        var resultJson = await result.Content.ReadAsStringAsync();
+                var data = await this.apiBrooker.PostAsync<List<PlayerData>, IEnumerable<int>>(
+                    controllerName: controllerName,
+                    content: idsToLoad);
 
-                        list.AddRange(JsonConvert.DeserializeObject<List<PlayerData>>(resultJson));
-                    }
+                foreach (var playerData in data)
+                {
+                    cache.TryAddValue(playerData.Id, playerData);
                 }
+
+                result.AddRange(data);
             }
 
-            return list;
+            return result;
         }
     }
 }
-*/
