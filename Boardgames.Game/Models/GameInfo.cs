@@ -6,6 +6,8 @@
 
         public string Name { get; set; }
 
+        public string GameType { get; set; }
+
         public bool IsPublic { get; set; }
 
         // Owner of the game

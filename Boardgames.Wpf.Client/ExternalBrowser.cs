@@ -54,8 +54,8 @@ namespace Boardgames.Wpf.Client
 
             using (var stream = assembly.GetManifestResourceStream(resourceName))
             {
-                await stream.CopyToAsync(context.Response.OutputStream);
-                await context.Response.OutputStream.FlushAsync();
+                await stream.CopyToAsync(context.Response.OutputStream, cancellationToken);
+                await context.Response.OutputStream.FlushAsync(cancellationToken);
             }
 
             context.Response.Close();

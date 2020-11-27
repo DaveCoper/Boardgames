@@ -1,5 +1,6 @@
 using System.Linq;
 using System.Security.Claims;
+using Boardgames.Shared.Models;
 using Boardgames.Web.Server.Data;
 using Boardgames.Web.Server.Hubs;
 using Boardgames.Web.Server.Models;
@@ -91,6 +92,8 @@ namespace Boardgames.Web.Server
 
             // TODO: Figure out why login page and API have different claims.
             services.Configure<IdentityOptions>(options => options.ClaimsIdentity.UserIdClaimType = "sub");
+
+            RegisterNinthPlanet(services);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -163,6 +166,17 @@ namespace Boardgames.Web.Server
             };
 
             return client;
+        }
+
+        private void RegisterNinthPlanet(IServiceCollection services)
+        {
+            services.AddSingleton<
+                Repositories.IGameCache<NinthPlanet.INinthPlanetServer>,
+                Repositories.DefaultGameCache<NinthPlanet.INinthPlanetServer>>();
+
+            services.AddScoped<
+                Repositories.IGameRepository<NinthPlanet.INinthPlanetServer, NinthPlanetNewGameOptions>,
+                Repositories.NinthPlanetGameRepository>();
         }
     }
 }

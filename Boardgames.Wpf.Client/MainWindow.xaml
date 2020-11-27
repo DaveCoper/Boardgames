@@ -9,7 +9,5 @@
     Width="800"
     Height="450"
     mc:Ignorable="d">
-    <Grid>
-        <Button Content="Login" Click="Button_Click" />
-    </Grid>
+    <Grid />
 </Window>

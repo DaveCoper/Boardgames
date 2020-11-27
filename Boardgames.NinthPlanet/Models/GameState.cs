@@ -7,8 +7,8 @@ namespace Boardgames.NinthPlanet.Models
 {
     public class GameState
     {
-        public GameInfo GameInfo { get; set; }
-
+        public int GameId { get; set; }
+        
         public BoardState BoardState { get; set; }
     }
 }

@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace Boardgames.Web.Server.Repositories
 {
-    public interface IGameRepository<TGameType>
+    public interface IGameRepository<TGameType, TNewGameOptions>
     {
         public Task<TGameType> GetGameAsync(int gameId, CancellationToken cancellationToken);
 
-        public Task<TGameType> CreateGameAsync(CancellationToken cancellationToken);
+        public Task<TGameType> StartNewGameAsync(int ownerId, TNewGameOptions newGameOptions, CancellationToken cancellationToken);
     }
 }

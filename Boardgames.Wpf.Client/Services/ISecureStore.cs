@@ -1,10 +1,9 @@
 ﻿using System.Threading.Tasks;
+using Boardgames.Shared.Services;
 
 namespace Boardgames.Wpf.Client.Services
 {
-    internal interface ISecureStore
+    public interface ISecureStore : IFileStore
     {
-        Task<string> ReadStringAsync(string filePath);
-        Task StoreStringAsync(string data, string filePath);
     }
 }

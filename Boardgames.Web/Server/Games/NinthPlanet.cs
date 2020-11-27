@@ -5,7 +5,7 @@ using Boardgames.NinthPlanet.Models;
 
 namespace Boardgames.Web.Server.Games
 {
-    public class NinthPlanet : IServer
+    public class NinthPlanet : INinthPlanetServer
     {
         public NinthPlanet(GameState gameState)
         {

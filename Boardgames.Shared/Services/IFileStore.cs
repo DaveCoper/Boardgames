@@ -21,5 +21,7 @@ namespace Boardgames.Shared.Services
         Task WriteTextAsync(string path, string data);
 
         Task WriteTextAsync(string path, string data, Encoding encoding);
+
+        Task DeleteAsync(string path);
     }
 }

@@ -3,7 +3,7 @@ using Boardgames.NinthPlanet.Models;
 
 namespace Boardgames.NinthPlanet
 {
-    public interface IServer
+    public interface INinthPlanetServer
     {
         Task<GameState> GetGameStateAsync();
 

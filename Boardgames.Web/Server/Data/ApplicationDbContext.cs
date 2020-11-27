@@ -10,7 +10,6 @@ using IdentityServer4.EntityFramework.Options;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
-using NinthPlanetGameState = Boardgames.NinthPlanet.Models.GameState;
 
 namespace Boardgames.Web.Server.Data
 {
@@ -66,8 +65,8 @@ namespace Boardgames.Web.Server.Data
             base.OnModelCreating(builder);
             builder.ConfigurePersistedGrantContext(operationalStoreOptions.Value);
 
-            DbGameInfoMapping.MapEntity(builder.Entity<DbGameInfo>());
-            NinthPlanetGameStateMapping.MapEntity(builder.Entity<NinthPlanetGameState>());
+            builder.ApplyConfiguration(new DbGameInfoConfiguration());
+            builder.ApplyConfiguration(new NinthPlanetGameStateConfiguration());
         }
     }
 }
