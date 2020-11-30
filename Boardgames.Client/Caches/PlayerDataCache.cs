@@ -7,6 +7,8 @@ namespace Boardgames.Client.Caches
     {
         private readonly ConcurrentDictionary<int, PlayerData> cache = new ConcurrentDictionary<int, PlayerData>();
 
+        public PlayerData CurrentUserData { get; set; }
+
         public bool TryAddValue(int playerId, PlayerData playerData)
         {
             return cache.TryAdd(playerId, playerData);

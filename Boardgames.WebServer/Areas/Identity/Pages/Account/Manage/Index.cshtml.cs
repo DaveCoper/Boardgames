@@ -21,9 +21,6 @@ namespace Boardgames.WebServer.Areas.Identity.Pages.Account.Manage
             _signInManager = signInManager;
         }
 
-        [BindProperty]
-        public string Username { get; set; }
-
         [TempData]
         public string StatusMessage { get; set; }
 
@@ -68,12 +65,23 @@ namespace Boardgames.WebServer.Areas.Identity.Pages.Account.Manage
             }
 
             var userName = await _userManager.GetUserNameAsync(user);
-            if (Username != userName)
+            if (Input.Username != userName)
             {
-                var setUserNameResult = await _userManager.SetUserNameAsync(user, Username);
+                var setUserNameResult = await _userManager.SetUserNameAsync(user, Input.Username);
                 if (!setUserNameResult.Succeeded)
                 {
                     StatusMessage = "Unexpected error when trying to set user name.";
+                    return RedirectToPage();
+                }
+            }
+
+            if(user.Avatar != Input.Avatar)
+            {
+                user.Avatar = Input.Avatar;
+                var updateResult = await _userManager.UpdateAsync(user);
+                if (!updateResult.Succeeded)
+                {
+                    StatusMessage = "Unexpected error when trying to set avatar.";
                     return RedirectToPage();
                 }
             }
@@ -89,10 +97,9 @@ namespace Boardgames.WebServer.Areas.Identity.Pages.Account.Manage
             var phoneNumber = await _userManager.GetPhoneNumberAsync(user);
             var email = await _userManager.GetEmailAsync(user);
 
-            Username = userName;
-
             Input = new InputModel
             {
+                Username = userName,
                 PhoneNumber = phoneNumber,
                 EmailAddress = email,
             };
@@ -107,6 +114,13 @@ namespace Boardgames.WebServer.Areas.Identity.Pages.Account.Manage
             [Phone]
             [Display(Name = "Phone number")]
             public string PhoneNumber { get; set; }
+
+            [Required]
+            [Display(Name = "User name")]
+            public string Username { get; set; }
+
+            [Url]
+            public string Avatar { get; set; }
         }
     }
 }

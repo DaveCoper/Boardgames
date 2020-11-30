@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Net.Http;
 using System.Threading.Tasks;
+using System.Windows.Threading;
 using Boardgames.Client.Brookers;
 using Boardgames.Client.Caches;
 using Boardgames.Client.Services;
 using Boardgames.Client.ViewModels;
-using Boardgames.Common.Models;
 using Boardgames.WpfClient.Brookers;
 using Boardgames.WpfClient.Services;
 using GalaSoft.MvvmLight.Messaging;
@@ -16,9 +16,9 @@ namespace Boardgames.WpfClient.ViewModels
 {
     public class AppContext
     {
-        public AppContext()
+        public AppContext(Dispatcher dispatcher)
         {
-            SetupDiContainer();
+            SetupDiContainer(dispatcher);
         }
 
         public ServiceProvider ServiceProvider { get; private set; }
@@ -27,11 +27,55 @@ namespace Boardgames.WpfClient.ViewModels
 
         public async Task BeforeStart()
         {
-            var booker = ServiceProvider.GetRequiredService<IWebApiBrooker>();
-            await booker.GetAsync<PlayerData>("PlayerData");
+            var playerDataService = ServiceProvider.GetRequiredService<IPlayerDataService>();
+            await playerDataService.GetMyDataAsync();
+
         }
 
-        private static void RegisterServices(ServiceCollection services)
+        private void SetupDiContainer(Dispatcher dispatcher)
+        {
+            var builder = new ConfigurationBuilder();
+            Configuration = builder.Build();
+
+            var serviceCollection = new ServiceCollection();
+            ConfigureServices(serviceCollection, dispatcher);
+
+            ServiceProvider = serviceCollection.BuildServiceProvider();
+        }
+
+        private void ConfigureServices(ServiceCollection services, Dispatcher dispatcher)
+        {
+            services.AddSingleton(dispatcher);
+
+            RegisterWindows(services);
+            RegisterServices(services);
+            RegisterViewModels(services);
+        }
+
+        private void RegisterViewModels(ServiceCollection services)
+        {
+            services.AddTransient<MainWindowViewModel>();
+
+            services.AddTransient<LoginViewModel>();
+            services.AddSingleton<Func<LoginViewModel>>(
+                x => () => x.GetRequiredService<LoginViewModel>());
+
+            services.AddTransient<CreateGameViewModel>();
+            services.AddSingleton<Func<CreateGameViewModel>>(
+                x => () => x.GetRequiredService<CreateGameViewModel>());
+
+            services.AddSingleton<Func<int, NinthPlanet.Models.GameState, NinthPlanetScreenViewModel>>(
+                x => (ownerId, state) =>
+                {
+                    return new NinthPlanetScreenViewModel(
+                        ownerId,
+                        state,
+                        x.GetRequiredService<IPlayerDataService>(),
+                        x.GetRequiredService<IMessenger>());
+                });
+        }
+
+        private void RegisterServices(ServiceCollection services)
         {
             services.AddSingleton<IIconUriProvider, IconUriProvider>();
 
@@ -51,35 +95,10 @@ namespace Boardgames.WpfClient.ViewModels
             services.AddSingleton<IPlayerDataCache, PlayerDataCache>();
         }
 
-        private static void RegisterWindows(ServiceCollection services)
+        private void RegisterWindows(ServiceCollection services)
         {
             services.AddTransient(typeof(MainWindow));
             services.AddTransient(typeof(LoginWindow));
-        }
-
-        private void SetupDiContainer()
-        {
-            var builder = new ConfigurationBuilder();
-            Configuration = builder.Build();
-
-            var serviceCollection = new ServiceCollection();
-            ConfigureServices(serviceCollection);
-
-            ServiceProvider = serviceCollection.BuildServiceProvider();
-        }
-
-        private void ConfigureServices(ServiceCollection services)
-        {
-            RegisterWindows(services);
-            RegisterServices(services);
-
-            services.AddTransient<MainWindowViewModel>();
-
-            services.AddTransient<LoginViewModel>();
-            services.AddSingleton<Func<LoginViewModel>>(x => () => x.GetRequiredService<LoginViewModel>());
-
-            services.AddTransient<CreateGameViewModel>();
-            services.AddSingleton<Func<CreateGameViewModel>>(x => () => x.GetRequiredService<CreateGameViewModel>());
         }
     }
 }

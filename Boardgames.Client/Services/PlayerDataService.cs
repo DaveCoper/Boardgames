@@ -15,8 +15,6 @@ namespace Boardgames.Client.Services
 
         private readonly IPlayerDataCache cache;
 
-        private PlayerData currentPlayerData;
-
         public PlayerDataService(IWebApiBrooker apiBrooker, IPlayerDataCache cache)
         {
             this.apiBrooker = apiBrooker ?? throw new ArgumentNullException(nameof(apiBrooker));
@@ -25,9 +23,9 @@ namespace Boardgames.Client.Services
 
         public async Task<PlayerData> GetMyDataAsync()
         {
-            if (currentPlayerData != null)
+            if (this.cache.CurrentUserData != null)
             {
-                return currentPlayerData;
+                return this.cache.CurrentUserData;
             }
 
             var playerData = await apiBrooker.GetAsync<PlayerData>(
@@ -35,7 +33,7 @@ namespace Boardgames.Client.Services
 
             if (cache.TryAddValue(playerData.Id, playerData))
             {
-                this.currentPlayerData = playerData;
+                this.cache.CurrentUserData = playerData;
                 return playerData;
             }
 
@@ -70,7 +68,7 @@ namespace Boardgames.Client.Services
             throw new InvalidOperationException("Failed to load player data.");
         }
 
-        public async Task<List<PlayerData>> GetPlayerData(IEnumerable<int> playerIds)
+        public async Task<List<PlayerData>> GetPlayerDataAsync(IEnumerable<int> playerIds)
         {
             var idsToLoad = new HashSet<int>();
             var result = new List<PlayerData>();

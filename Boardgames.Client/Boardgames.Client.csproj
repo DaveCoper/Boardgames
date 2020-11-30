@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Boardgames.Common\Boardgames.Common.csproj" />
+    <ProjectReference Include="..\Boardgames.NinthPlanet\Boardgames.NinthPlanet.csproj" />
   </ItemGroup>
 
 </Project>

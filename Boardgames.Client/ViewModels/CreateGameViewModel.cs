@@ -3,18 +3,22 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 using Boardgames.Client.Brookers;
+using Boardgames.Client.Caches;
+using Boardgames.Client.Messages;
 using Boardgames.Client.Models;
 using Boardgames.Client.Services;
+using Boardgames.Common.Messages;
 using Boardgames.Common.Models;
-using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
 using GalaSoft.MvvmLight.Messaging;
 
 namespace Boardgames.Client.ViewModels
 {
-    public class CreateGameViewModel : ViewModelBase
+    public class CreateGameViewModel : ScreenViewModel
     {
         private readonly IWebApiBrooker webApiBrooker;
+
+        private readonly PlayerData playerData;
 
         private ObservableCollection<GameViewModel> availableGames;
 
@@ -22,40 +26,34 @@ namespace Boardgames.Client.ViewModels
 
         private GameViewModel selectedGame;
 
-        private PlayerData playerData;
-
         [Obsolete("Designer use only.", true)]
-        public CreateGameViewModel()
+        public CreateGameViewModel() : base("Create game")
         {
         }
 
         public CreateGameViewModel(
             IIconUriProvider iconUriProvider,
-            IPlayerDataService playerDataService,
+            IPlayerDataCache playerDataCache,
             IWebApiBrooker webApiBrooker,
-            IMessenger messenger) : base(messenger)
+            IMessenger messenger) : base("Create game", messenger)
         {
             if (iconUriProvider is null)
             {
                 throw new ArgumentNullException(nameof(iconUriProvider));
             }
 
-            if (playerDataService is null)
+            if (playerDataCache is null)
             {
-                throw new ArgumentNullException(nameof(playerDataService));
+                throw new ArgumentNullException(nameof(playerDataCache));
             }
 
             this.webApiBrooker = webApiBrooker ?? throw new ArgumentNullException(nameof(webApiBrooker));
 
             this.CreateGameCommand = new RelayCommand(CreateGame);
 
-            playerDataService.GetMyDataAsync()
-                .ContinueWith(
-                    t =>
-                    {
-                        this.playerData = t.Result;
+            this.playerData = playerDataCache.CurrentUserData;
 
-                        this.AvailableGames = new ObservableCollection<GameViewModel>
+            this.AvailableGames = new ObservableCollection<GameViewModel>
                         {
                             new GameViewModel {
                                 Type = GameType.NinthPlanet,
@@ -64,8 +62,6 @@ namespace Boardgames.Client.ViewModels
                                 Icon128x128 =  iconUriProvider.GetIconUri(GameType.NinthPlanet, 128),
                             }
                         };
-                    },
-                    TaskScheduler.FromCurrentSynchronizationContext());
         }
 
         public ObservableCollection<GameViewModel> AvailableGames
@@ -110,9 +106,35 @@ namespace Boardgames.Client.ViewModels
             switch (this.SelectedGame.Type)
             {
                 case GameType.NinthPlanet:
-                    webApiBrooker.PostAsync<object, NinthPlanetNewGameOptions>("NinthPlanet", (NinthPlanetNewGameOptions)GameSettings, "Create");
+                    CreateNinthPlanetGame();
                     break;
             }
+        }
+
+        private void CreateNinthPlanetGame()
+        {
+            var controllerName = GameType.NinthPlanet.ToString();
+            var task = webApiBrooker.PostAsync<NinthPlanet.Models.GameState, NinthPlanetNewGameOptions>(
+                controllerName,
+                (NinthPlanetNewGameOptions)GameSettings,
+                "Create");
+
+            task.ContinueWith(t =>
+            {
+                if (t.Status == TaskStatus.RanToCompletion)
+                {
+                    var result = t.Result;
+                    var message = new OpenGame
+                    {
+                        GameId = result.GameId,
+                        GameType = GameType.NinthPlanet,
+                        GameState = result,
+                    };
+
+                    this.MessengerInstance.Send(new SubscribeToGameMessages { GameId = result.GameId });
+                    this.MessengerInstance.Send(message);
+                }
+            }, TaskScheduler.FromCurrentSynchronizationContext());
         }
 
         private void OnAvailableGamesChanged()

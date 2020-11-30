@@ -4,14 +4,12 @@ using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
-using System.Runtime.Serialization;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
 using Boardgames.Client.Brookers;
 using Boardgames.WpfClient.Services;
-
 
 namespace Boardgames.WpfClient.Brookers
 {
@@ -24,7 +22,7 @@ namespace Boardgames.WpfClient.Brookers
         public WebApiBrooker(HttpClient client, IAccessTokenProvider accessTokenProvider)
         {
             this.client = client ?? throw new ArgumentNullException(nameof(client));
-            this.accessTokenProvider = accessTokenProvider ?? throw new ArgumentNullException(nameof(accessTokenProvider));                       
+            this.accessTokenProvider = accessTokenProvider ?? throw new ArgumentNullException(nameof(accessTokenProvider));
         }
 
         public Uri BaseAddress { get; private set; } = new Uri("https://localhost:44399/");

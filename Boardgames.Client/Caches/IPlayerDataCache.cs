@@ -7,5 +7,7 @@ namespace Boardgames.Client.Caches
         bool TryGetValue(int playerId, out PlayerData playerData);
 
         bool TryAddValue(int playerId, PlayerData playerData);
+
+        PlayerData CurrentUserData { get; set; }
     }
 }

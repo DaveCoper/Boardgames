@@ -1,46 +1,58 @@
 ﻿using System;
 using System.Collections.ObjectModel;
-using System.Threading.Tasks;
-using Boardgames.Client.Services;
+using Boardgames.Client.Caches;
+using Boardgames.Client.Messages;
 using Boardgames.Client.ViewModels;
+using Boardgames.Common.Models;
+using Boardgames.NinthPlanet.Models;
 using GalaSoft.MvvmLight;
-using GalaSoft.MvvmLight.Command;
+using GalaSoft.MvvmLight.Messaging;
 
 namespace Boardgames.WpfClient.ViewModels
 {
-    public class MainWindowViewModel : ViewModelBase, IAsyncLoad
+    public class MainWindowViewModel : ViewModelBase
     {
-        private readonly IPlayerDataService playerDataService;
-
+        private readonly Func<int, GameState, NinthPlanetScreenViewModel> ninthPlanetScreenFactory;
         private PlayerDataViewModel userInfo;
 
-        private object content;
+        private ScreenViewModel selectedScreen;
 
         [Obsolete("Designer use only", true)]
-        public MainWindowViewModel()
+        public MainWindowViewModel() : base()
         {
-            this.MenuButtons = new ObservableCollection<MenuButtonViewModel>
+            this.AvailableScreens = new ObservableCollection<ScreenViewModel>
             {
-                new MenuButtonViewModel("Join game", new RelayCommand(() => { }, true)),
-                new MenuButtonViewModel("Create game", new RelayCommand(() => { }, true)),
+                new ScreenViewModel("Join game"),
+                new ScreenViewModel("Create game"),
             };
+
+            this.UserInfo = new PlayerDataViewModel(new PlayerData { 
+                Id = 10, 
+                Name = "Player", 
+                AvatarUri = new Uri("pack://application:,,,/Boardgames.WpfClient;component/Resources/Images/NinthPlanet128x128.png") });
         }
 
         public MainWindowViewModel(
-            Func<CreateGameViewModel> createGameVmFactory,
-            IPlayerDataService playerDataService)
+            CreateGameViewModel createGameViewModel,
+            Func<int, GameState, NinthPlanetScreenViewModel> ninthPlanetScreenFactory,
+            IPlayerDataCache playerDataCache,
+            IMessenger messenger) : base(messenger)
         {
-            if (createGameVmFactory is null)
+            if (createGameViewModel is null)
             {
-                throw new ArgumentNullException(nameof(createGameVmFactory));
+                throw new ArgumentNullException(nameof(createGameViewModel));
             }
 
-            this.playerDataService = playerDataService ?? throw new ArgumentNullException(nameof(playerDataService));
-            this.MenuButtons = new ObservableCollection<MenuButtonViewModel>
+            this.AvailableScreens = new ObservableCollection<ScreenViewModel>
             {
-                new MenuButtonViewModel("Join game", new RelayCommand(() => { }, true)),
-                new MenuButtonViewModel("Create game", new RelayCommand(() => this.Content = createGameVmFactory(), true)),
+                new ScreenViewModel("Join game"),
+                createGameViewModel,
             };
+
+            this.UserInfo = new PlayerDataViewModel(playerDataCache.CurrentUserData);            
+            this.ninthPlanetScreenFactory = ninthPlanetScreenFactory ?? throw new ArgumentNullException(nameof(ninthPlanetScreenFactory));
+            
+            messenger.Register<OpenGame>(this, OnOpenGameReceived);
         }
 
         public PlayerDataViewModel UserInfo
@@ -49,18 +61,31 @@ namespace Boardgames.WpfClient.ViewModels
             set => Set(ref userInfo, value);
         }
 
-        public ObservableCollection<MenuButtonViewModel> MenuButtons { get; set; }
+        public ObservableCollection<ScreenViewModel> AvailableScreens { get; set; }
 
-        public object Content
+        public ScreenViewModel SelectedScreen
         {
-            get => content;
-            set => Set(ref content, value);
+            get => selectedScreen;
+            set => Set(ref selectedScreen, value);
         }
 
-        public async Task LoadDataAsync()
+        private void OnOpenGameReceived(OpenGame message)
         {
-            var playerData = await playerDataService.GetMyDataAsync();
-            this.UserInfo = new PlayerDataViewModel(playerData);
+            ScreenViewModel newScreen;
+            switch (message.GameType)
+            {
+                case GameType.NinthPlanet:
+                    newScreen = ninthPlanetScreenFactory(
+                        message.GameOwnerId,
+                        (GameState)message.GameState);
+                    break;
+
+                default:
+                    throw new NotImplementedException();
+            }
+
+            this.AvailableScreens.Add(newScreen);
+            this.SelectedScreen = newScreen;
         }
     }
 }

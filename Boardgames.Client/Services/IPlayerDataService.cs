@@ -6,7 +6,7 @@ namespace Boardgames.Client.Services
 {
     public interface IPlayerDataService
     {
-        Task<List<PlayerData>> GetPlayerData(IEnumerable<int> playerIds);
+        Task<List<PlayerData>> GetPlayerDataAsync(IEnumerable<int> playerIds);
 
         Task<PlayerData> GetPlayerData(int playerId);
 

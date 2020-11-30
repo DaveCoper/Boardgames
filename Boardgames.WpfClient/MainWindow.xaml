@@ -17,10 +17,11 @@
     <Grid Margin="0,-2,0,2">
         <Grid.RowDefinitions>
             <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="126" />
+            <ColumnDefinition Width="auto" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
 
@@ -29,9 +30,17 @@
             Panel.ZIndex="1"
             Fill="WhiteSmoke" />
 
+        <Separator
+            Grid.Row="1"
+            Grid.ColumnSpan="2"
+            Height="0.4"
+            Margin="0"
+            Panel.ZIndex="2"
+            SnapsToDevicePixels="True" />
+
         <Rectangle
             Grid.Row="0"
-            Grid.RowSpan="2"
+            Grid.RowSpan="3"
             Grid.Column="0"
             HorizontalAlignment="Stretch"
             VerticalAlignment="Stretch"
@@ -53,32 +62,52 @@
             Fill="#66000000" />
 
         <ContentControl
-            Grid.Row="1"
+            Grid.Row="2"
             Grid.Column="1"
             Panel.ZIndex="3"
-            Content="{Binding Content}">
+            Content="{Binding SelectedScreen}">
             <ContentControl.Resources>
                 <DataTemplate DataType="{x:Type svm:CreateGameViewModel}">
                     <components:CreateGameControl />
                 </DataTemplate>
+                <DataTemplate DataType="{x:Type svm:NinthPlanetScreenViewModel}">
+                    <components:NinthPlanet IsEnabled="{Binding IsNotBussy}" />
+                </DataTemplate>
             </ContentControl.Resources>
         </ContentControl>
-        <ItemsControl
-            Grid.Row="1"
+        <ListBox
+            Grid.Row="2"
             Grid.Column="0"
             Margin="2"
             Panel.ZIndex="4"
-            ItemsSource="{Binding MenuButtons}">
-            <ItemsControl.ItemTemplate>
+            Background="Transparent"
+            BorderBrush="Transparent"
+            BorderThickness="0"
+            ItemsSource="{Binding AvailableScreens}"
+            SelectedItem="{Binding SelectedScreen}"
+            SelectionMode="Single">
+            <ListBox.ItemContainerStyle>
+                <Style TargetType="ListBoxItem">
+                    <Setter Property="Margin" Value="0" />
+                    <Setter Property="Padding" Value="0" />
+                    <Setter Property="BorderThickness" Value="0.5" />
+                    <Setter Property="VerticalContentAlignment" Value="Stretch" />
+                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                </Style>
+            </ListBox.ItemContainerStyle>
+            <ListBox.ItemTemplate>
                 <DataTemplate>
-                    <Button
-                        Margin="2"
-                        Padding="6"
-                        Command="{Binding Command}"
-                        Content="{Binding Label}" />
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock
+                            Margin="6,3"
+                            HorizontalAlignment="Left"
+                            VerticalAlignment="Center"
+                            Foreground="White"
+                            Text="{Binding Label}" />
+                    </StackPanel>
                 </DataTemplate>
-            </ItemsControl.ItemTemplate>
-        </ItemsControl>
+            </ListBox.ItemTemplate>
+        </ListBox>
         <StackPanel
             Grid.Column="1"
             Margin="6"
@@ -87,7 +116,11 @@
             Panel.ZIndex="4"
             DataContext="{Binding UserInfo}"
             Orientation="Horizontal">
-            <Border BorderBrush="Gray" BorderThickness="1">
+            <Border
+                BorderBrush="Gray"
+                BorderThickness="0.5"
+                CornerRadius="3"
+                SnapsToDevicePixels="True">
                 <Image
                     Width="32"
                     Height="32"
@@ -97,6 +130,7 @@
             <TextBlock
                 Margin="2"
                 VerticalAlignment="Center"
+                Style="{StaticResource FormHeaderStyle}"
                 Text="{Binding Name}" />
         </StackPanel>
     </Grid>
