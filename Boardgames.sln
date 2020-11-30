@@ -3,17 +3,17 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30711.63
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Boardgames.Wpf.Client", "Boardgames.Wpf.Client\Boardgames.Wpf.Client.csproj", "{CCF03ACD-7744-44A2-A7B8-D17DE44D5A4C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Boardgames.WpfClient", "Boardgames.WpfClient\Boardgames.WpfClient.csproj", "{CCF03ACD-7744-44A2-A7B8-D17DE44D5A4C}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Boardgames.Web.Server", "Boardgames.Web\Server\Boardgames.Web.Server.csproj", "{3F6EB30A-D2F9-4127-ADA3-E13A11A387B0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Boardgames.WebServer", "Boardgames.WebServer\Boardgames.WebServer.csproj", "{3F6EB30A-D2F9-4127-ADA3-E13A11A387B0}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Boardgames.Web.Client", "Boardgames.Web\Client\Boardgames.Web.Client.csproj", "{6002B2EC-FBA8-4CB7-B1CF-AC3453ABF263}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Boardgames.BlazorClient", "Boardgames.BlazorClient\Boardgames.BlazorClient.csproj", "{6002B2EC-FBA8-4CB7-B1CF-AC3453ABF263}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Boardgames.Shared", "Boardgames.Shared\Boardgames.Shared.csproj", "{39CE0308-2111-4CD8-B8AC-55DDF9C7FAE5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Boardgames.Client", "Boardgames.Client\Boardgames.Client.csproj", "{39CE0308-2111-4CD8-B8AC-55DDF9C7FAE5}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Boardgames.NinthPlanet", "Boardgames.NinthPlanet\Boardgames.NinthPlanet.csproj", "{7BF3BD83-F16A-4C25-B612-5B203DC9CB27}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Boardgames.Game", "Boardgames.Game\Boardgames.Game.csproj", "{C55933D7-C47B-4A3D-897A-80E70C429D31}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Boardgames.Common", "Boardgames.Common\Boardgames.Common.csproj", "{C55933D7-C47B-4A3D-897A-80E70C429D31}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

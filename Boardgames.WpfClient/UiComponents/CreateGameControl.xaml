@@ -1,0 +1,90 @@
+﻿<UserControl
+    x:Class="Boardgames.WpfClient.UiComponents.CreateGameControl"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:Boardgames.WpfClient.UiComponents"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:model="clr-namespace:Boardgames.Client.Models;assembly=Boardgames.Client"
+    xmlns:vm="clr-namespace:Boardgames.Client.ViewModels;assembly=Boardgames.Client"
+    d:DataContext="{d:DesignInstance Type=vm:CreateGameViewModel,
+                                     IsDesignTimeCreatable=True}"
+    d:DesignHeight="450"
+    d:DesignWidth="800"
+    mc:Ignorable="d">
+    <StackPanel>
+        <TextBlock Style="{StaticResource FormHeaderStyle}" Text="Choose game:" />
+        <ComboBox
+            Grid.Column="1"
+            ItemsSource="{Binding AvailableGames}"
+            SelectedItem="{Binding SelectedGame}"
+            Style="{StaticResource FormComboboxStyle}">
+            <ComboBox.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel Orientation="Horizontal">
+                        <Image
+                            Width="32"
+                            Height="32"
+                            Source="{Binding Icon32x32}" />
+                        <TextBlock VerticalAlignment="Center" Text="{Binding Name}" />
+                    </StackPanel>
+                </DataTemplate>
+            </ComboBox.ItemTemplate>
+        </ComboBox>
+        <TextBlock
+            Margin="2,6,2,2"
+            Style="{StaticResource FormHeaderStyle}"
+            Text="Game settings:" />
+        <ContentControl Content="{Binding GameSettings}">
+            <ContentControl.Resources>
+                <DataTemplate DataType="{x:Type model:NinthPlanetNewGameOptions}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="auto" />
+                            <RowDefinition Height="auto" />
+                            <RowDefinition Height="auto" />
+                        </Grid.RowDefinitions>
+                        <TextBlock
+                            Grid.Row="0"
+                            Grid.Column="0"
+                            Style="{StaticResource FormEntryStyle}"
+                            Text="Game name:" />
+                        <TextBox
+                            Grid.Row="0"
+                            Grid.Column="1"
+                            Text="{Binding Name}" />
+                        <TextBlock
+                            Grid.Row="1"
+                            Grid.Column="0"
+                            Style="{StaticResource FormEntryStyle}"
+                            Text="Number of players:" />
+                        <Slider
+                            Grid.Row="1"
+                            Grid.Column="1"
+                            Maximum="5"
+                            Minimum="2"
+                            Value="{Binding MaxNumberOfPlayers}" />
+
+                        <TextBlock Grid.Row="2" Text="Game is public:" />
+                        <CheckBox
+                            Grid.Row="2"
+                            Grid.Column="1"
+                            IsChecked="{Binding IsPublic}" />
+                    </Grid>
+                </DataTemplate>
+            </ContentControl.Resources>
+        </ContentControl>
+        <Button
+            Grid.Row="2"
+            Grid.Column="1"
+            Margin="2,6,2,2"
+            HorizontalAlignment="Right"
+            VerticalAlignment="Center"
+            Command="{Binding CreateGameCommand}"
+            Content="Start new game" />
+    </StackPanel>
+</UserControl>

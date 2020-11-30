@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using Boardgames.Game.Models;
+using Boardgames.Common.Models;
 
 namespace Boardgames.NinthPlanet.Models
 {
