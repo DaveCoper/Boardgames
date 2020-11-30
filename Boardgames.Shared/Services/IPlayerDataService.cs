@@ -9,5 +9,7 @@ namespace Boardgames.Shared.Services
         Task<List<PlayerData>> GetPlayerData(IEnumerable<int> playerIds);
 
         Task<PlayerData> GetPlayerData(int playerId);
+
+        Task<PlayerData> GetMyDataAsync();
     }
 }

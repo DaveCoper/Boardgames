@@ -25,11 +25,14 @@ namespace Boardgames.Wpf.Client.ViewModels
         {
             if (!this.IsInDesignMode)
                 throw new Exception();
+
+            this.SetLoginProgress(false);
         }
 
         public LoginViewModel(IUserDataStore userDataStore)
         {
             this.userDataStore = userDataStore ?? throw new ArgumentNullException(nameof(userDataStore));
+            this.SetLoginProgress(false);
         }
 
         public bool ShowLoginButton

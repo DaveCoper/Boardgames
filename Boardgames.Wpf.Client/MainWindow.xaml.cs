@@ -1,12 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Windows;
-using Boardgames.Web.Shared;
-using IdentityModel.OidcClient;
-using Newtonsoft.Json;
+﻿using System.Windows;
+using Boardgames.Wpf.Client.ViewModels;
 
 namespace Boardgames.Wpf.Client
 {
@@ -18,6 +11,23 @@ namespace Boardgames.Wpf.Client
         public MainWindow()
         {
             InitializeComponent();
+            this.Loaded += OnLoaded;
+        }
+
+        private async void OnLoaded(object sender, RoutedEventArgs e)
+        {
+            this.IsEnabled = false;
+            try
+            {
+                if (DataContext is IAsyncLoad asyncLoad)
+                {
+                    await asyncLoad.LoadDataAsync();
+                }
+            }
+            finally
+            {
+                this.IsEnabled = true;
+            }
         }
     }
 }

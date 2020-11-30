@@ -8,7 +8,7 @@ using Boardgames.Web.Server.Repositories.Exceptions;
 
 namespace Boardgames.Web.Server.Repositories
 {
-    public class NinthPlanetGameRepository : IGameRepository<INinthPlanetServer, NinthPlanetNewGameOptions>
+    public class NinthPlanetGameRepository : INinthPlanetGameRepository
     {
         private const string GameType = "NinthPlanet";
 
@@ -73,7 +73,10 @@ namespace Boardgames.Web.Server.Repositories
                 if (this.gameCache.TryGetGame(gameId, out game))
                     return game;
 
-                var gameState = await dbContext.NinthPlanetGames.FindAsync(gameId, cancellationToken);
+                var gameState = await dbContext.NinthPlanetGames.FindAsync(
+                    new object[] { gameId }, 
+                    cancellationToken);
+
                 if (gameState == null)
                     throw new GameNotFoundException(gameId);
 
@@ -87,7 +90,7 @@ namespace Boardgames.Web.Server.Repositories
 
         private INinthPlanetServer StartGameFromState(NinthPlanetGameState gameState)
         {
-            var game = new Games.NinthPlanet(gameState);
+            var game = new Games.NinthPlanet(gameState.GameInfo.Id, gameState);
             this.gameCache.TryAddGame(gameState.GameId, game);
             return game;
         }

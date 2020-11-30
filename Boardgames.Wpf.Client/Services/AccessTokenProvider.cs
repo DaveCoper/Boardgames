@@ -30,7 +30,7 @@ namespace Boardgames.Wpf.Client.Services
                 return tokens.AccessToken;
             }
 
-            await semaphoreSlim.WaitAsync();
+            await semaphoreSlim.WaitAsync(cancellationToken);
             try
             {
                 // try again to handle cases when 2 requests missed
@@ -46,7 +46,7 @@ namespace Boardgames.Wpf.Client.Services
                 }
                 else
                 {
-                    if(await dialogService.ShowDialogAsync(vm) != true)
+                    if(await dialogService.ShowDialogAsync(vm, cancellationToken) != true)
                     {
                         throw new NotImplementedException();
                     }

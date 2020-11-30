@@ -2,10 +2,14 @@
 using System.Net.Http;
 using System.Threading.Tasks;
 using Boardgames.Shared.Brookers;
+using Boardgames.Shared.Caches;
+using Boardgames.Shared.Models;
 using Boardgames.Shared.Services;
+using Boardgames.Shared.ViewModels;
 using Boardgames.Web.Shared;
 using Boardgames.Wpf.Client.Brookers;
 using Boardgames.Wpf.Client.Services;
+using GalaSoft.MvvmLight.Messaging;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -13,6 +17,8 @@ namespace Boardgames.Wpf.Client.ViewModels
 {
     public class AppContext
     {
+        private PlayerData loggedUser;
+
         public AppContext()
         {
             SetupDiContainer();
@@ -25,18 +31,28 @@ namespace Boardgames.Wpf.Client.ViewModels
         public async Task BeforeStart()
         {
             var booker = ServiceProvider.GetRequiredService<IWebApiBrooker>();
-            var weather = await booker.GetAsync<WeatherForecast[]>("WeatherForecast");
+            loggedUser = await booker.GetAsync<PlayerData>("PlayerData");
         }
 
         private static void RegisterServices(ServiceCollection services)
         {
-            services.AddSingleton<IAccessTokenProvider, AccessTokenProvider>();
-            services.AddSingleton<ISecureStore, SecureStore>();
-            services.AddSingleton<IUserDataStore, UserDataStore>();
-            services.AddSingleton<IWebApiBrooker, WebApiBrooker>();
+            services.AddSingleton<IIconUriProvider, IconUriProvider>();
+
             services.AddSingleton<IFileStore, WpfFileStore>();
             services.AddSingleton<IDialogService, DialogService>();
+
+            services.AddSingleton<IMessenger, Messenger>();
+
+            services.AddSingleton<ISecureStore, SecureStore>();
+            services.AddSingleton<IUserDataStore, UserDataStore>();
+
             services.AddSingleton<HttpClient, HttpClient>();
+            services.AddSingleton<IAccessTokenProvider, AccessTokenProvider>();                       
+            services.AddSingleton<IWebApiBrooker, WebApiBrooker>();
+
+            services.AddSingleton<IPlayerDataService, PlayerDataService>();
+            services.AddSingleton<IPlayerDataCache, PlayerDataCache>();
+            
         }
 
         private static void RegisterWindows(ServiceCollection services)
@@ -61,8 +77,13 @@ namespace Boardgames.Wpf.Client.ViewModels
             RegisterWindows(services);
             RegisterServices(services);
 
+            services.AddTransient<MainWindowViewModel>();
+            
             services.AddTransient<LoginViewModel>();
             services.AddSingleton<Func<LoginViewModel>>(x => () => x.GetRequiredService<LoginViewModel>());
+
+            services.AddTransient<CreateGameViewModel>();
+            services.AddSingleton<Func<CreateGameViewModel>>(x => () => x.GetRequiredService<CreateGameViewModel>());            
         }
     }
 }

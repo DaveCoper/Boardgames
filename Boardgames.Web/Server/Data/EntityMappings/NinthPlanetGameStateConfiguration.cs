@@ -23,6 +23,9 @@ namespace Boardgames.Web.Server.Data.EntityMappings
 
             gameStateBuilder
                 .Ignore(x => x.BoardState);
+
+            gameStateBuilder
+                .Ignore(x => x.LobbyState);
         }
     }
 }

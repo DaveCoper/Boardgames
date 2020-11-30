@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Boardgames.Web.Server.Data.EntityMappings;
 using Boardgames.Web.Server.Models;
@@ -40,22 +41,14 @@ namespace Boardgames.Web.Server.Data
 
         public override int SaveChanges()
         {
-            var entries = ChangeTracker
-                .Entries()
-                .Where(e => e.Entity is IEntity && (e.State == EntityState.Added || e.State == EntityState.Modified));
-
-            foreach (var entityEntry in entries)
-            {
-                var entity = (IEntity)entityEntry.Entity;
-                entity.UpdatedAt = DateTime.UtcNow;
-
-                if (entityEntry.State == EntityState.Added)
-                {
-                    entity.CreatedAt = DateTime.UtcNow;
-                }
-            }
-
+            this.UpdateEntityTrackers();
             return base.SaveChanges();
+        }
+
+        public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        {
+            this.UpdateEntityTrackers();
+            return await base.SaveChangesAsync(cancellationToken);
         }
 
         Task<int> IPersistedGrantDbContext.SaveChangesAsync() => base.SaveChangesAsync();
@@ -67,6 +60,24 @@ namespace Boardgames.Web.Server.Data
 
             builder.ApplyConfiguration(new DbGameInfoConfiguration());
             builder.ApplyConfiguration(new NinthPlanetGameStateConfiguration());
+        }
+
+        private void UpdateEntityTrackers()
+        {
+            var entries = ChangeTracker
+                            .Entries()
+                            .Where(e => e.Entity is IEntity && (e.State == EntityState.Added || e.State == EntityState.Modified));
+
+            foreach (var entityEntry in entries)
+            {
+                var entity = (IEntity)entityEntry.Entity;
+                entity.UpdatedAt = DateTime.UtcNow;
+
+                if (entityEntry.State == EntityState.Added)
+                {
+                    entity.CreatedAt = DateTime.UtcNow;
+                }
+            }
         }
     }
 }

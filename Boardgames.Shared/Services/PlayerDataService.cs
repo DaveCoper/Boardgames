@@ -15,10 +15,36 @@ namespace Boardgames.Shared.Services
 
         private readonly IPlayerDataCache cache;
 
+        private PlayerData currentPlayerData;
+
         public PlayerDataService(IWebApiBrooker apiBrooker, IPlayerDataCache cache)
         {
             this.apiBrooker = apiBrooker ?? throw new ArgumentNullException(nameof(apiBrooker));
             this.cache = cache ?? throw new ArgumentNullException(nameof(cache));
+        }
+
+        public async Task<PlayerData> GetMyDataAsync()
+        {
+            if (currentPlayerData != null)
+            {
+                return currentPlayerData;
+            }
+
+            var playerData = await apiBrooker.GetAsync<PlayerData>(
+                controllerName: controllerName);
+
+            if (cache.TryAddValue(playerData.Id, playerData))
+            {
+                this.currentPlayerData = playerData;
+                return playerData;
+            }
+
+            if (cache.TryGetValue(playerData.Id, out playerData))
+            {
+                return playerData;
+            }
+
+            throw new InvalidOperationException("Failed to load player data.");
         }
 
         public async Task<PlayerData> GetPlayerData(int playerId)

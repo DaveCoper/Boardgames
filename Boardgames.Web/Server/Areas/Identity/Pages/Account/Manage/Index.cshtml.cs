@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
+﻿using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 using Boardgames.Web.Server.Models;
 using Microsoft.AspNetCore.Identity;
@@ -13,6 +10,7 @@ namespace Boardgames.Web.Server.Areas.Identity.Pages.Account.Manage
     public partial class IndexModel : PageModel
     {
         private readonly UserManager<ApplicationUser> _userManager;
+
         private readonly SignInManager<ApplicationUser> _signInManager;
 
         public IndexModel(
@@ -23,6 +21,7 @@ namespace Boardgames.Web.Server.Areas.Identity.Pages.Account.Manage
             _signInManager = signInManager;
         }
 
+        [BindProperty]
         public string Username { get; set; }
 
         [TempData]
@@ -30,26 +29,6 @@ namespace Boardgames.Web.Server.Areas.Identity.Pages.Account.Manage
 
         [BindProperty]
         public InputModel Input { get; set; }
-
-        public class InputModel
-        {
-            [Phone]
-            [Display(Name = "Phone number")]
-            public string PhoneNumber { get; set; }
-        }
-
-        private async Task LoadAsync(ApplicationUser user)
-        {
-            var userName = await _userManager.GetUserNameAsync(user);
-            var phoneNumber = await _userManager.GetPhoneNumberAsync(user);
-
-            Username = userName;
-
-            Input = new InputModel
-            {
-                PhoneNumber = phoneNumber
-            };
-        }
 
         public async Task<IActionResult> OnGetAsync()
         {
@@ -88,9 +67,46 @@ namespace Boardgames.Web.Server.Areas.Identity.Pages.Account.Manage
                 }
             }
 
+            var userName = await _userManager.GetUserNameAsync(user);
+            if (Username != userName)
+            {
+                var setUserNameResult = await _userManager.SetUserNameAsync(user, Username);
+                if (!setUserNameResult.Succeeded)
+                {
+                    StatusMessage = "Unexpected error when trying to set user name.";
+                    return RedirectToPage();
+                }
+            }
+
             await _signInManager.RefreshSignInAsync(user);
             StatusMessage = "Your profile has been updated";
             return RedirectToPage();
+        }
+
+        private async Task LoadAsync(ApplicationUser user)
+        {
+            var userName = await _userManager.GetUserNameAsync(user);
+            var phoneNumber = await _userManager.GetPhoneNumberAsync(user);
+            var email = await _userManager.GetEmailAsync(user);
+
+            Username = userName;
+
+            Input = new InputModel
+            {
+                PhoneNumber = phoneNumber,
+                EmailAddress = email,
+            };
+        }
+
+        public class InputModel
+        {
+            [EmailAddress]
+            [Display(Name = "Email address")]
+            public string EmailAddress { get; set; }
+
+            [Phone]
+            [Display(Name = "Phone number")]
+            public string PhoneNumber { get; set; }
         }
     }
 }

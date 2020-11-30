@@ -1,11 +1,13 @@
 ﻿using System;
+using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
-using Boardgames.NinthPlanet;
 using Boardgames.NinthPlanet.Models;
 using Boardgames.Shared.Models;
+using Boardgames.Web.Server.Models;
 using Boardgames.Web.Server.Repositories;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Boardgames.Web.Server.Controllers
@@ -13,13 +15,34 @@ namespace Boardgames.Web.Server.Controllers
     [Authorize]
     [ApiController]
     [Route("[controller]")]
-    public class NinthPlanetController
+    public class NinthPlanetController : ControllerBase
     {
-        private readonly IGameRepository<INinthPlanetServer, NinthPlanetNewGameOptions> gameRepository;
+        private readonly INinthPlanetGameRepository gameRepository;
 
-        public NinthPlanetController(IGameRepository<INinthPlanetServer, NinthPlanetNewGameOptions> gameRepository)
+        private readonly UserManager<ApplicationUser> userManager;
+
+        public NinthPlanetController(
+            INinthPlanetGameRepository gameRepository,
+            UserManager<ApplicationUser> userManager)
         {
             this.gameRepository = gameRepository ?? throw new ArgumentNullException(nameof(gameRepository));
+            this.userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
+        }
+
+        [HttpPost("Create")]
+        public async Task<GameState> CreateGameAsync(
+            [FromBody] NinthPlanetNewGameOptions gameOptions,
+            CancellationToken cancellationToken)
+        {
+            //var claimUserId = userManager.GetUserId(this.User);
+            var claimUserId = this.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (!int.TryParse(claimUserId, out int userId))
+            {
+                throw new NotImplementedException("Something is wrong with authentication");
+            }
+
+            var game = await gameRepository.StartNewGameAsync(userId, gameOptions, cancellationToken);
+            return await game.GetGameStateAsync();
         }
 
         [HttpPost("{gameId}/Help")]

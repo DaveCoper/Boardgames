@@ -7,7 +7,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Resources\Images\NinthPlanet128x128.png" />
+    <None Remove="Resources\Images\NinthPlanet32x32.png" />
     <None Remove="Resources\LoginSuccessful.html" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Resources\Images\NinthPlanet128x128.png" />
+    <Resource Include="Resources\Images\NinthPlanet32x32.png" />
   </ItemGroup>
 
   <ItemGroup>
@@ -17,6 +24,7 @@
   <ItemGroup>
     <PackageReference Include="IdentityModel.OidcClient" Version="3.1.2" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="5.0.0" />
   </ItemGroup>
 
   <ItemGroup>

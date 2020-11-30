@@ -69,11 +69,11 @@ namespace Boardgames.Wpf.Client.Brookers
             Uri uri;
             if (string.IsNullOrEmpty(actionName))
             {
-                uri = new Uri(client.BaseAddress, controllerName);
+                uri = new Uri(this.BaseAddress, controllerName);
             }
             else
             {
-                uri = new Uri(client.BaseAddress, $"{controllerName}/{actionName}");
+                uri = new Uri(this.BaseAddress, $"{controllerName}/{actionName}");
             }
 
             var accessToken = await accessTokenProvider.GetAccessTokenAsync(cancellationToken);

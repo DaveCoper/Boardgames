@@ -5,6 +5,7 @@ using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using Boardgames.Wpf.Client.ViewModels;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Boardgames.Wpf.Client
@@ -23,7 +24,9 @@ namespace Boardgames.Wpf.Client
             await context.BeforeStart();
 
             this.MainWindow = context.ServiceProvider.GetRequiredService<MainWindow>();
+            this.MainWindow.DataContext = context.ServiceProvider.GetRequiredService<MainWindowViewModel>();
             this.MainWindow.Show();
+            
             this.ShutdownMode = ShutdownMode.OnMainWindowClose;
         }
     }

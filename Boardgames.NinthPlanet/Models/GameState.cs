@@ -10,5 +10,7 @@ namespace Boardgames.NinthPlanet.Models
         public int GameId { get; set; }
         
         public BoardState BoardState { get; set; }
+
+        public LobbyState LobbyState { get; set; }
     }
 }

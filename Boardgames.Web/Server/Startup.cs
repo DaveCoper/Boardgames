@@ -76,6 +76,8 @@ namespace Boardgames.Web.Server
                     apiResource.UserClaims.Add(nameof(ApplicationUser.Avatar));
                 });
 
+             services.AddScoped<IUserClaimsPrincipalFactory<ApplicationUser>, AdditionalUserClaimsPrincipalFactory>();
+
             services.AddAuthentication()
                 .AddIdentityServerJwt();
 
@@ -91,7 +93,7 @@ namespace Boardgames.Web.Server
             services.TryAddEnumerable(ServiceDescriptor.Singleton<IPostConfigureOptions<JwtBearerOptions>, ConfigureJwtBearerOptions>());
 
             // TODO: Figure out why login page and API have different claims.
-            services.Configure<IdentityOptions>(options => options.ClaimsIdentity.UserIdClaimType = "sub");
+            services.Configure<IdentityOptions>(options => options.ClaimsIdentity.UserIdClaimType = "Sub");
 
             RegisterNinthPlanet(services);
         }
@@ -175,7 +177,7 @@ namespace Boardgames.Web.Server
                 Repositories.DefaultGameCache<NinthPlanet.INinthPlanetServer>>();
 
             services.AddScoped<
-                Repositories.IGameRepository<NinthPlanet.INinthPlanetServer, NinthPlanetNewGameOptions>,
+                Repositories.INinthPlanetGameRepository,
                 Repositories.NinthPlanetGameRepository>();
         }
     }

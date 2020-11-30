@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using Boardgames.Shared.Models;
 using Boardgames.Web.Server.Extensions;
@@ -13,11 +15,11 @@ namespace Boardgames.Web.Server.Controllers
     [Authorize]
     [ApiController]
     [Route("[controller]")]
-    public class PlayerDataController : ControllerBase
+    public class GameController : ControllerBase
     {
         private readonly UserManager<ApplicationUser> userManager;
 
-        public PlayerDataController(UserManager<ApplicationUser> userManager)
+        public GameController(UserManager<ApplicationUser> userManager)
         {
             this.userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
         }
@@ -25,8 +27,10 @@ namespace Boardgames.Web.Server.Controllers
         [HttpGet()]
         public async Task<PlayerData> GetAsync()
         {
-            var userId = userManager.GetUserId(this.User);
-            if (int.TryParse(userId, out var result))
+            //var userId = userManager.GetUserId(this.User);
+
+            var userId = this.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (int.TryParse(userId, NumberStyles.Integer, CultureInfo.InvariantCulture, out var result))
             {
                 return await this.userManager.Users.GetPlayerDataAsync(result);
             }
