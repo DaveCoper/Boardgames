@@ -8,7 +8,7 @@ namespace Boardgames.Client.Services
     {
         Task<List<PlayerData>> GetPlayerDataAsync(IEnumerable<int> playerIds);
 
-        Task<PlayerData> GetPlayerData(int playerId);
+        Task<PlayerData> GetPlayerDataAsync(int playerId);
 
         Task<PlayerData> GetMyDataAsync();
     }

@@ -2,39 +2,44 @@
 using System.Collections.ObjectModel;
 using Boardgames.Client.Caches;
 using Boardgames.Client.Messages;
-using Boardgames.Client.ViewModels;
 using Boardgames.Common.Models;
 using Boardgames.NinthPlanet.Models;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Messaging;
 
-namespace Boardgames.WpfClient.ViewModels
+namespace Boardgames.Client.ViewModels
 {
     public class MainWindowViewModel : ViewModelBase
     {
-        private readonly Func<int, GameState, NinthPlanetScreenViewModel> ninthPlanetScreenFactory;
-        private PlayerDataViewModel userInfo;
+        private readonly Func<int, int, GameState, NinthPlanetScreenViewModel> ninthPlanetScreenFactory;
+
+        private PlayerData userInfo;
 
         private ScreenViewModel selectedScreen;
 
-        [Obsolete("Designer use only", true)]
+        [Obsolete("Used by WPF designer.", true)]
         public MainWindowViewModel() : base()
         {
             this.AvailableScreens = new ObservableCollection<ScreenViewModel>
             {
+                new ScreenViewModel("Home"),
                 new ScreenViewModel("Join game"),
                 new ScreenViewModel("Create game"),
             };
 
-            this.UserInfo = new PlayerDataViewModel(new PlayerData { 
-                Id = 10, 
-                Name = "Player", 
-                AvatarUri = new Uri("pack://application:,,,/Boardgames.WpfClient;component/Resources/Images/NinthPlanet128x128.png") });
+            this.UserInfo = new PlayerData
+            {
+                Id = 10,
+                Name = "Player",
+                AvatarUri = new Uri("pack://application:,,,/Boardgames.WpfClient;component/Resources/Images/NinthPlanet128x128.png")
+            };
         }
 
         public MainWindowViewModel(
+            HomeViewModel homeViewModel,
             CreateGameViewModel createGameViewModel,
-            Func<int, GameState, NinthPlanetScreenViewModel> ninthPlanetScreenFactory,
+            GameBrowserViewModel gameBrowserScreen,
+            Func<int, int, GameState, NinthPlanetScreenViewModel> ninthPlanetScreenFactory,
             IPlayerDataCache playerDataCache,
             IMessenger messenger) : base(messenger)
         {
@@ -45,17 +50,20 @@ namespace Boardgames.WpfClient.ViewModels
 
             this.AvailableScreens = new ObservableCollection<ScreenViewModel>
             {
-                new ScreenViewModel("Join game"),
+                homeViewModel,
+                gameBrowserScreen,
                 createGameViewModel,
             };
 
-            this.UserInfo = new PlayerDataViewModel(playerDataCache.CurrentUserData);            
+            this.SelectedScreen = homeViewModel;
+
+            this.UserInfo = playerDataCache.CurrentUserData;
             this.ninthPlanetScreenFactory = ninthPlanetScreenFactory ?? throw new ArgumentNullException(nameof(ninthPlanetScreenFactory));
-            
+
             messenger.Register<OpenGame>(this, OnOpenGameReceived);
         }
 
-        public PlayerDataViewModel UserInfo
+        public PlayerData UserInfo
         {
             get => userInfo;
             set => Set(ref userInfo, value);
@@ -77,6 +85,7 @@ namespace Boardgames.WpfClient.ViewModels
                 case GameType.NinthPlanet:
                     newScreen = ninthPlanetScreenFactory(
                         message.GameOwnerId,
+                        message.GameId,
                         (GameState)message.GameState);
                     break;
 

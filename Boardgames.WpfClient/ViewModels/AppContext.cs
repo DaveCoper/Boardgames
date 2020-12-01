@@ -6,6 +6,7 @@ using Boardgames.Client.Brookers;
 using Boardgames.Client.Caches;
 using Boardgames.Client.Services;
 using Boardgames.Client.ViewModels;
+using Boardgames.Common.Models;
 using Boardgames.WpfClient.Brookers;
 using Boardgames.WpfClient.Services;
 using GalaSoft.MvvmLight.Messaging;
@@ -59,20 +60,31 @@ namespace Boardgames.WpfClient.ViewModels
             services.AddTransient<MainWindowViewModel>();
 
             services.AddTransient<LoginViewModel>();
-            services.AddSingleton<Func<LoginViewModel>>(
-                x => () => x.GetRequiredService<LoginViewModel>());
+            services.AddSingleton<Func<LoginViewModel>>(x => () => x.GetRequiredService<LoginViewModel>());
 
+            services.AddTransient<GameBrowserViewModel>();
             services.AddTransient<CreateGameViewModel>();
-            services.AddSingleton<Func<CreateGameViewModel>>(
-                x => () => x.GetRequiredService<CreateGameViewModel>());
+            services.AddTransient<HomeViewModel>();
 
-            services.AddSingleton<Func<int, NinthPlanet.Models.GameState, NinthPlanetScreenViewModel>>(
-                x => (ownerId, state) =>
+            services.AddSingleton<Func<int, int, NinthPlanet.Models.GameState, NinthPlanetScreenViewModel>>(
+                x => (ownerId, gameId, state) =>
                 {
                     return new NinthPlanetScreenViewModel(
                         ownerId,
+                        gameId,
                         state,
                         x.GetRequiredService<IPlayerDataService>(),
+                        x.GetRequiredService<INinthPlanetService>(),
+                        x.GetRequiredService<IMessenger>());
+                });
+
+            services.AddSingleton<Func<GameInfo, PlayerData, GameInfoViewModel>>(
+                x => (gameInfo, gameOwner) =>
+                {
+                    return new GameInfoViewModel(
+                        gameInfo,
+                        gameOwner,
+                        x.GetRequiredService<IIconUriProvider>(),
                         x.GetRequiredService<IMessenger>());
                 });
         }
@@ -96,6 +108,9 @@ namespace Boardgames.WpfClient.ViewModels
 
             services.AddSingleton<IPlayerDataService, PlayerDataService>();
             services.AddSingleton<IPlayerDataCache, PlayerDataCache>();
+
+            services.AddSingleton<IGameInfoService, GameInfoService>();
+            services.AddSingleton<INinthPlanetService, NinthPlanetService>();
         }
 
         private void RegisterWindows(ServiceCollection services)

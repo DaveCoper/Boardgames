@@ -1,4 +1,6 @@
-﻿namespace Boardgames.Common.Models
+﻿using System;
+
+namespace Boardgames.Common.Models
 {
     public class GameInfo
     {
@@ -14,5 +16,9 @@
         public int OwnerId { get; set; }
 
         public int MaximumNumberOfPlayers { get; set; }
+
+        public DateTime CreatedAt { get; set; }
+
+        public DateTime UpdatedAt { get; set; }
     }
 }

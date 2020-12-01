@@ -45,7 +45,7 @@ namespace Boardgames.Client.Services
             throw new InvalidOperationException("Failed to load player data.");
         }
 
-        public async Task<PlayerData> GetPlayerData(int playerId)
+        public async Task<PlayerData> GetPlayerDataAsync(int playerId)
         {
             if (cache.TryGetValue(playerId, out var playerData))
             {

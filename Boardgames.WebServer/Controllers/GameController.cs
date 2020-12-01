@@ -38,7 +38,13 @@ namespace Boardgames.WebServer.Controllers
                 .Select(x => new GameInfo
                 {
                     Id = x.Id,
-                    GameType = x.GameType
+                    GameType = x.GameType,
+                    IsPublic = x.IsPublic,
+                    Name = x.Name,
+                    OwnerId = x.OwnerId,
+                    CreatedAt = x.CreatedAt,
+                    UpdatedAt = x.UpdatedAt,
+                    MaximumNumberOfPlayers = x.MaximumNumberOfPlayers
                 })
                 .Take(numberOfEntries)
                 .ToListAsync();

@@ -7,11 +7,10 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:res="clr-namespace:Boardgames.WpfClient.Resources"
     xmlns:svm="clr-namespace:Boardgames.Client.ViewModels;assembly=Boardgames.Client"
-    xmlns:vm="clr-namespace:Boardgames.WpfClient.ViewModels"
     Title="{x:Static res:Strings.MainWindow_Title}"
     Width="800"
     Height="450"
-    d:DataContext="{d:DesignInstance Type=vm:MainWindowViewModel,
+    d:DataContext="{d:DesignInstance Type=svm:MainWindowViewModel,
                                      IsDesignTimeCreatable=True}"
     mc:Ignorable="d">
     <Grid Margin="0,-2,0,2">
@@ -72,6 +71,12 @@
                 </DataTemplate>
                 <DataTemplate DataType="{x:Type svm:NinthPlanetScreenViewModel}">
                     <components:NinthPlanet IsEnabled="{Binding IsNotBussy}" />
+                </DataTemplate>
+                <DataTemplate DataType="{x:Type svm:GameBrowserViewModel}">
+                    <components:GameBrowser />
+                </DataTemplate>
+                <DataTemplate DataType="{x:Type svm:HomeViewModel}">
+                    <components:HomeScreen />
                 </DataTemplate>
             </ContentControl.Resources>
         </ContentControl>

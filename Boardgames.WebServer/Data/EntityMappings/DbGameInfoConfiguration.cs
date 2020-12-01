@@ -22,7 +22,10 @@ namespace Boardgames.WebServer.Data.EntityMappings
 
             builder.Property(x => x.GameType)
                 .IsRequired()
-                .HasMaxLength(128);
+                .HasMaxLength(128)
+                .HasConversion(
+                    v => v.ToString(),
+                    v => (GameType)Enum.Parse(typeof(GameType), v));                
 
             builder.HasOne(x => x.Owner)
                 .WithMany(x => x.CreatedGames)

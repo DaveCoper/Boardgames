@@ -6,6 +6,7 @@ using Boardgames.WebServer.Data;
 using Boardgames.WebServer.Models;
 using Boardgames.WebServer.Repositories.Exceptions;
 using Boardgames.Common.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace Boardgames.WebServer.Repositories
 {
@@ -72,9 +73,9 @@ namespace Boardgames.WebServer.Repositories
                 if (this.gameCache.TryGetGame(gameId, out game))
                     return game;
 
-                var gameState = await dbContext.NinthPlanetGames.FindAsync(
-                    new object[] { gameId }, 
-                    cancellationToken);
+                var gameState = await dbContext.NinthPlanetGames
+                    .Include(x=> x.GameInfo)
+                    .FirstAsync( x=> gameId == x.GameId, cancellationToken);
 
                 if (gameState == null)
                     throw new GameNotFoundException(gameId);

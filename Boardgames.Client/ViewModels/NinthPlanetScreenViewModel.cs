@@ -14,8 +14,10 @@ namespace Boardgames.Client.ViewModels
         private const string ScreenLabel = "Ninth planet";
 
         private readonly int gameOwnerId;
-
+        private readonly int gameId;
         private readonly IPlayerDataService playerDataService;
+
+        private readonly INinthPlanetService ninthPlanetService;
 
         private GameState gameState;
 
@@ -34,15 +36,24 @@ namespace Boardgames.Client.ViewModels
 
         public NinthPlanetScreenViewModel(
             int gameOwnerId,
+            int gameId,
             GameState gameState,
             IPlayerDataService playerDataService,
+            INinthPlanetService ninthPlanetService,
             IMessenger messenger)
             : base(ScreenLabel, messenger)
         {
             this.gameOwnerId = gameOwnerId;
-            this.gameState = gameState ?? throw new ArgumentNullException(nameof(gameState));
-            this.playerDataService = playerDataService ?? throw new ArgumentNullException(nameof(playerDataService));
+            this.gameId = gameId;
+            this.gameState = gameState;
 
+            if(gameState != null)
+            {
+                Debug.Assert(gameState.GameId == gameId, "Game ids are not the same!");
+            }
+
+            this.playerDataService = playerDataService ?? throw new ArgumentNullException(nameof(playerDataService));
+            this.ninthPlanetService = ninthPlanetService ?? throw new ArgumentNullException(nameof(ninthPlanetService));
             messenger.Register<GameHasStarted>(this, OnGameHasStarted);
             messenger.Register<NewPlayerConnected>(this, OnPlayerHasConnected);
             messenger.Register<PlayerHasLeft>(this, OnPlayerHasLeft);
@@ -65,6 +76,11 @@ namespace Boardgames.Client.ViewModels
             IsNotBussy = false;
             try
             {
+                if (gameState == null)
+                {
+                    gameState = await ninthPlanetService.GetGameStateAsync(this.gameId);
+                }
+
                 if (gameState.BoardState != null)
                 {
                     CurrentView = null;
