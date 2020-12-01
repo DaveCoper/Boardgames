@@ -30,6 +30,8 @@ namespace Boardgames.WpfClient.ViewModels
             var playerDataService = ServiceProvider.GetRequiredService<IPlayerDataService>();
             await playerDataService.GetMyDataAsync();
 
+            var signalR = ServiceProvider.GetRequiredService<ISignalRBrooker>();
+            await signalR.ConnectAsync(default);
         }
 
         private void SetupDiContainer(Dispatcher dispatcher)
@@ -90,6 +92,7 @@ namespace Boardgames.WpfClient.ViewModels
             services.AddSingleton<HttpClient, HttpClient>();
             services.AddSingleton<IAccessTokenProvider, AccessTokenProvider>();
             services.AddSingleton<IWebApiBrooker, WebApiBrooker>();
+            services.AddSingleton<ISignalRBrooker, SignalRBrooker>();
 
             services.AddSingleton<IPlayerDataService, PlayerDataService>();
             services.AddSingleton<IPlayerDataCache, PlayerDataCache>();

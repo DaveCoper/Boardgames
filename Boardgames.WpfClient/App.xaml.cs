@@ -20,7 +20,7 @@ namespace Boardgames.WpfClient
             base.OnStartup(e);
 
             this.ShutdownMode = ShutdownMode.OnExplicitShutdown;
-            var context = new ViewModels.AppContext();
+            var context = new ViewModels.AppContext(this.Dispatcher);
             await context.BeforeStart();
 
             this.MainWindow = context.ServiceProvider.GetRequiredService<MainWindow>();
