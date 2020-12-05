@@ -6,6 +6,6 @@ namespace Boardgames.NinthPlanet.Messages
     {
         public int GameId { get; set; }
 
-        public PlayerData NewPlayerData { get; set; }
+        public int NewPlayerId { get; set; }
     }
 }

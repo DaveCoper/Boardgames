@@ -1,0 +1,55 @@
+﻿@page "/ninthplanet/{gameId:int}"
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
+@using Boardgames.Client.ViewModels
+@using Boardgames.Client.Services
+@using Boardgames.NinthPlanet.Models
+@inject IGameInfoService gameInfoService
+@inject Func<int, int, GameState, NinthPlanetScreenViewModel> screenVmFactory
+@attribute [Authorize]
+
+@if (ScreenVm == null)
+{
+    <h1>Loading ...</h1>
+}
+else
+{
+    @if (ScreenVm.CurrentView is NinthPlanetLobbyViewModel lobbyViewModel)
+    {
+        <div class="container">
+            <div class="row">
+                @foreach (var user in lobbyViewModel.PlayerData)
+                {
+                    <div class="col-sm">
+                        <img src="@user.AvatarUri" width="64" height="64" />
+                        <h3>@user.Name</h3> 
+                    </div>
+                }
+            </div>
+        </div>
+    }
+}
+
+@code{
+    [Parameter]
+    public int GameId { get; set; }
+
+    public NinthPlanetScreenViewModel ScreenVm { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        try
+        {
+            //forecasts = await Http.GetFromJsonAsync<WeatherForecast[]>("WeatherForecast");
+            var gameInfo = await gameInfoService.GetGameInfoAsync(GameId);
+            var vm = screenVmFactory(gameInfo.OwnerId, GameId, null);
+            await vm.LoadDataAsync();
+            ScreenVm = vm;
+        }
+        catch (AccessTokenNotAvailableException exception)
+        {
+            exception.Redirect();
+        }
+    }
+}

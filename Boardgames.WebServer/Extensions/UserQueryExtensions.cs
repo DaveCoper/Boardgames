@@ -16,18 +16,11 @@ namespace Boardgames.WebServer.Extensions
                 .Select(x => new { x.Id, x.UserName, x.Avatar })
                 .FirstAsync(x => x.Id == userId);
 
-            Uri avatarUri;
-            if (string.IsNullOrWhiteSpace(user.Avatar) ||
-                !Uri.TryCreate(user.Avatar, UriKind.Absolute, out avatarUri))
-            {
-                avatarUri = null;
-            }
-
             var playerData = new PlayerData
             {
                 Id = user.Id,
                 Name = user.UserName,
-                AvatarUri = avatarUri
+                AvatarUri = user.Avatar
             };
 
             return playerData;
@@ -44,18 +37,11 @@ namespace Boardgames.WebServer.Extensions
             var playerDataList = new List<PlayerData>(users.Count);
             foreach (var user in users)
             {
-                Uri avatarUri;
-                if (string.IsNullOrWhiteSpace(user.Avatar) ||
-                    !Uri.TryCreate(user.Avatar, UriKind.Absolute, out avatarUri))
-                {
-                    avatarUri = null;
-                }
-
                 var playerData = new PlayerData
                 {
                     Id = user.Id,
                     Name = user.UserName,
-                    AvatarUri = avatarUri
+                    AvatarUri = user.Avatar
                 };
 
                 playerDataList.Add(playerData);

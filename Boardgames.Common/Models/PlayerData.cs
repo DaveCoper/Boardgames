@@ -8,6 +8,6 @@ namespace Boardgames.Common.Models
 
         public string Name { get; set; }
 
-        public Uri AvatarUri { get; set; }
+        public string AvatarUri { get; set; }
     }
 }

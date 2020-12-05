@@ -1,0 +1,65 @@
+﻿@page "/joingame"
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
+@using Boardgames.Client.ViewModels
+@using Boardgames.Common.Models
+@attribute [Authorize]
+@inject NavigationManager navigationManager
+@inject GameBrowserViewModel gameBrowser
+
+<h1>Public games:</h1>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Game</th>
+            <th>Created by</th>
+            <th>Created at</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var game in gameBrowser.PublicGames)
+        {
+            <tr>
+                <td>@game.Name</td>
+                <td>
+                    <img src="@game.GameIcon" height="32" width="32" />
+                    @game.GameName
+                </td>
+                <td>@game.CreatedBy</td>
+                <td>@game.CreatedAt</td>
+                <td>
+                    <button class="btn btn-primary" @onclick="()=>NavigateToGame(game.GameId, game.GameType)">
+                        Join
+                    </button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+
+        try
+        {
+            await gameBrowser.LoadDataAsync();
+        }
+        catch (AccessTokenNotAvailableException exception)
+        {
+            exception.Redirect();
+        }
+    }
+
+    private void NavigateToGame(int gameId, GameType gameType)
+    {
+        switch (gameType)
+        {
+            case GameType.NinthPlanet:
+                navigationManager.NavigateTo($"ninthplanet/{gameId}");
+                break;
+        }
+    }
+}

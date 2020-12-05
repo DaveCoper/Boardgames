@@ -5,10 +5,10 @@ using System.Text;
 namespace Boardgames.NinthPlanet.Models
 {
 
-    public struct Goal
+    public struct TaskCard
     {
         public Card Card { get; set; }
 
-        public GoalOrder? Token { get; set; }
+        public TaskCardModifier? Token { get; set; }
     }
 }

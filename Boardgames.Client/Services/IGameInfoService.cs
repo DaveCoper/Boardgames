@@ -8,5 +8,7 @@ namespace Boardgames.Client.Services
     public interface IGameInfoService
     {
         Task<List<GameInfo>> GetPublicGamesAsync(CancellationToken cancellationToken = default);
+
+        Task<GameInfo> GetGameInfoAsync(int gameId, CancellationToken cancellationToken = default);
     }
 }

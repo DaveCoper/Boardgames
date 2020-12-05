@@ -11,9 +11,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Boardgames.BlazorClient", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Boardgames.Client", "Boardgames.Client\Boardgames.Client.csproj", "{39CE0308-2111-4CD8-B8AC-55DDF9C7FAE5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Boardgames.NinthPlanet", "Boardgames.NinthPlanet\Boardgames.NinthPlanet.csproj", "{7BF3BD83-F16A-4C25-B612-5B203DC9CB27}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Boardgames.NinthPlanet", "Boardgames.NinthPlanet\Boardgames.NinthPlanet.csproj", "{7BF3BD83-F16A-4C25-B612-5B203DC9CB27}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Boardgames.Common", "Boardgames.Common\Boardgames.Common.csproj", "{C55933D7-C47B-4A3D-897A-80E70C429D31}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Boardgames.Common", "Boardgames.Common\Boardgames.Common.csproj", "{C55933D7-C47B-4A3D-897A-80E70C429D31}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{263A3C0A-BA27-4750-88F8-5E70B83B432C}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Boardgames.NinthPlanet.Tests", "Boardgames.NinthPlanet.Tests\Boardgames.NinthPlanet.Tests.csproj", "{A65D0EBC-3250-4876-95A0-C83293EA27C1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -45,9 +49,16 @@ Global
 		{C55933D7-C47B-4A3D-897A-80E70C429D31}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C55933D7-C47B-4A3D-897A-80E70C429D31}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C55933D7-C47B-4A3D-897A-80E70C429D31}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A65D0EBC-3250-4876-95A0-C83293EA27C1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A65D0EBC-3250-4876-95A0-C83293EA27C1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A65D0EBC-3250-4876-95A0-C83293EA27C1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A65D0EBC-3250-4876-95A0-C83293EA27C1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{A65D0EBC-3250-4876-95A0-C83293EA27C1} = {263A3C0A-BA27-4750-88F8-5E70B83B432C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {4D9CBD13-E9C9-4EC9-9003-D8A601A6A4B7}

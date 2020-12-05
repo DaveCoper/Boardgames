@@ -3,6 +3,14 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using Boardgames.BlazorClient.Brookers;
+using Boardgames.BlazorClient.Services;
+using Boardgames.Client.Brookers;
+using Boardgames.Client.Caches;
+using Boardgames.Client.Services;
+using Boardgames.Client.ViewModels;
+using Boardgames.Common.Models;
+using GalaSoft.MvvmLight.Messaging;
 using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -26,7 +34,62 @@ namespace Boardgames.BlazorClient
 
             builder.Services.AddApiAuthorization();
 
+            RegisterServices(builder, builder.Services);
+            RegisterViewModels(builder.Services);
             await builder.Build().RunAsync();
+        }
+
+        private static void RegisterServices(WebAssemblyHostBuilder builder, IServiceCollection services)
+        {
+            services.AddSingleton<IIconUriProvider>(new IconUriProvider(new Uri(builder.HostEnvironment.BaseAddress)));
+
+            //services.AddSingleton<IFileStore, WpfFileStore>();
+            //services.AddSingleton<IDialogService, DialogService>();
+
+            services.AddSingleton<IMessenger, Messenger>();
+
+            //services.AddSingleton<ISecureStore, SecureStore>();
+            //services.AddSingleton<IUserDataStore, UserDataStore>();
+
+            services.AddScoped<IWebApiBrooker, WebApiBrooker>();
+            services.AddSingleton<ISignalRBrooker, SignalRBrooker>();
+
+            services.AddScoped<IPlayerDataService, PlayerDataService>();
+            services.AddSingleton<IPlayerDataCache, PlayerDataCache>();
+
+            services.AddScoped<IGameInfoService, GameInfoService>();
+            services.AddScoped<INinthPlanetService, NinthPlanetService>();
+        }
+
+        private static void RegisterViewModels(IServiceCollection services)
+        {
+            services.AddTransient<MainWindowViewModel>();
+
+            services.AddTransient<GameBrowserViewModel>();
+            services.AddTransient<CreateGameViewModel>();
+            services.AddTransient<HomeViewModel>();
+
+            services.AddScoped<Func<int, int, NinthPlanet.Models.GameState, NinthPlanetScreenViewModel>>(
+                x => (ownerId, gameId, state) =>
+                {
+                    return new NinthPlanetScreenViewModel(
+                        ownerId,
+                        gameId,
+                        state,
+                        x.GetRequiredService<IPlayerDataService>(),
+                        x.GetRequiredService<INinthPlanetService>(),
+                        x.GetRequiredService<IMessenger>());
+                });
+
+            services.AddScoped<Func<GameInfo, PlayerData, GameInfoViewModel>>(
+                x => (gameInfo, gameOwner) =>
+                {
+                    return new GameInfoViewModel(
+                        gameInfo,
+                        gameOwner,
+                        x.GetRequiredService<IIconUriProvider>(),
+                        x.GetRequiredService<IMessenger>());
+                });
         }
     }
 }

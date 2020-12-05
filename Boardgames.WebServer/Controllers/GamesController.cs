@@ -1,16 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
-using System.Security.Claims;
 using System.Threading.Tasks;
 using Boardgames.Common.Models;
-using Boardgames.Client.Models;
 using Boardgames.WebServer.Data;
-using Boardgames.WebServer.Extensions;
-using Boardgames.WebServer.Models;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -19,22 +13,26 @@ namespace Boardgames.WebServer.Controllers
     [Authorize]
     [ApiController]
     [Route("[controller]")]
-    public class GameController : ControllerBase
+    public class GamesController : ControllerBase
     {
         private readonly ApplicationDbContext dbContext;
 
-        public GameController(ApplicationDbContext dbContext)
+        public GamesController(ApplicationDbContext dbContext)
         {
             this.dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
         }
 
         [HttpGet()]
-        public async Task<List<GameInfo>> GetAsync([FromQuery]int numberOfEntries = 50)
+        public async Task<List<GameInfo>> GetAsync([FromQuery] int numberOfEntries = 50)
         {
-            numberOfEntries = Math.Max(numberOfEntries, 200);
+            if (numberOfEntries < 1)
+                return new List<GameInfo>();
+
+            numberOfEntries = Math.Min(numberOfEntries, 200);
 
             var games = await dbContext.Games
                 .OrderBy(x => x.Id)
+                .Where(x => x.IsPublic)
                 .Select(x => new GameInfo
                 {
                     Id = x.Id,
@@ -50,6 +48,28 @@ namespace Boardgames.WebServer.Controllers
                 .ToListAsync();
 
             return games;
+        }
+
+        [HttpGet("{gameId}")]
+        public async Task<GameInfo> GetByKeyAsync([FromRoute] int gameId)
+        {
+            var game = await dbContext.Games
+                .OrderBy(x => x.Id)
+                .Where(x => x.IsPublic)
+                .Select(x => new GameInfo
+                {
+                    Id = x.Id,
+                    GameType = x.GameType,
+                    IsPublic = x.IsPublic,
+                    Name = x.Name,
+                    OwnerId = x.OwnerId,
+                    CreatedAt = x.CreatedAt,
+                    UpdatedAt = x.UpdatedAt,
+                    MaximumNumberOfPlayers = x.MaximumNumberOfPlayers
+                })
+                .FirstOrDefaultAsync();
+
+            return game;
         }
     }
 }

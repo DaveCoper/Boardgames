@@ -50,9 +50,9 @@ namespace Boardgames.BlazorClient.Brookers
         }
 
         public async Task<TReturnType> PostAsync<TReturnType, TContentType>(
-            string controllerName, 
-            TContentType content, 
-            string actionName = null, 
+            string controllerName,
+            TContentType content,
+            string actionName = null,
             CancellationToken cancellationToken = default)
         {
             Uri uri;
@@ -69,7 +69,10 @@ namespace Boardgames.BlazorClient.Brookers
             response.EnsureSuccessStatusCode();
 
             var resultJson = await response.Content.ReadAsStringAsync(cancellationToken);
-            return JsonSerializer.Deserialize<TReturnType>(resultJson);
+            return JsonSerializer.Deserialize<TReturnType>(resultJson, new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true                
+            });
         }
     }
 }

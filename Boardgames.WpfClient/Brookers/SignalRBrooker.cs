@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using System.Windows.Threading;
 using Boardgames.Client.Brookers;
 using Boardgames.Common.Messages;
+using Boardgames.Common.Models;
 using Boardgames.NinthPlanet.Messages;
 using Boardgames.WpfClient.Services;
 using GalaSoft.MvvmLight.Messaging;
@@ -44,35 +45,46 @@ namespace Boardgames.WpfClient.Brookers
 
             await hub.StartAsync(cancellationToken);
 
-            hub.On<NewPlayerConnected>("NinthPlanetPlayerConnected", OnPlayerConnected);
-            hub.On<PlayerHasLeft>("NinthPlanetPlayerLeft", OnPlayerLeft);
-            hub.On<GameHasStarted>("NinthPlanetGameStarted", OnGameStarted);
+            this.RegiserMessage<NewPlayerConnected>(
+                hub,
+                GameType.NinthPlanet);
+
+            this.RegiserMessage<PlayerHasLeft>(
+                hub,
+                GameType.NinthPlanet);
+
+            this.RegiserMessage<GameHasStarted>(
+                hub,
+                GameType.NinthPlanet);
 
             this.hub = hub;
         }
 
-        private void OnGameStarted(GameHasStarted message)
+        private void RegiserMessage<T>(HubConnection hub, GameType gameType)
         {
-            dispatcher.InvokeAsync(() =>
-            {
-                this.messenger.Send(message);
-            });
+            hub.On<T>(
+                FromatMethodName(gameType, typeof(T)),
+                msg =>
+                {
+                    dispatcher.InvokeAsync(() =>
+                    {
+                        this.messenger.Send(msg);
+                    });
+                });
         }
 
-        private void OnPlayerLeft(PlayerHasLeft message)
+        private string FromatMethodName(GameType gameType, Type messageType)
         {
-            dispatcher.InvokeAsync(() =>
-            {
-                this.messenger.Send(message);
-            });
-        }
+            string gamePrefix = null;
 
-        private void OnPlayerConnected(NewPlayerConnected message)
-        {
-            dispatcher.InvokeAsync(() =>
+            switch (gameType)
             {
-                this.messenger.Send(message);
-            });
+                case GameType.NinthPlanet:
+                    gamePrefix = "NinthPlanet";
+                    break;
+            }
+
+            return $"{gamePrefix}_{messageType.Name}";
         }
 
         private void OnUserWantsToSubscribe(SubscribeToGameMessages obj)

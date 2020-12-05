@@ -8,12 +8,12 @@ namespace Boardgames.NinthPlanet.Models
 
         public List<Card> TakenCards { get; set; } = new List<Card>();
 
-        public List<Goal> UnfinishedGoals { get; set; } = new List<Goal>();
+        public List<TaskCard> UnfinishedGoals { get; set; } = new List<TaskCard>();
 
-        public List<Goal> FinishedGoals { get; set; } = new List<Goal>();
+        public List<TaskCard> FinishedGoals { get; set; } = new List<TaskCard>();
 
-        public Card? DisplayedCard { get; set; }
+        public Card? ComunicatedCard { get; set; }
 
-        public TokenPosition? TokenPosition { get; set; }
+        public ComunicationTokenPosition? ComunicationTokenPosition { get; set; }
     }
 }

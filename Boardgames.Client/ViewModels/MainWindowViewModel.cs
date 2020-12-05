@@ -31,7 +31,7 @@ namespace Boardgames.Client.ViewModels
             {
                 Id = 10,
                 Name = "Player",
-                AvatarUri = new Uri("pack://application:,,,/Boardgames.WpfClient;component/Resources/Images/NinthPlanet128x128.png")
+                AvatarUri = "pack://application:,,,/Boardgames.WpfClient;component/Resources/Images/NinthPlanet128x128.png"
             };
         }
 

@@ -14,7 +14,9 @@ namespace Boardgames.Client.ViewModels
         private const string ScreenLabel = "Ninth planet";
 
         private readonly int gameOwnerId;
+
         private readonly int gameId;
+
         private readonly IPlayerDataService playerDataService;
 
         private readonly INinthPlanetService ninthPlanetService;
@@ -47,7 +49,7 @@ namespace Boardgames.Client.ViewModels
             this.gameId = gameId;
             this.gameState = gameState;
 
-            if(gameState != null)
+            if (gameState != null)
             {
                 Debug.Assert(gameState.GameId == gameId, "Game ids are not the same!");
             }
@@ -78,7 +80,7 @@ namespace Boardgames.Client.ViewModels
             {
                 if (gameState == null)
                 {
-                    gameState = await ninthPlanetService.GetGameStateAsync(this.gameId);
+                    gameState = await ninthPlanetService.JoinGameAsync(this.gameId);
                 }
 
                 if (gameState.BoardState != null)
@@ -134,7 +136,10 @@ namespace Boardgames.Client.ViewModels
                 return;
             }
 
-            this.lobbyViewModel.PlayerData.Add(msg.NewPlayerData);
+            this.playerDataService.GetPlayerDataAsync(msg.NewPlayerId)
+                .ContinueWith(
+                t => this.lobbyViewModel.PlayerData.Add(t.Result),
+                TaskScheduler.FromCurrentSynchronizationContext());
         }
 
         private void OnGameHasStarted(GameHasStarted msg)

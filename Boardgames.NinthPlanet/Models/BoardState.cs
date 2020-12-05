@@ -15,7 +15,7 @@ namespace Boardgames.NinthPlanet.Models
         /// <summary>
         /// Goals that were not taken by the player.
         /// </summary>
-        public List<Goal> AvailableGoals { get; set; } = new List<Goal>();
+        public List<TaskCard> AvailableGoals { get; set; } = new List<TaskCard>();
 
         /// <summary>
         /// States of boards of individual players (Player Id is used as key)

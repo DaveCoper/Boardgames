@@ -1,6 +1,6 @@
 ﻿namespace Boardgames.NinthPlanet.Models
 {
-    public enum GoalOrder { 
+    public enum TaskCardModifier { 
         First,             // card must be taken first  ( 1 symbol ) 
         Second,            // card must be taken second ( 2 symbol ) 
         Third,             // card must be taken third  ( 3 symbol )

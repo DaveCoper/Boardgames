@@ -74,8 +74,8 @@ namespace Boardgames.WebServer.Repositories
                     return game;
 
                 var gameState = await dbContext.NinthPlanetGames
-                    .Include(x=> x.GameInfo)
-                    .FirstAsync( x=> gameId == x.GameId, cancellationToken);
+                    .Include(x => x.GameInfo)
+                    .FirstAsync(x => gameId == x.GameId, cancellationToken);
 
                 if (gameState == null)
                     throw new GameNotFoundException(gameId);
@@ -90,7 +90,7 @@ namespace Boardgames.WebServer.Repositories
 
         private INinthPlanetServer StartGameFromState(NinthPlanetGameState gameState)
         {
-            var game = new Games.NinthPlanet(gameState.GameInfo.Id, gameState);
+            var game = new Games.NinthPlanet(new NinthPlanetServer(gameState.GameInfo, gameState));
             this.gameCache.TryAddGame(gameState.GameId, game);
             return game;
         }

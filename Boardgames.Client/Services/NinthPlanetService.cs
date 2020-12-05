@@ -22,14 +22,23 @@ namespace Boardgames.Client.Services
             throw new NotImplementedException();
         }
 
-        public Task DisplayCardAsync(int gameId, Card card, TokenPosition? tokenPosition)
+        public Task DisplayCardAsync(int gameId, Card card, ComunicationTokenPosition? tokenPosition)
         {
             throw new NotImplementedException();
         }
 
         public async Task<GameState> GetGameStateAsync(int gameId)
         {
-            return await this.webApiBrooker.GetAsync<GameState>(ControllerName, gameId.ToString(CultureInfo.InvariantCulture));
+            return await this.webApiBrooker.GetAsync<GameState>(
+                ControllerName, 
+                gameId.ToString(CultureInfo.InvariantCulture));
+        }
+
+        public async Task<GameState> JoinGameAsync(int gameId)
+        {
+            return await this.webApiBrooker.GetAsync<GameState>(
+                ControllerName, 
+                $"{gameId.ToString(CultureInfo.InvariantCulture)}/Join");
         }
 
         public Task PlayCardAsync(int gameId, Card card)
@@ -37,7 +46,7 @@ namespace Boardgames.Client.Services
             throw new NotImplementedException();
         }
 
-        public Task TakeGoalAsync(int gameId, Goal goal)
+        public Task TakeGoalAsync(int gameId, TaskCard goal)
         {
             throw new NotImplementedException();
         }

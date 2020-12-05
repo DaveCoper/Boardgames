@@ -29,13 +29,17 @@ namespace Boardgames.Client.ViewModels
 
         public RelayCommand JoinGameCommand { get; }
 
-        public string Name => gameInfo.Name;
+        public int GameId => gameInfo.Id;
 
         public string CreatedBy => ownerData.Name;
 
         public string GameName => gameInfo.GameType.ToString();
 
         public Uri GameIcon => iconUriProvider.GetIconUri(gameInfo.GameType, 32);
+
+        public GameType GameType => gameInfo.GameType;
+
+        public string Name => gameInfo.Name;
 
         public DateTime CreatedAt => gameInfo.CreatedAt;
 
