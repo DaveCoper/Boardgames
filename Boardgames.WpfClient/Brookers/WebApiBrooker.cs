@@ -29,14 +29,55 @@ namespace Boardgames.WpfClient.Brookers
 
         public async Task<TReturnType> GetAsync<TReturnType>(string controllerName, string actionName = null, IEnumerable<KeyValuePair<string, string>> parameters = null, CancellationToken cancellationToken = default)
         {
+            Uri uri = CreateUri(controllerName, actionName, parameters);
+            var accessToken = await accessTokenProvider.GetAccessTokenAsync(cancellationToken);
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+            return await client.GetFromJsonAsync<TReturnType>(uri, cancellationToken);
+        }
+
+        public async Task GetAsync(string controllerName, string actionName = null, IEnumerable<KeyValuePair<string, string>> parameters = null, CancellationToken cancellationToken = default)
+        {
+            Uri uri = CreateUri(controllerName, actionName, null);
+            var accessToken = await accessTokenProvider.GetAccessTokenAsync(cancellationToken);
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+            try
+            {
+                var result = await client.GetAsync(uri, cancellationToken);
+            }
+            catch(Exception e)
+            {
+
+            }
+
+            //result.EnsureSuccessStatusCode();
+        }
+
+        public async Task<TReturnType> PostAsync<TReturnType, TContentType>(
+            string controllerName,
+            TContentType content,
+            string actionName = null,
+            CancellationToken cancellationToken = default)
+        {
+            Uri uri = CreateUri(controllerName, actionName, null);
+            var accessToken = await accessTokenProvider.GetAccessTokenAsync(cancellationToken);
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+            using var response = await client.PostAsJsonAsync(uri, content, cancellationToken);
+            response.EnsureSuccessStatusCode();
+
+            var resultJson = await response.Content.ReadAsStringAsync(cancellationToken);
+            return JsonSerializer.Deserialize<TReturnType>(resultJson);
+        }
+
+        private Uri CreateUri(string controllerName, string actionName, IEnumerable<KeyValuePair<string, string>> parameters)
+        {
             Uri uri;
             if (string.IsNullOrEmpty(actionName))
             {
-                uri = new Uri(this.BaseAddress, controllerName);
+                uri = new Uri(this.BaseAddress, $"api/{controllerName}");
             }
             else
             {
-                uri = new Uri(this.BaseAddress, $"{controllerName}/{actionName}");
+                uri = new Uri(this.BaseAddress, $"api/{controllerName}/{actionName}");
             }
 
             if (parameters != null && parameters.Any())
@@ -53,34 +94,7 @@ namespace Boardgames.WpfClient.Brookers
                 uri = uriBuilder.Uri;
             }
 
-            var accessToken = await accessTokenProvider.GetAccessTokenAsync(cancellationToken);
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-            return await client.GetFromJsonAsync<TReturnType>(uri, cancellationToken);
-        }
-
-        public async Task<TReturnType> PostAsync<TReturnType, TContentType>(
-            string controllerName,
-            TContentType content,
-            string actionName = null,
-            CancellationToken cancellationToken = default)
-        {
-            Uri uri;
-            if (string.IsNullOrEmpty(actionName))
-            {
-                uri = new Uri(this.BaseAddress, controllerName);
-            }
-            else
-            {
-                uri = new Uri(this.BaseAddress, $"{controllerName}/{actionName}");
-            }
-
-            var accessToken = await accessTokenProvider.GetAccessTokenAsync(cancellationToken);
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-            using var response = await client.PostAsJsonAsync(uri, content, cancellationToken);
-            response.EnsureSuccessStatusCode();
-
-            var resultJson = await response.Content.ReadAsStringAsync(cancellationToken);
-            return JsonSerializer.Deserialize<TReturnType>(resultJson);
+            return uri;
         }
     }
 }

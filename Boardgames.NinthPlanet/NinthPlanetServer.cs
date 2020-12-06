@@ -13,21 +13,20 @@ namespace Boardgames.NinthPlanet
 {
     public class NinthPlanetServer : INinthPlanetServer
     {
-        public HashSet<int> playersInLobby;
+        private HashSet<int> playersInLobby;
 
-        public Dictionary<int, PlayerPrivateState> stateOfPlayersAtTable;
+        private NinthPlanetRound CurrentRound;
 
-        public int currentLevel;
+        private int currentLevel;
 
         public NinthPlanetServer(GameInfo gameInfo, GameState gameState)
         {
             this.GameInfo = gameInfo;
 
             CreateLobbyFromState(gameState);
-            WaitingInLobby = gameState.BoardState == null;
         }
 
-        public bool WaitingInLobby { get; private set; }
+        public bool WaitingInLobby => CurrentRound == null;
 
         public int GameId => GameInfo.Id;
 
@@ -43,17 +42,18 @@ namespace Boardgames.NinthPlanet
                 LobbyState = new LobbyState { ConnectedPlayers = playersInLobby.ToList() }
             };
 
-            if (!WaitingInLobby)
+            if (!WaitingInLobby && this.CurrentRound.StateOfPlayersAtTable.TryGetValue(playerId, out var currentPlayerState))
             {
                 state.BoardState = new BoardState
                 {
-                    PlayerStates = this.stateOfPlayersAtTable.ToDictionary(
+                    CardsInHand = currentPlayerState.CardsInHand,
+                    PlayerStates = this.CurrentRound.StateOfPlayersAtTable.ToDictionary(
                         x => x.Key,
                         x => new PlayerBoardState
                         {
                             ComunicationTokenPosition = x.Value.ComunicationTokenPosition,
                             ComunicatedCard = x.Value.ComunicatedCard,
-                            NumberOfCardsInHand = x.Value.CardsInHands.Count,
+                            NumberOfCardsInHand = x.Value.CardsInHand.Count,
                         })
                 };
             }
@@ -117,7 +117,7 @@ namespace Boardgames.NinthPlanet
 
             if (this.playersInLobby.Remove(playerId))
             {
-                bool roundIsLost = !WaitingInLobby && this.stateOfPlayersAtTable.Remove(playerId);
+                bool roundIsLost = !WaitingInLobby && this.CurrentRound.StateOfPlayersAtTable.Remove(playerId);
                 var roundLostMsg = new RoundFailed();
                 var msg = new PlayerHasLeft
                 {
@@ -139,7 +139,7 @@ namespace Boardgames.NinthPlanet
             return Task.CompletedTask;
         }
 
-        public Task BeginRoundAsync(Queue<GameMessage> messageQueue)
+        public async Task BeginRoundAsync(int userId, Queue<GameMessage> messageQueue)
         {
             if (!WaitingInLobby)
                 throw new InvalidOperationException("Round is already running");
@@ -161,13 +161,23 @@ namespace Boardgames.NinthPlanet
                 playerIndex = (++playerIndex) % this.playersInLobby.Count;
 
                 var playerState = playerStates[playerId];
-                playerState.CardsInHands.Add(card);
+                playerState.CardsInHand.Add(card);
             }
 
             var goalDeck = CreateGoalDeck();
             goalDeck = goalDeck.FisherYatesShuffle(rng);
 
-            return Task.CompletedTask;
+            this.CurrentRound = new NinthPlanetRound
+            {
+                AvailableGoals = goalDeck.Take(5).Select(x => new TaskCard { Card = x }).ToList(),
+                StateOfPlayersAtTable = playerStates
+            };
+
+            foreach (var player in playersAtTable)
+            {
+                var state = await this.GetGameStateAsync(player);
+                messageQueue.Enqueue(CreateMessage(player, new GameHasStarted { State = state }));
+            };
         }
 
         public Task PlayCardAsync(int playerId, Card card, Queue<GameMessage> messageQueue)

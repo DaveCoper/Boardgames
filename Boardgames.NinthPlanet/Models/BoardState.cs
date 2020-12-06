@@ -26,5 +26,10 @@ namespace Boardgames.NinthPlanet.Models
         /// Indicates if players have available help (satellite symbol)
         /// </summary>
         public bool HelpIsAvailable { get; set; }
+
+        /// <summary>
+        /// List of cards that your player has in hand.
+        /// </summary>
+        public List<Card> CardsInHand { get; set; }
     }
 }

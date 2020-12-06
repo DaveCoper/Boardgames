@@ -11,6 +11,12 @@ namespace Boardgames.Client.Brookers
             string actionName = null, 
             IEnumerable<KeyValuePair<string, string>> parameters = null, 
             CancellationToken cancellationToken = default);
+        
+        Task GetAsync(
+            string controllerName,
+            string actionName = null,
+            IEnumerable<KeyValuePair<string, string>> parameters = null,
+            CancellationToken cancellationToken = default);
 
         Task<TReturnType> PostAsync<TReturnType, TContentType>(
             string controllerName,

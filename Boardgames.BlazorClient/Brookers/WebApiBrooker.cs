@@ -22,14 +22,45 @@ namespace Boardgames.BlazorClient.Brookers
 
         public async Task<TReturnType> GetAsync<TReturnType>(string controllerName, string actionName = null, IEnumerable<KeyValuePair<string, string>> parameters = null, CancellationToken cancellationToken = default)
         {
+            Uri uri = CreateUri(controllerName, actionName, parameters);
+            return await client.GetFromJsonAsync<TReturnType>(uri, cancellationToken);
+        }
+
+        public async Task GetAsync(string controllerName, string actionName = null, IEnumerable<KeyValuePair<string, string>> parameters = null, CancellationToken cancellationToken = default)
+        {
+            Uri uri = CreateUri(controllerName, actionName, null);
+            var result = await client.GetAsync(uri, cancellationToken);
+            result.EnsureSuccessStatusCode();
+        }
+
+        public async Task<TReturnType> PostAsync<TReturnType, TContentType>(
+            string controllerName,
+            TContentType content,
+            string actionName = null,
+            CancellationToken cancellationToken = default)
+        {
+            Uri uri = CreateUri(controllerName, actionName, null);
+
+            using var response = await client.PostAsJsonAsync(uri, content, cancellationToken);
+            response.EnsureSuccessStatusCode();
+
+            var resultJson = await response.Content.ReadAsStringAsync(cancellationToken);
+            return JsonSerializer.Deserialize<TReturnType>(resultJson, new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            });
+        }
+
+        private Uri CreateUri(string controllerName, string actionName, IEnumerable<KeyValuePair<string, string>> parameters)
+        {
             Uri uri;
             if (string.IsNullOrEmpty(actionName))
             {
-                uri = new Uri(client.BaseAddress, controllerName);
+                uri = new Uri(client.BaseAddress, $"api/{controllerName}");
             }
             else
             {
-                uri = new Uri(client.BaseAddress, $"{controllerName}/{actionName}");
+                uri = new Uri(client.BaseAddress, $"api/{controllerName}/{actionName}");
             }
 
             if (parameters != null && parameters.Any())
@@ -46,33 +77,7 @@ namespace Boardgames.BlazorClient.Brookers
                 uri = uriBuilder.Uri;
             }
 
-            return await client.GetFromJsonAsync<TReturnType>(uri, cancellationToken);
-        }
-
-        public async Task<TReturnType> PostAsync<TReturnType, TContentType>(
-            string controllerName,
-            TContentType content,
-            string actionName = null,
-            CancellationToken cancellationToken = default)
-        {
-            Uri uri;
-            if (string.IsNullOrEmpty(actionName))
-            {
-                uri = new Uri(client.BaseAddress, controllerName);
-            }
-            else
-            {
-                uri = new Uri(client.BaseAddress, $"{controllerName}/{actionName}");
-            }
-
-            using var response = await client.PostAsJsonAsync(uri, content, cancellationToken);
-            response.EnsureSuccessStatusCode();
-
-            var resultJson = await response.Content.ReadAsStringAsync(cancellationToken);
-            return JsonSerializer.Deserialize<TReturnType>(resultJson, new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true                
-            });
+            return uri;
         }
     }
 }

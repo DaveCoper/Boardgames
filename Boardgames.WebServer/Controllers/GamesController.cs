@@ -12,7 +12,7 @@ namespace Boardgames.WebServer.Controllers
 {
     [Authorize]
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     public class GamesController : ControllerBase
     {
         private readonly ApplicationDbContext dbContext;

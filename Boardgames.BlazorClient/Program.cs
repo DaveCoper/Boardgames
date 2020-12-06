@@ -48,11 +48,11 @@ namespace Boardgames.BlazorClient
 
             services.AddSingleton<IMessenger, Messenger>();
 
-            //services.AddSingleton<ISecureStore, SecureStore>();
-            //services.AddSingleton<IUserDataStore, UserDataStore>();
-
             services.AddScoped<IWebApiBrooker, WebApiBrooker>();
-            services.AddSingleton<ISignalRBrooker, SignalRBrooker>();
+            services.AddScoped<ISignalRBrooker>(x=> new SignalRBrooker(
+                new Uri(builder.HostEnvironment.BaseAddress),
+                x.GetRequiredService<IMessenger>(),
+                x.GetRequiredService<IAccessTokenProvider>()));
 
             services.AddScoped<IPlayerDataService, PlayerDataService>();
             services.AddSingleton<IPlayerDataCache, PlayerDataCache>();

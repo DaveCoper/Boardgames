@@ -10,6 +10,6 @@ namespace Boardgames.WebServer.Repositories
     {
         public Task<TGameType> GetGameAsync(int gameId, CancellationToken cancellationToken);
 
-        public Task<TGameType> StartNewGameAsync(int ownerId, TNewGameOptions newGameOptions, CancellationToken cancellationToken);
+        public Task<TGameType> CreateNewGameAsync(int ownerId, TNewGameOptions newGameOptions, CancellationToken cancellationToken);
     }
 }

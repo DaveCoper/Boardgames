@@ -17,7 +17,7 @@ namespace Boardgames.WebServer.Controllers
 {
     [Authorize]
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     public class NinthPlanetController : ControllerBase
     {
         private readonly INinthPlanetGameRepository gameRepository;
@@ -39,7 +39,7 @@ namespace Boardgames.WebServer.Controllers
         {
             int userId = GetUserId();
 
-            var game = await gameRepository.StartNewGameAsync(userId, gameOptions, cancellationToken);
+            var game = await gameRepository.CreateNewGameAsync(userId, gameOptions, cancellationToken);
             return await game.GetGameStateAsync(userId);
         }
 
@@ -85,6 +85,22 @@ namespace Boardgames.WebServer.Controllers
             var msgQueue = new Queue<GameMessage>();
             await game.LeaveGameAsync(userId, msgQueue);
             await FlushMessagesAsync(msgQueue);
+        }
+
+        [HttpGet("{gameId}/KurvaPicaUHolica")]
+        public async Task<bool> BeginRoundAsync(
+            [FromRoute] int gameId,
+            CancellationToken cancellationToken)
+        {
+            int userId = GetUserId();
+            var game = await gameRepository.GetGameAsync(gameId, cancellationToken);
+
+            cancellationToken.ThrowIfCancellationRequested();
+
+            var msgQueue = new Queue<GameMessage>();
+            await game.BeginRoundAsync(userId, msgQueue);
+            await FlushMessagesAsync(msgQueue);
+            return true;
         }
 
         [HttpPost("{gameId}/Help")]

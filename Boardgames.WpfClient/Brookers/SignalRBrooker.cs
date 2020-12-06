@@ -32,14 +32,15 @@ namespace Boardgames.WpfClient.Brookers
             this.messenger = messenger ?? throw new ArgumentNullException(nameof(messenger));
         }
 
-        public async Task ConnectAsync(CancellationToken cancellationToken)
+        public async Task ConnectAsync(CancellationToken cancellationToken = default)
         {
-            var accessToken = await accessTokenProvider.GetAccessTokenAsync(cancellationToken);
             var baseUrl = new Uri("https://localhost:44399/");
-
-            var url = new Uri(baseUrl, $"/hubs/GameHub?access_token={accessToken}");
+            var url = new Uri(baseUrl, $"/hubs/GameHub");
             var hub = new HubConnectionBuilder()
-                .WithUrl(url)
+                .WithUrl(url, options =>
+                {
+                    options.AccessTokenProvider = () => accessTokenProvider.GetAccessTokenAsync(default);
+                })
                 .WithAutomaticReconnect()
                 .Build();
 

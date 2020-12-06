@@ -48,6 +48,7 @@
             Margin="10"
             HorizontalAlignment="Right"
             VerticalAlignment="Bottom"
+            Command="{Binding StartGame}"
             Content="Begin" />
     </Grid>
 </UserControl>

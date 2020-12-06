@@ -17,6 +17,13 @@ namespace Boardgames.Client.Services
             this.webApiBrooker = webApiBrooker ?? throw new ArgumentNullException(nameof(webApiBrooker));
         }
 
+        public async Task BeginRoundAsync(int gameId)
+        {
+            await this.webApiBrooker.GetAsync<bool>(
+                ControllerName,
+                $"{gameId}/KurvaPicaUHolica");
+        }
+
         public Task CallForHelpAsync(int gameId)
         {
             throw new NotImplementedException();
@@ -30,15 +37,15 @@ namespace Boardgames.Client.Services
         public async Task<GameState> GetGameStateAsync(int gameId)
         {
             return await this.webApiBrooker.GetAsync<GameState>(
-                ControllerName, 
+                ControllerName,
                 gameId.ToString(CultureInfo.InvariantCulture));
         }
 
         public async Task<GameState> JoinGameAsync(int gameId)
         {
             return await this.webApiBrooker.GetAsync<GameState>(
-                ControllerName, 
-                $"{gameId.ToString(CultureInfo.InvariantCulture)}/Join");
+                ControllerName,
+                $"{gameId}/Join");
         }
 
         public Task PlayCardAsync(int gameId, Card card)

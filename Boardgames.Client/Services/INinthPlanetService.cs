@@ -16,5 +16,7 @@ namespace Boardgames.Client.Services
         Task TakeGoalAsync(int gameId, TaskCard goal);
 
         Task CallForHelpAsync(int gameId);
+
+        Task BeginRoundAsync(int gameId);
     }
 }

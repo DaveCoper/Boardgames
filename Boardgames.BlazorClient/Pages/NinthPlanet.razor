@@ -3,9 +3,12 @@
 @using Microsoft.AspNetCore.Components.WebAssembly.Authentication
 @using Boardgames.Client.ViewModels
 @using Boardgames.Client.Services
+@using Boardgames.Client.Brookers
 @using Boardgames.NinthPlanet.Models
+@using Boardgames.BlazorClient.Components
 @inject IGameInfoService gameInfoService
 @inject Func<int, int, GameState, NinthPlanetScreenViewModel> screenVmFactory
+@inject ISignalRBrooker signalRBroker
 @attribute [Authorize]
 
 @if (ScreenVm == null)
@@ -14,20 +17,14 @@
 }
 else
 {
-    @if (ScreenVm.CurrentView is NinthPlanetLobbyViewModel lobbyViewModel)
+    @if (ScreenVm.CurrentView is NinthPlanetRoundViewModel roundViewModel)
     {
-        <div class="container">
-            <div class="row">
-                @foreach (var user in lobbyViewModel.PlayerData)
-                {
-                    <div class="col-sm">
-                        <img src="@user.AvatarUri" width="64" height="64" />
-                        <h3>@user.Name</h3> 
-                    </div>
-                }
-            </div>
-        </div>
+        <NinthPlanetGameRound RoundViewModel="roundViewModel" />
     }
+    else if (ScreenVm.CurrentView is NinthPlanetLobbyViewModel lobbyViewModel)
+    {
+        <NinthPlanetGameLobby LobbyViewModel="lobbyViewModel" />
+    }    
 }
 
 @code{
@@ -43,6 +40,7 @@ else
         {
             //forecasts = await Http.GetFromJsonAsync<WeatherForecast[]>("WeatherForecast");
             var gameInfo = await gameInfoService.GetGameInfoAsync(GameId);
+            await signalRBroker.ConnectAsync();
             var vm = screenVmFactory(gameInfo.OwnerId, GameId, null);
             await vm.LoadDataAsync();
             ScreenVm = vm;

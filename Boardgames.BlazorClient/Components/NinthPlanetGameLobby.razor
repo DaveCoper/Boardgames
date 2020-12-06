@@ -1,0 +1,45 @@
+﻿@using Boardgames.Client.ViewModels
+@using Boardgames.BlazorClient.Extensions 
+
+<div class="container">
+    <div class="row">
+        @foreach (var user in LobbyViewModel.PlayerData)
+        {
+            <div class="col-sm">
+                <img src="@user.AvatarUri" width="64" height="64" />
+                <h3>@user.Name</h3>
+            </div>
+        }
+    </div>
+    <div class="row">
+        <button @onclick="BeginRound" class="btn btn-primary">Begin round</button>
+    </div>
+</div>
+
+@code {
+
+    private NinthPlanetLobbyViewModel lobbyViewModel;
+
+    [Parameter]
+    public NinthPlanetLobbyViewModel LobbyViewModel {
+        get => lobbyViewModel;
+        set
+        {
+            lobbyViewModel = value;
+            if(lobbyViewModel != null)
+            {
+                lobbyViewModel.PlayerData.UpdateOnCollectionChanged(this.StateHasChanged);
+            }
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+    }
+
+    private void BeginRound()
+    {
+        lobbyViewModel.StartGame.Execute(null);
+    }
+}

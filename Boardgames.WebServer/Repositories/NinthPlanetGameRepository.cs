@@ -26,7 +26,7 @@ namespace Boardgames.WebServer.Repositories
             this.dbContext = dbContext ?? throw new System.ArgumentNullException(nameof(dbContext));
         }
 
-        public async Task<INinthPlanetServer> StartNewGameAsync(
+        public async Task<INinthPlanetServer> CreateNewGameAsync(
             int ownerId,
             NinthPlanetNewGameOptions newGameOptions,
             CancellationToken cancellationToken)

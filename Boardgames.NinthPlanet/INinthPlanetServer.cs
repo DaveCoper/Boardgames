@@ -25,5 +25,7 @@ namespace Boardgames.NinthPlanet
         Task TakeGoalAsync(int playerId, TaskCard goal, Queue<GameMessage> messageQueue);
 
         Task CallForHelpAsync(int playerId, Queue<GameMessage> messageQueue);
+        
+        Task BeginRoundAsync(int userId, Queue<GameMessage> msgQueue);
     }
 }

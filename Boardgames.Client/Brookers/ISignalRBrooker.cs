@@ -5,6 +5,6 @@ namespace Boardgames.Client.Brookers
 {
     public interface ISignalRBrooker
     { 
-        Task ConnectAsync(CancellationToken cancellationToken);
+        Task ConnectAsync(CancellationToken cancellationToken = default);
     }
 }

@@ -56,6 +56,7 @@ namespace Boardgames.Client.ViewModels
 
             this.playerDataService = playerDataService ?? throw new ArgumentNullException(nameof(playerDataService));
             this.ninthPlanetService = ninthPlanetService ?? throw new ArgumentNullException(nameof(ninthPlanetService));
+
             messenger.Register<GameHasStarted>(this, OnGameHasStarted);
             messenger.Register<NewPlayerConnected>(this, OnPlayerHasConnected);
             messenger.Register<PlayerHasLeft>(this, OnPlayerHasLeft);
@@ -83,17 +84,22 @@ namespace Boardgames.Client.ViewModels
                     gameState = await ninthPlanetService.JoinGameAsync(this.gameId);
                 }
 
+                var myData = await this.playerDataService.GetMyDataAsync();
                 if (gameState.BoardState != null)
                 {
-                    CurrentView = null;
+                    var playerData = await this.playerDataService.GetPlayerDataAsync(gameState.BoardState.PlayerStates.Keys);
+                    CurrentView = new NinthPlanetRoundViewModel(
+                        myData.Id,
+                        gameState.BoardState,
+                        playerData.ToDictionary(x => x.Id));
+
                     return;
                 }
 
                 if (gameState.LobbyState != null)
                 {
-                    var myData = await this.playerDataService.GetMyDataAsync();
                     var playerData = await this.playerDataService.GetPlayerDataAsync(gameState.LobbyState.ConnectedPlayers);
-                    lobbyViewModel = new NinthPlanetLobbyViewModel(playerData, myData.Id == gameOwnerId);
+                    lobbyViewModel = new NinthPlanetLobbyViewModel(playerData, myData.Id == gameOwnerId, this.BeginRound);
                     CurrentView = lobbyViewModel;
                     return;
                 }
@@ -102,6 +108,11 @@ namespace Boardgames.Client.ViewModels
             {
                 IsNotBussy = true;
             }
+        }
+
+        private async void BeginRound()
+        {
+            await this.ninthPlanetService.BeginRoundAsync(this.gameId);
         }
 
         private void OnPlayerHasLeft(PlayerHasLeft msg)
@@ -125,7 +136,7 @@ namespace Boardgames.Client.ViewModels
             this.lobbyViewModel.PlayerData.Remove(player);
         }
 
-        private void OnPlayerHasConnected(NewPlayerConnected msg)
+        private async void OnPlayerHasConnected(NewPlayerConnected msg)
         {
             if (msg.GameId != this.gameState.GameId)
                 return;
@@ -136,18 +147,17 @@ namespace Boardgames.Client.ViewModels
                 return;
             }
 
-            this.playerDataService.GetPlayerDataAsync(msg.NewPlayerId)
-                .ContinueWith(
-                t => this.lobbyViewModel.PlayerData.Add(t.Result),
-                TaskScheduler.FromCurrentSynchronizationContext());
+            var playerData = await this.playerDataService.GetPlayerDataAsync(msg.NewPlayerId);
+            this.lobbyViewModel.PlayerData.Add(playerData);
         }
 
-        private void OnGameHasStarted(GameHasStarted msg)
+        private async void OnGameHasStarted(GameHasStarted msg)
         {
             if (msg.State.GameId != this.gameState.GameId)
                 return;
 
             gameState = msg.State;
+            await LoadDataAsync();
         }
     }
 }

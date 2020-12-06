@@ -23,6 +23,19 @@ namespace Boardgames.WebServer.Games
 
         public int GameOwnerId => server.GameOwnerId;
 
+        public async Task BeginRoundAsync(int playerId, Queue<GameMessage> messageQueue)
+        {
+            await semaphore.WaitAsync();
+            try
+            {
+                await server.BeginRoundAsync(playerId, messageQueue);
+            }
+            finally
+            {
+                semaphore.Release();
+            }
+        }
+
         public async Task CallForHelpAsync(int playerId, Queue<GameMessage> messageQueue)
         {
             await semaphore.WaitAsync();
