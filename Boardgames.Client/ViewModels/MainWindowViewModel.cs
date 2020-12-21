@@ -2,6 +2,7 @@
 using System.Collections.ObjectModel;
 using Boardgames.Client.Caches;
 using Boardgames.Client.Messages;
+using Boardgames.Client.ViewModels.NinthPlanet;
 using Boardgames.Common.Models;
 using Boardgames.NinthPlanet.Models;
 using GalaSoft.MvvmLight;

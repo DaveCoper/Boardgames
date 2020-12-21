@@ -7,7 +7,7 @@ using Boardgames.NinthPlanet.Models;
 
 namespace Boardgames.WebServer.Games
 {
-    public class NinthPlanet : INinthPlanetServer
+    public class NinthPlanet
     {
         private readonly SemaphoreSlim semaphore;
 
@@ -23,12 +23,12 @@ namespace Boardgames.WebServer.Games
 
         public int GameOwnerId => server.GameOwnerId;
 
-        public async Task BeginRoundAsync(int playerId, Queue<GameMessage> messageQueue)
+        public async Task BeginRoundAsync(int playerId, IGameMessenger gameMessenger)
         {
             await semaphore.WaitAsync();
             try
             {
-                await server.BeginRoundAsync(playerId, messageQueue);
+                server.BeginRound(playerId, gameMessenger);
             }
             finally
             {
@@ -36,12 +36,12 @@ namespace Boardgames.WebServer.Games
             }
         }
 
-        public async Task CallForHelpAsync(int playerId, Queue<GameMessage> messageQueue)
+        public async Task CallForHelpAsync(int playerId, IGameMessenger gameMessenger)
         {
             await semaphore.WaitAsync();
             try
             {
-                await server.CallForHelpAsync(playerId, messageQueue);
+                server.CallForHelp(playerId, gameMessenger);
             }
             finally
             {
@@ -51,18 +51,18 @@ namespace Boardgames.WebServer.Games
 
         public async Task DisplayCardAsync(
             int playerId,
-            Card card,
-            ComunicationTokenPosition? tokenPosition,
-            Queue<GameMessage> messageQueue)
+            Card? card,
+            CommunicationTokenPosition? tokenPosition,
+            IGameMessenger gameMessenger)
         {
             await semaphore.WaitAsync();
             try
             {
-                await server.DisplayCardAsync(
+                server.DisplayCard(
                     playerId,
                     card,
                     tokenPosition,
-                    messageQueue);
+                    gameMessenger);
             }
             finally
             {
@@ -75,7 +75,7 @@ namespace Boardgames.WebServer.Games
             await semaphore.WaitAsync();
             try
             {
-                return await server.GetGameStateAsync(playerId);
+                return server.GetGameState(playerId);
             }
             finally
             {
@@ -85,12 +85,12 @@ namespace Boardgames.WebServer.Games
 
         public async Task<GameState> JoinGameAsync(
             int playerId,
-            Queue<GameMessage> messageQueue)
+            IGameMessenger gameMessenger)
         {
             await semaphore.WaitAsync();
             try
             {
-                return await server.JoinGameAsync(playerId, messageQueue);
+                return server.JoinGame(playerId, gameMessenger);
             }
             finally
             {
@@ -100,12 +100,12 @@ namespace Boardgames.WebServer.Games
 
         public async Task LeaveGameAsync(
             int playerId,
-            Queue<GameMessage> messageQueue)
+            IGameMessenger gameMessenger)
         {
             await semaphore.WaitAsync();
             try
             {
-                await server.LeaveGameAsync(playerId, messageQueue);
+                server.LeaveGame(playerId, gameMessenger);
             }
             finally
             {
@@ -116,15 +116,15 @@ namespace Boardgames.WebServer.Games
         public async Task PlayCardAsync(
             int playerId,
             Card card,
-            Queue<GameMessage> messageQueue)
+            IGameMessenger gameMessenger)
         {
             await semaphore.WaitAsync();
             try
             {
-                await server.PlayCardAsync(
+                server.PlayCard(
                     playerId,
                     card,
-                    messageQueue);
+                    gameMessenger);
             }
             finally
             {
@@ -135,15 +135,15 @@ namespace Boardgames.WebServer.Games
         public async Task TakeGoalAsync(
             int playerId,
             TaskCard goal,
-            Queue<GameMessage> messageQueue)
+            IGameMessenger gameMessenger)
         {
             await semaphore.WaitAsync();
             try
             {
-                await server.TakeGoalAsync(
+                server.TakeGoal(
                     playerId,
                     goal,
-                    messageQueue);
+                    gameMessenger);
             }
             finally
             {

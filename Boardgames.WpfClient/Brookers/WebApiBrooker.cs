@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Boardgames.Client.Brookers;
+using Boardgames.WpfClient.Services;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
@@ -8,8 +10,6 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
-using Boardgames.Client.Brookers;
-using Boardgames.WpfClient.Services;
 
 namespace Boardgames.WpfClient.Brookers
 {
@@ -40,16 +40,9 @@ namespace Boardgames.WpfClient.Brookers
             Uri uri = CreateUri(controllerName, actionName, null);
             var accessToken = await accessTokenProvider.GetAccessTokenAsync(cancellationToken);
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-            try
-            {
-                var result = await client.GetAsync(uri, cancellationToken);
-            }
-            catch(Exception e)
-            {
 
-            }
-
-            //result.EnsureSuccessStatusCode();
+            var result = await client.GetAsync(uri, cancellationToken);
+            result.EnsureSuccessStatusCode();
         }
 
         public async Task<TReturnType> PostAsync<TReturnType, TContentType>(
@@ -66,6 +59,19 @@ namespace Boardgames.WpfClient.Brookers
 
             var resultJson = await response.Content.ReadAsStringAsync(cancellationToken);
             return JsonSerializer.Deserialize<TReturnType>(resultJson);
+        }
+
+        public async Task PostAsync<TContentType>(
+            string controllerName,
+            TContentType content,
+            string actionName = null,
+            CancellationToken cancellationToken = default)
+        {
+            Uri uri = CreateUri(controllerName, actionName, null);
+            var accessToken = await accessTokenProvider.GetAccessTokenAsync(cancellationToken);
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+            using var response = await client.PostAsJsonAsync(uri, content, cancellationToken);
+            response.EnsureSuccessStatusCode();
         }
 
         private Uri CreateUri(string controllerName, string actionName, IEnumerable<KeyValuePair<string, string>> parameters)

@@ -1,21 +1,18 @@
-using System;
-using System.Collections.Generic;
-using System.Net.Http;
-using System.Text;
-using System.Threading.Tasks;
 using Boardgames.BlazorClient.Brookers;
 using Boardgames.BlazorClient.Services;
 using Boardgames.Client.Brookers;
 using Boardgames.Client.Caches;
 using Boardgames.Client.Services;
 using Boardgames.Client.ViewModels;
+using Boardgames.Client.ViewModels.NinthPlanet;
 using Boardgames.Common.Models;
 using GalaSoft.MvvmLight.Messaging;
 using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
+using System;
+using System.Net.Http;
+using System.Threading.Tasks;
 
 namespace Boardgames.BlazorClient
 {
@@ -42,14 +39,12 @@ namespace Boardgames.BlazorClient
         private static void RegisterServices(WebAssemblyHostBuilder builder, IServiceCollection services)
         {
             services.AddSingleton<IIconUriProvider>(new IconUriProvider(new Uri(builder.HostEnvironment.BaseAddress)));
-
-            //services.AddSingleton<IFileStore, WpfFileStore>();
-            //services.AddSingleton<IDialogService, DialogService>();
+            services.AddSingleton<DragDropDataStore>();
 
             services.AddSingleton<IMessenger, Messenger>();
 
             services.AddScoped<IWebApiBrooker, WebApiBrooker>();
-            services.AddScoped<ISignalRBrooker>(x=> new SignalRBrooker(
+            services.AddScoped<ISignalRBrooker>(x => new SignalRBrooker(
                 new Uri(builder.HostEnvironment.BaseAddress),
                 x.GetRequiredService<IMessenger>(),
                 x.GetRequiredService<IAccessTokenProvider>()));
@@ -59,6 +54,8 @@ namespace Boardgames.BlazorClient
 
             services.AddScoped<IGameInfoService, GameInfoService>();
             services.AddScoped<INinthPlanetService, NinthPlanetService>();
+
+            services.AddScoped<BrowserService>();
         }
 
         private static void RegisterViewModels(IServiceCollection services)

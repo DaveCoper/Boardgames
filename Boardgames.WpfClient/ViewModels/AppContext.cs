@@ -6,6 +6,7 @@ using Boardgames.Client.Brookers;
 using Boardgames.Client.Caches;
 using Boardgames.Client.Services;
 using Boardgames.Client.ViewModels;
+using Boardgames.Client.ViewModels.NinthPlanet;
 using Boardgames.Common.Models;
 using Boardgames.WpfClient.Brookers;
 using Boardgames.WpfClient.Services;

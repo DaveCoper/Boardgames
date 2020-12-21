@@ -1,18 +1,16 @@
-﻿using System;
-using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
-using Boardgames.Client.Services;
+﻿using Boardgames.Client.Services;
 using Boardgames.NinthPlanet.Messages;
 using Boardgames.NinthPlanet.Models;
 using GalaSoft.MvvmLight.Messaging;
+using System;
+using System.Diagnostics;
+using System.Linq;
+using System.Threading.Tasks;
 
-namespace Boardgames.Client.ViewModels
+namespace Boardgames.Client.ViewModels.NinthPlanet
 {
     public class NinthPlanetScreenViewModel : ScreenViewModel, IAsyncLoad
     {
-        private const string ScreenLabel = "Ninth planet";
-
         private readonly int gameOwnerId;
 
         private readonly int gameId;
@@ -23,16 +21,16 @@ namespace Boardgames.Client.ViewModels
 
         private GameState gameState;
 
-        private NinthPlanetLobbyViewModel lobbyViewModel;
+        private LobbyViewModel lobbyViewModel;
 
         private bool isNotBussy = true;
 
         private object currentView;
 
         [Obsolete("Used by WPF designer", true)]
-        public NinthPlanetScreenViewModel() : base(ScreenLabel)
+        public NinthPlanetScreenViewModel() : base(Resources.Strings.PlanetNine_Title)
         {
-            lobbyViewModel = new NinthPlanetLobbyViewModel();
+            lobbyViewModel = new LobbyViewModel();
             this.CurrentView = lobbyViewModel;
         }
 
@@ -43,7 +41,7 @@ namespace Boardgames.Client.ViewModels
             IPlayerDataService playerDataService,
             INinthPlanetService ninthPlanetService,
             IMessenger messenger)
-            : base(ScreenLabel, messenger)
+            : base(Resources.Strings.PlanetNine_Title, messenger)
         {
             this.gameOwnerId = gameOwnerId;
             this.gameId = gameId;
@@ -88,10 +86,13 @@ namespace Boardgames.Client.ViewModels
                 if (gameState.BoardState != null)
                 {
                     var playerData = await this.playerDataService.GetPlayerDataAsync(gameState.BoardState.PlayerStates.Keys);
-                    CurrentView = new NinthPlanetRoundViewModel(
+                    CurrentView = new RoundViewModel(
+                        this.gameId,
                         myData.Id,
                         gameState.BoardState,
-                        playerData.ToDictionary(x => x.Id));
+                        playerData.ToDictionary(x => x.Id),
+                        this.ninthPlanetService,
+                        this.MessengerInstance);
 
                     return;
                 }
@@ -99,7 +100,7 @@ namespace Boardgames.Client.ViewModels
                 if (gameState.LobbyState != null)
                 {
                     var playerData = await this.playerDataService.GetPlayerDataAsync(gameState.LobbyState.ConnectedPlayers);
-                    lobbyViewModel = new NinthPlanetLobbyViewModel(playerData, myData.Id == gameOwnerId, this.BeginRound);
+                    lobbyViewModel = new LobbyViewModel(playerData, myData.Id == gameOwnerId, this.BeginRound);
                     CurrentView = lobbyViewModel;
                     return;
                 }

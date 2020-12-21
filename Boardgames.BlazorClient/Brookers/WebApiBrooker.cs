@@ -51,6 +51,19 @@ namespace Boardgames.BlazorClient.Brookers
             });
         }
 
+
+        public async Task PostAsync<TContentType>(
+            string controllerName,
+            TContentType content,
+            string actionName = null,
+            CancellationToken cancellationToken = default)
+        {
+            Uri uri = CreateUri(controllerName, actionName, null);
+
+            using var response = await client.PostAsJsonAsync(uri, content, cancellationToken);
+            response.EnsureSuccessStatusCode();
+        }
+
         private Uri CreateUri(string controllerName, string actionName, IEnumerable<KeyValuePair<string, string>> parameters)
         {
             Uri uri;

@@ -50,8 +50,14 @@ namespace Boardgames.WebServer.Areas.Identity.Pages.Account
         public class InputModel
         {
             [Required]
+            public string UserName { get; set; }
+
+            [Required]
             [EmailAddress]
             public string Email { get; set; }
+
+            [Url]
+            public string Avatar { get; set; }
         }
 
         public IActionResult OnGetAsync()
@@ -98,12 +104,18 @@ namespace Boardgames.WebServer.Areas.Identity.Pages.Account
                 // If the user does not have an account, then ask the user to create an account.
                 ReturnUrl = returnUrl;
                 ProviderDisplayName = info.ProviderDisplayName;
+                Input = new InputModel();
                 if (info.Principal.HasClaim(c => c.Type == ClaimTypes.Email))
                 {
-                    Input = new InputModel
-                    {
-                        Email = info.Principal.FindFirstValue(ClaimTypes.Email)
-                    };
+                    Input.Email = info.Principal.FindFirstValue(ClaimTypes.Email);
+                }
+                if (info.Principal.HasClaim(c => c.Type == ClaimTypes.Name))
+                {
+                    Input.UserName = info.Principal.FindFirstValue(ClaimTypes.Name);
+                }
+                if(info.LoginProvider == "EVEOnline" && info.Principal.HasClaim(c => c.Type == ClaimTypes.NameIdentifier))
+                {
+                    Input.Avatar = $"https://images.evetech.net/characters/{info.Principal.FindFirstValue(ClaimTypes.NameIdentifier)}/portrait";
                 }
                 return Page();
             }
@@ -122,7 +134,7 @@ namespace Boardgames.WebServer.Areas.Identity.Pages.Account
 
             if (ModelState.IsValid)
             {
-                var user = new ApplicationUser { UserName = Input.Email, Email = Input.Email };
+                var user = new ApplicationUser { UserName = Input.UserName, Email = Input.Email, Avatar = Input.Avatar };
 
                 var result = await _userManager.CreateAsync(user);
                 if (result.Succeeded)

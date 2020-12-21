@@ -1,0 +1,20 @@
+﻿<div class="npCard npCard-backSide" 
+     style="transform: translate(@XPosPx, @YPosPx)"/>
+
+@code {
+    [Parameter]
+    public bool CanBeDraged { get; set; } = false;
+
+    [Parameter]
+    public double XPostion { get; set; } = 0;
+
+    [Parameter]
+    public double YPostion { get; set; } = 0;
+
+    [Parameter]
+    public double Scale { get; set; } = 1;
+
+    private string XPosPx => $"{XPostion}px";
+
+    private string YPosPx => $"{YPostion}px";
+}

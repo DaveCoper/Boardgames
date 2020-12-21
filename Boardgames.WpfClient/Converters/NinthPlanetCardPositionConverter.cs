@@ -39,7 +39,7 @@ namespace Boardgames.WpfClient.Converters
                 var row = cardIndex / 10;
                 var column = cardIndex % 10;
 
-                return new Int32Rect(column * 89, row * 139, 89, 139);
+                return new Int32Rect(column * 90, Math.Max(0, (row * 140) - 1), 89, 139);
             }
 
             return new Int32Rect();

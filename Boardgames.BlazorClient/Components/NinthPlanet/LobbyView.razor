@@ -1,5 +1,5 @@
-﻿@using Boardgames.Client.ViewModels
-@using Boardgames.BlazorClient.Extensions 
+﻿@using Boardgames.Client.ViewModels.NinthPlanet
+@using Boardgames.BlazorClient.Extensions
 
 <div class="container">
     <div class="row">
@@ -18,15 +18,16 @@
 
 @code {
 
-    private NinthPlanetLobbyViewModel lobbyViewModel;
+    private LobbyViewModel lobbyViewModel;
 
     [Parameter]
-    public NinthPlanetLobbyViewModel LobbyViewModel {
+    public LobbyViewModel LobbyViewModel
+    {
         get => lobbyViewModel;
         set
         {
             lobbyViewModel = value;
-            if(lobbyViewModel != null)
+            if (lobbyViewModel != null)
             {
                 lobbyViewModel.PlayerData.UpdateOnCollectionChanged(this.StateHasChanged);
             }

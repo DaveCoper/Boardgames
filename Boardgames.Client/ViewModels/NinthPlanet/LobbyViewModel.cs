@@ -1,32 +1,34 @@
-﻿using System;
+﻿using Boardgames.Common.Models;
+using GalaSoft.MvvmLight;
+using GalaSoft.MvvmLight.Command;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using Boardgames.Client.Services;
-using Boardgames.Common.Models;
-using GalaSoft.MvvmLight;
-using GalaSoft.MvvmLight.Command;
 
-namespace Boardgames.Client.ViewModels
+namespace Boardgames.Client.ViewModels.NinthPlanet
 {
-    public class NinthPlanetLobbyViewModel : ViewModelBase
+    public class LobbyViewModel : ViewModelBase
     {
         [Obsolete("Used by WPF designer", true)]
-        public NinthPlanetLobbyViewModel()
+        public LobbyViewModel()
             : this(Enumerable.Range(1, 5).Select(x => new PlayerData { Id = x, Name = $"Player {x}" }).ToList(), true, () => { })
         {
         }
 
-        public NinthPlanetLobbyViewModel(List<PlayerData> playerData, bool isGameOwner, Action startGameAction)
+        public LobbyViewModel(List<PlayerData> playerData, bool localPlayerIsGameOwner, Action startGameAction)
         {
             PlayerData = new ObservableCollection<PlayerData>(playerData);
-            StartGame = new RelayCommand(startGameAction, () => isGameOwner && PlayerData.Count > 1, true);
+            StartGame = new RelayCommand(startGameAction, () => localPlayerIsGameOwner && PlayerData.Count > 1, true);
             PlayerData.CollectionChanged += OnPlayerDataCollectionChanged;
+            LocalPlayerIsGameOwner = localPlayerIsGameOwner;
         }
 
         public ObservableCollection<PlayerData> PlayerData { get; }
 
-        public RelayCommand StartGame { get; set; }
+        public RelayCommand StartGame { get; }
+
+        public bool LocalPlayerIsGameOwner { get; }
 
         private void OnPlayerDataCollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {

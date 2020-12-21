@@ -12,13 +12,13 @@ namespace Boardgames.WebServer.Repositories
 {
     public class NinthPlanetGameRepository : INinthPlanetGameRepository
     {
-        private readonly IGameCache<INinthPlanetServer> gameCache;
+        private readonly IGameCache<Games.NinthPlanet> gameCache;
 
         private readonly ApplicationDbContext dbContext;
 
         private readonly SemaphoreSlim semaphore;
 
-        public NinthPlanetGameRepository(IGameCache<INinthPlanetServer> gameCache, ApplicationDbContext dbContext)
+        public NinthPlanetGameRepository(IGameCache<Games.NinthPlanet> gameCache, ApplicationDbContext dbContext)
         {
             semaphore = new SemaphoreSlim(1);
 
@@ -26,7 +26,7 @@ namespace Boardgames.WebServer.Repositories
             this.dbContext = dbContext ?? throw new System.ArgumentNullException(nameof(dbContext));
         }
 
-        public async Task<INinthPlanetServer> CreateNewGameAsync(
+        public async Task<Games.NinthPlanet> CreateNewGameAsync(
             int ownerId,
             NinthPlanetNewGameOptions newGameOptions,
             CancellationToken cancellationToken)
@@ -61,7 +61,7 @@ namespace Boardgames.WebServer.Repositories
             }
         }
 
-        public async Task<INinthPlanetServer> GetGameAsync(int gameId, CancellationToken cancellationToken)
+        public async Task<Games.NinthPlanet> GetGameAsync(int gameId, CancellationToken cancellationToken)
         {
             if (this.gameCache.TryGetGame(gameId, out var game))
                 return game;
@@ -88,7 +88,7 @@ namespace Boardgames.WebServer.Repositories
             }
         }
 
-        private INinthPlanetServer StartGameFromState(NinthPlanetGameState gameState)
+        private Games.NinthPlanet StartGameFromState(NinthPlanetGameState gameState)
         {
             var game = new Games.NinthPlanet(new NinthPlanetServer(gameState.GameInfo, gameState));
             this.gameCache.TryAddGame(gameState.GameId, game);

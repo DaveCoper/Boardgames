@@ -1,11 +1,9 @@
-﻿using Boardgames.Common.Models;
+﻿using Boardgames.Common.Messages;
 
 namespace Boardgames.NinthPlanet.Messages
 {
-    public class NewPlayerConnected
+    public class NewPlayerConnected : GameMessage
     {
-        public int GameId { get; set; }
-
         public int NewPlayerId { get; set; }
     }
 }

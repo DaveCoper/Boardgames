@@ -1,0 +1,51 @@
+﻿@using Boardgames.NinthPlanet.Models
+@inject BlazorClient.Services.DragDropDataStore dragDropData
+
+@if (CanBeDraged)
+{
+    <div class="npCard npCard-@Card.Color.ToString().ToLower()"
+         title="@Card.Color @Card.Value"
+         draggable="true"
+         @ondragstart="OnDragStart"
+         style="transform: translate(@XPosPx, @YPosPx)">
+        <p class="npCard-label">@Card.Value</p>
+    </div>
+}
+else
+{
+    <div class="npCard npCard-@Card.Color.ToString().ToLower()"
+         title="@Card.Color @Card.Value"
+         style="transform: translate(@XPosPx, @YPosPx)">
+        <p class="npCard-label">@Card.Value</p>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public bool CanBeDraged { get; set; } = false;
+
+    [Parameter]
+    public Card Card { get; set; }
+
+    [Parameter]
+    public double XPostion { get; set; } = 0;
+
+    [Parameter]
+    public double YPostion { get; set; } = 0;
+
+    [Parameter]
+    public double Scale { get; set; } = 1;
+
+    private string XPosPx => $"{XPostion}px";
+
+    private string YPosPx => $"{YPostion}px";
+
+
+    protected void OnDragStart(DragEventArgs args)
+    {
+        if (CanBeDraged)
+        {
+            dragDropData.DragDropData = Card;
+        }
+    }
+}

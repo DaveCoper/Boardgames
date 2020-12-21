@@ -67,6 +67,14 @@ namespace Boardgames.BlazorClient.Brookers
                 hub,
                 GameType.NinthPlanet);
 
+            this.RegiserMessage<PlayerCommunicatedCard>(
+                hub,
+                GameType.NinthPlanet);
+
+            this.RegiserMessage<CardWasPlayed>(
+                hub,
+                GameType.NinthPlanet); 
+
             this.hub = hub;
         }
 

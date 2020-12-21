@@ -5,6 +5,7 @@
     xmlns:components="clr-namespace:Boardgames.WpfClient.UiComponents"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:npvm="clr-namespace:Boardgames.Client.ViewModels.NinthPlanet;assembly=Boardgames.Client"
     xmlns:res="clr-namespace:Boardgames.WpfClient.Resources"
     xmlns:svm="clr-namespace:Boardgames.Client.ViewModels;assembly=Boardgames.Client"
     Title="{x:Static res:Strings.MainWindow_Title}"
@@ -69,7 +70,7 @@
                 <DataTemplate DataType="{x:Type svm:CreateGameViewModel}">
                     <components:CreateGameControl />
                 </DataTemplate>
-                <DataTemplate DataType="{x:Type svm:NinthPlanetScreenViewModel}">
+                <DataTemplate DataType="{x:Type npvm:NinthPlanetScreenViewModel}">
                     <components:NinthPlanet IsEnabled="{Binding IsNotBussy}" />
                 </DataTemplate>
                 <DataTemplate DataType="{x:Type svm:GameBrowserViewModel}">

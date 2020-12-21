@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Threading.Tasks;
-using Boardgames.Client.Brookers;
-using Boardgames.Client.Caches;
+﻿using Boardgames.Client.Brookers;
 using Boardgames.Client.Messages;
 using Boardgames.Client.Models;
 using Boardgames.Client.Services;
@@ -11,14 +6,22 @@ using Boardgames.Common.Messages;
 using Boardgames.Common.Models;
 using GalaSoft.MvvmLight.Command;
 using GalaSoft.MvvmLight.Messaging;
+using System;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Boardgames.Client.ViewModels
 {
-    public class CreateGameViewModel : ScreenViewModel
+    public class CreateGameViewModel : ScreenViewModel, IAsyncLoad
     {
+        private readonly IIconUriProvider iconUriProvider;
+
+        private readonly IPlayerDataService playerDataService;
+
         private readonly IWebApiBrooker webApiBrooker;
 
-        private readonly PlayerData playerData;
+        private PlayerData playerData;
 
         private ObservableCollection<GameViewModel> availableGames;
 
@@ -27,41 +30,21 @@ namespace Boardgames.Client.ViewModels
         private GameViewModel selectedGame;
 
         [Obsolete("Designer use only.", true)]
-        public CreateGameViewModel() : base("Create game")
+        public CreateGameViewModel() : base(Resources.Strings.CreateGame_Title)
         {
         }
 
         public CreateGameViewModel(
             IIconUriProvider iconUriProvider,
-            IPlayerDataCache playerDataCache,
+            IPlayerDataService playerDataService,
             IWebApiBrooker webApiBrooker,
-            IMessenger messenger) : base("Create game", messenger)
+            IMessenger messenger) : base(Resources.Strings.CreateGame_Title, messenger)
         {
-            if (iconUriProvider is null)
-            {
-                throw new ArgumentNullException(nameof(iconUriProvider));
-            }
-
-            if (playerDataCache is null)
-            {
-                throw new ArgumentNullException(nameof(playerDataCache));
-            }
-
+            this.iconUriProvider = iconUriProvider ?? throw new ArgumentNullException(nameof(iconUriProvider));
+            this.playerDataService = playerDataService ?? throw new ArgumentNullException(nameof(playerDataService));
             this.webApiBrooker = webApiBrooker ?? throw new ArgumentNullException(nameof(webApiBrooker));
-
             this.CreateGameCommand = new RelayCommand(CreateGame);
-
-            this.playerData = playerDataCache.CurrentUserData;
-
-            this.AvailableGames = new ObservableCollection<GameViewModel>
-                        {
-                            new GameViewModel {
-                                Type = GameType.NinthPlanet,
-                                Name = "The Crew - Quest for Planet Nine",
-                                Icon32x32 =  iconUriProvider.GetIconUri(GameType.NinthPlanet, 32),
-                                Icon128x128 =  iconUriProvider.GetIconUri(GameType.NinthPlanet, 128),
-                            }
-                        };
+            this.AvailableGames = new ObservableCollection<GameViewModel>();
         }
 
         public ObservableCollection<GameViewModel> AvailableGames
@@ -96,7 +79,21 @@ namespace Boardgames.Client.ViewModels
             set => Set(ref gameSettings, value);
         }
 
-        private void CreateGame()
+        public async Task LoadDataAsync()
+        {
+            this.playerData = await playerDataService.GetMyDataAsync();
+            this.AvailableGames = new ObservableCollection<GameViewModel>
+                        {
+                            new GameViewModel {
+                                Type = GameType.NinthPlanet,
+                                Name = Boardgames.Client.Resources.Strings.PlanetNine_Title,
+                                Icon32x32 =  iconUriProvider.GetIconUri(GameType.NinthPlanet, 32),
+                                Icon128x128 =  iconUriProvider.GetIconUri(GameType.NinthPlanet, 128),
+                            }
+                        };
+        }
+
+        private async void CreateGame()
         {
             if (this.SelectedGame == null)
             {
@@ -106,35 +103,28 @@ namespace Boardgames.Client.ViewModels
             switch (this.SelectedGame.Type)
             {
                 case GameType.NinthPlanet:
-                    CreateNinthPlanetGame();
+                    await CreateNinthPlanetGame();
                     break;
             }
         }
 
-        private void CreateNinthPlanetGame()
+        private async Task CreateNinthPlanetGame()
         {
             var controllerName = GameType.NinthPlanet.ToString();
-            var task = webApiBrooker.PostAsync<NinthPlanet.Models.GameState, NinthPlanetNewGameOptions>(
+            var gameState = await webApiBrooker.PostAsync<Boardgames.NinthPlanet.Models.GameState, NinthPlanetNewGameOptions>(
                 controllerName,
                 (NinthPlanetNewGameOptions)GameSettings,
                 "Create");
 
-            task.ContinueWith(t =>
+            var message = new OpenGame
             {
-                if (t.Status == TaskStatus.RanToCompletion)
-                {
-                    var result = t.Result;
-                    var message = new OpenGame
-                    {
-                        GameId = result.GameId,
-                        GameType = GameType.NinthPlanet,
-                        GameState = result,
-                    };
+                GameId = gameState.GameId,
+                GameType = GameType.NinthPlanet,
+                GameState = gameState,
+            };
 
-                    this.MessengerInstance.Send(new SubscribeToGameMessages { GameId = result.GameId });
-                    this.MessengerInstance.Send(message);
-                }
-            }, TaskScheduler.FromCurrentSynchronizationContext());
+            this.MessengerInstance.Send(message);
+            this.MessengerInstance.Send(new SubscribeToGameMessages { GameId = gameState.GameId });
         }
 
         private void OnAvailableGamesChanged()
@@ -168,8 +158,8 @@ namespace Boardgames.Client.ViewModels
                     GameSettings = new NinthPlanetNewGameOptions
                     {
                         IsPublic = true,
-                        MaxNumberOfPlayers = 3,
-                        Name = $"{playerData.Name}'s Quest for Planet Nine"
+                        MaxNumberOfPlayers = 5,
+                        Name = string.Format(Resources.Strings.PlanetNine_NewGameName, playerData.Name),
                     };
                     break;
             }

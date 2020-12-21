@@ -6,8 +6,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using Boardgames.Client.Models;
 using Boardgames.Common.Messages;
+using Boardgames.Common.Models;
 using Boardgames.NinthPlanet.Models;
 using Boardgames.WebServer.Hubs;
+using Boardgames.WebServer.Messages;
 using Boardgames.WebServer.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -22,14 +24,14 @@ namespace Boardgames.WebServer.Controllers
     {
         private readonly INinthPlanetGameRepository gameRepository;
 
-        private readonly IHubContext<GameHub> hubContext;
+        private readonly GameMessenger gameMessenger;
 
         public NinthPlanetController(
             INinthPlanetGameRepository gameRepository,
             IHubContext<GameHub> hubContext)
         {
             this.gameRepository = gameRepository ?? throw new ArgumentNullException(nameof(gameRepository));
-            this.hubContext = hubContext ?? throw new ArgumentNullException(nameof(hubContext));
+            this.gameMessenger = new GameMessenger(GameType.NinthPlanet, hubContext, null);
         }
 
         [HttpPost("Create")]
@@ -65,9 +67,8 @@ namespace Boardgames.WebServer.Controllers
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            var msgQueue = new Queue<GameMessage>();
-            var gameState = await game.JoinGameAsync(userId, msgQueue);
-            await FlushMessagesAsync(msgQueue);
+            var gameState = await game.JoinGameAsync(userId, gameMessenger);
+            await gameMessenger.FlushAsync();
 
             return gameState;
         }
@@ -82,13 +83,12 @@ namespace Boardgames.WebServer.Controllers
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            var msgQueue = new Queue<GameMessage>();
-            await game.LeaveGameAsync(userId, msgQueue);
-            await FlushMessagesAsync(msgQueue);
+            await game.LeaveGameAsync(userId, this.gameMessenger);
+            await this.gameMessenger.FlushAsync();
         }
 
-        [HttpGet("{gameId}/KurvaPicaUHolica")]
-        public async Task<bool> BeginRoundAsync(
+        [HttpGet("{gameId}/BeginRound")]
+        public async Task BeginRoundAsync(
             [FromRoute] int gameId,
             CancellationToken cancellationToken)
         {
@@ -97,10 +97,8 @@ namespace Boardgames.WebServer.Controllers
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            var msgQueue = new Queue<GameMessage>();
-            await game.BeginRoundAsync(userId, msgQueue);
-            await FlushMessagesAsync(msgQueue);
-            return true;
+            await game.BeginRoundAsync(userId, this.gameMessenger);
+            await this.gameMessenger.FlushAsync();
         }
 
         [HttpPost("{gameId}/Help")]
@@ -112,16 +110,15 @@ namespace Boardgames.WebServer.Controllers
             var game = await gameRepository.GetGameAsync(gameId, cancellationToken);
 
             cancellationToken.ThrowIfCancellationRequested();
-
-            var msgQueue = new Queue<GameMessage>();
-            await game.CallForHelpAsync(userId, msgQueue);
-            await FlushMessagesAsync(msgQueue);
+            
+            await game.CallForHelpAsync(userId, this.gameMessenger);
+            await this.gameMessenger.FlushAsync();
         }
 
         [HttpPost("{gameId}/Display")]
         public async Task DisplayCardAsync(
             [FromRoute] int gameId,
-            [FromBody] DisplayCardInput input,
+            [FromBody] CardDisplayInfo input,
             CancellationToken cancellationToken)
         {
             int userId = GetUserId();
@@ -129,9 +126,8 @@ namespace Boardgames.WebServer.Controllers
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            var msgQueue = new Queue<GameMessage>();
-            await game.DisplayCardAsync(userId, input.Card, input.TokenPosition, msgQueue);
-            await FlushMessagesAsync(msgQueue);
+            await game.DisplayCardAsync(userId, input.Card, input.TokenPosition, this.gameMessenger);
+            await this.gameMessenger.FlushAsync();
         }
 
         [HttpPost("{gameId}/Play")]
@@ -145,9 +141,8 @@ namespace Boardgames.WebServer.Controllers
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            var msgQueue = new Queue<GameMessage>();
-            await game.PlayCardAsync(userId, card, msgQueue);
-            await FlushMessagesAsync(msgQueue);
+            await game.PlayCardAsync(userId, card, this.gameMessenger);
+            await this.gameMessenger.FlushAsync();
         }
 
         [HttpPost("{gameId}/TakeGoal")]
@@ -161,26 +156,8 @@ namespace Boardgames.WebServer.Controllers
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            var msgQueue = new Queue<GameMessage>();
-            await game.TakeGoalAsync(userId, goal, msgQueue);
-            await FlushMessagesAsync(msgQueue);
-        }
-
-        private async Task FlushMessagesAsync(Queue<GameMessage> msgQueue)
-        {
-            string gamePrefix = "NinthPlanet";
-            while (msgQueue.Count > 0)
-            {
-                var msg = msgQueue.Dequeue();
-                var connection = hubContext.Clients.User(
-                    msg.ReceiverId.ToString(CultureInfo.InvariantCulture));
-
-                if (connection != null)
-                {
-                    var payloadType = msg.Payload.GetType().Name;
-                    await connection.SendAsync($"{gamePrefix}_{payloadType}", msg.Payload);
-                }
-            }
+            await game.TakeGoalAsync(userId, goal, this.gameMessenger);
+            await this.gameMessenger.FlushAsync();
         }
 
         private int GetUserId()
@@ -193,13 +170,6 @@ namespace Boardgames.WebServer.Controllers
             }
 
             return userId;
-        }
-
-        public class DisplayCardInput
-        {
-            public Card Card { get; set; }
-
-            public ComunicationTokenPosition? TokenPosition { get; set; }
         }
     }
 }

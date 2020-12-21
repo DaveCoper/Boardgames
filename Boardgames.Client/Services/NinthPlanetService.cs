@@ -1,8 +1,9 @@
-﻿using System;
+﻿using Boardgames.Client.Brookers;
+using Boardgames.Client.Models;
+using Boardgames.NinthPlanet.Models;
+using System;
 using System.Globalization;
 using System.Threading.Tasks;
-using Boardgames.Client.Brookers;
-using Boardgames.NinthPlanet.Models;
 
 namespace Boardgames.Client.Services
 {
@@ -19,9 +20,9 @@ namespace Boardgames.Client.Services
 
         public async Task BeginRoundAsync(int gameId)
         {
-            await this.webApiBrooker.GetAsync<bool>(
+            await this.webApiBrooker.GetAsync(
                 ControllerName,
-                $"{gameId}/KurvaPicaUHolica");
+                $"{gameId}/BeginRound");
         }
 
         public Task CallForHelpAsync(int gameId)
@@ -29,9 +30,12 @@ namespace Boardgames.Client.Services
             throw new NotImplementedException();
         }
 
-        public Task DisplayCardAsync(int gameId, Card card, ComunicationTokenPosition? tokenPosition)
+        public async Task DisplayCardAsync(int gameId, Card? card, CommunicationTokenPosition? tokenPosition)
         {
-            throw new NotImplementedException();
+            await this.webApiBrooker.PostAsync<CardDisplayInfo>(
+                ControllerName,
+                new CardDisplayInfo { Card = card, TokenPosition = tokenPosition },
+                $"{gameId}/Display");
         }
 
         public async Task<GameState> GetGameStateAsync(int gameId)
@@ -48,9 +52,12 @@ namespace Boardgames.Client.Services
                 $"{gameId}/Join");
         }
 
-        public Task PlayCardAsync(int gameId, Card card)
+        public async Task PlayCardAsync(int gameId, Card card)
         {
-            throw new NotImplementedException();
+            await this.webApiBrooker.PostAsync(
+                   ControllerName,
+                   card,
+                   $"{gameId}/Play");
         }
 
         public Task TakeGoalAsync(int gameId, TaskCard goal)

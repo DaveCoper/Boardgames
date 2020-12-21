@@ -12,20 +12,20 @@ namespace Boardgames.NinthPlanet
 
         int GameOwnerId { get; }
 
-        Task<GameState> GetGameStateAsync(int playerId);
+        GameState GetGameState(int playerId);
 
-        Task PlayCardAsync(int playerId, Card card, Queue<GameMessage> messageQueue);
+        void PlayCard(int playerId, Card card, IGameMessenger gameMessenger);
 
-        Task<GameState> JoinGameAsync(int newPlayerId, Queue<GameMessage> messageQueue);
+        GameState JoinGame(int newPlayerId, IGameMessenger gameMessenger);
 
-        Task LeaveGameAsync(int playerId, Queue<GameMessage> messageQueue);
+        void LeaveGame(int playerId, IGameMessenger gameMessenger);
 
-        Task DisplayCardAsync(int playerId, Card card, ComunicationTokenPosition? tokenPosition, Queue<GameMessage> messageQueue);
+        void DisplayCard(int playerId, Card? card, CommunicationTokenPosition? tokenPosition, IGameMessenger gameMessenger);
 
-        Task TakeGoalAsync(int playerId, TaskCard goal, Queue<GameMessage> messageQueue);
+        void TakeGoal(int playerId, TaskCard goal, IGameMessenger gameMessenger);
 
-        Task CallForHelpAsync(int playerId, Queue<GameMessage> messageQueue);
+        void CallForHelp(int playerId, IGameMessenger gameMessenger);
         
-        Task BeginRoundAsync(int userId, Queue<GameMessage> msgQueue);
+        void BeginRound(int userId, IGameMessenger gameMessenger);
     }
 }

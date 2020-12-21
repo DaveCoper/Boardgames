@@ -102,6 +102,7 @@ namespace Boardgames.WebServer.Areas.Identity.Pages.Account.Manage
                 Username = userName,
                 PhoneNumber = phoneNumber,
                 EmailAddress = email,
+                Avatar = user.Avatar,
             };
         }
 

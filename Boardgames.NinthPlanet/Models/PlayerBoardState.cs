@@ -14,6 +14,6 @@ namespace Boardgames.NinthPlanet.Models
 
         public Card? ComunicatedCard { get; set; }
 
-        public ComunicationTokenPosition? ComunicationTokenPosition { get; set; }
+        public CommunicationTokenPosition? CommunicationTokenPosition { get; set; }
     }
 }

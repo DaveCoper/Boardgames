@@ -1,0 +1,56 @@
+﻿@using Boardgames.NinthPlanet.Models
+@using Boardgames.BlazorClient.Extensions
+@using Boardgames.BlazorClient.Components
+@using Boardgames.BlazorClient.Components.NinthPlanet
+@using Boardgames.Client.ViewModels.NinthPlanet
+@inject Services.DragDropDataStore dragDropStore
+
+<div class="container">
+    <div class="row">
+        @foreach (var player in roundViewModel.OtherPlayers)
+        {
+            <div class="col-auto" style="height:250px">
+                <RemotePlayerView Player="player" />
+            </div>
+        }
+    </div>
+    <div class="row" style="height:250px"
+         @ondragover:preventDefault
+         @ondragover="() => { }"
+         @ondragenter:preventDefault
+         @ondragenter="() => { }"
+         @ondrop="OnDropToPlayArea"
+         @ondrop:preventDefault>
+
+    </div>
+    <div class="row" style="height:250px">
+        <LocalPlayerView LocalPlayer="@RoundViewModel.LocalPlayer" />
+    </div>
+</div>
+
+@code {
+
+    private RoundViewModel roundViewModel;
+
+    [Parameter]
+    public RoundViewModel RoundViewModel
+    {
+        get => roundViewModel;
+        set
+        {
+            roundViewModel = value;
+            if (roundViewModel != null)
+            {
+                roundViewModel.UpdateOnPropertyChanged(this.StateHasChanged);
+            }
+        }
+    }
+
+    public async Task OnDropToPlayArea(DragEventArgs args)
+    {
+        if (dragDropStore.DragDropData is Card card)
+        {
+            await roundViewModel.LocalPlayer.PlayCardAsync(card);
+        }
+    }
+}

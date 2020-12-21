@@ -23,5 +23,11 @@ namespace Boardgames.Client.Brookers
             TContentType content,
             string actionName = null,
             CancellationToken cancellationToken = default);
+
+        Task PostAsync<TContentType>(
+            string controllerName,
+            TContentType content,
+            string actionName = null,
+            CancellationToken cancellationToken = default);
     }
 }

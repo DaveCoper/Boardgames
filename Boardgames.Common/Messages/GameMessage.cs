@@ -1,11 +1,9 @@
 ﻿namespace Boardgames.Common.Messages
 {
-    public class GameMessage
+    public class GameMessage : IGameMessage
     {
         public int GameId { get; set; }
 
-        public int ReceiverId { get; set; }
-
-        public object Payload { get; set; }
+        public int ConcurencyStamp { get; set; }
     }
 }

@@ -82,6 +82,11 @@ namespace Boardgames.WpfClient.Services
                 logger.LogInformation(e, "User settings file not found.");
                 return CreateEmptyUserData();
             }
+            catch (Exception e)
+            {
+                logger.LogError(e, "Something went horribly wrong.");
+                return CreateEmptyUserData();
+            }
 
             try
             {

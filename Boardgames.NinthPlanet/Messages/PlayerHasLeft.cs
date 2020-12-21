@@ -1,9 +1,9 @@
-﻿namespace Boardgames.NinthPlanet.Messages
+﻿using Boardgames.Common.Messages;
+
+namespace Boardgames.NinthPlanet.Messages
 {
-    public class PlayerHasLeft
-    {
-        public int GameId { get; set; }
-    
+    public class PlayerHasLeft : GameMessage
+    {    
         public int PlayerId { get; set; }
     }
 }

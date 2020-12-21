@@ -30,6 +30,12 @@ namespace Boardgames.NinthPlanet.Models
         /// <summary>
         /// List of cards that your player has in hand.
         /// </summary>
-        public List<Card> CardsInHand { get; set; }
+        public List<Card> CardsInHand { get; set; } = new List<Card>();
+
+
+        /// <summary>
+        /// List of cards that are on the played in current trick.
+        /// </summary>
+        public Dictionary<int, Card> CurrentTrick { get; set; } = new Dictionary<int, Card>();
     }
 }

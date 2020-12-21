@@ -2,10 +2,12 @@
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Components.WebAssembly.Authentication
 @using Boardgames.Client.ViewModels
+@using Boardgames.Client.ViewModels.NinthPlanet
 @using Boardgames.Client.Services
 @using Boardgames.Client.Brookers
 @using Boardgames.NinthPlanet.Models
-@using Boardgames.BlazorClient.Components
+@using Boardgames.BlazorClient.Components.NinthPlanet
+@using Boardgames.BlazorClient.Extensions
 @inject IGameInfoService gameInfoService
 @inject Func<int, int, GameState, NinthPlanetScreenViewModel> screenVmFactory
 @inject ISignalRBrooker signalRBroker
@@ -17,14 +19,18 @@
 }
 else
 {
-    @if (ScreenVm.CurrentView is NinthPlanetRoundViewModel roundViewModel)
+    @if (ScreenVm.CurrentView is RoundViewModel roundViewModel)
     {
-        <NinthPlanetGameRound RoundViewModel="roundViewModel" />
+        <GameView RoundViewModel="roundViewModel" />
     }
-    else if (ScreenVm.CurrentView is NinthPlanetLobbyViewModel lobbyViewModel)
+    else if (ScreenVm.CurrentView is LobbyViewModel lobbyViewModel)
     {
-        <NinthPlanetGameLobby LobbyViewModel="lobbyViewModel" />
-    }    
+        <LobbyView LobbyViewModel="lobbyViewModel" />
+    }
+    else
+    {
+        <p>Something went wrong!</p>
+    }
 }
 
 @code{
@@ -44,6 +50,8 @@ else
             var vm = screenVmFactory(gameInfo.OwnerId, GameId, null);
             await vm.LoadDataAsync();
             ScreenVm = vm;
+
+            vm.UpdateOnPropertyChanged(this.StateHasChanged);
         }
         catch (AccessTokenNotAvailableException exception)
         {

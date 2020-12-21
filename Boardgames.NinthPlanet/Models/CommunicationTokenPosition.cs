@@ -1,6 +1,6 @@
 ﻿namespace Boardgames.NinthPlanet.Models
 {
-    public enum ComunicationTokenPosition
+    public enum CommunicationTokenPosition
     {
         Top,
         Middle,

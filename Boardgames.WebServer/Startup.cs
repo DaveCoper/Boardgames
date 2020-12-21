@@ -43,13 +43,13 @@ namespace Boardgames.WebServer
             services.AddDefaultIdentity<ApplicationUser>(options =>
             {
                 options.SignIn.RequireConfirmedAccount = true;
-
                 options.Password.RequiredLength = 6;
                 options.Password.RequiredUniqueChars = 0;
                 options.Password.RequireNonAlphanumeric = false;
                 options.Password.RequireLowercase = false;
                 options.Password.RequireUppercase = false;
                 options.Password.RequireDigit = false;
+                options.User.AllowedUserNameCharacters += " ";
 
                 options.ClaimsIdentity.UserIdClaimType = ClaimTypes.NameIdentifier;
             })
@@ -82,7 +82,12 @@ namespace Boardgames.WebServer
              services.AddScoped<IUserClaimsPrincipalFactory<ApplicationUser>, AdditionalUserClaimsPrincipalFactory>();
 
             services.AddAuthentication()
-                .AddIdentityServerJwt();
+                .AddIdentityServerJwt()
+                /*.AddEVEOnline(options=>
+                {
+                    options.ClientId = Configuration["EVEOnline:ClientId"];
+                    options.ClientSecret = Configuration["EVEOnline:ClientSecret"];
+                })*/;
 
             services.AddControllersWithViews();
             services.AddRazorPages();
@@ -176,8 +181,8 @@ namespace Boardgames.WebServer
         private void RegisterNinthPlanet(IServiceCollection services)
         {
             services.AddSingleton<
-                Repositories.IGameCache<NinthPlanet.INinthPlanetServer>,
-                Repositories.DefaultGameCache<NinthPlanet.INinthPlanetServer>>();
+                Repositories.IGameCache<Games.NinthPlanet>,
+                Repositories.DefaultGameCache<Games.NinthPlanet>>();
 
             services.AddScoped<
                 Repositories.INinthPlanetGameRepository,

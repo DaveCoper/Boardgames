@@ -1,0 +1,61 @@
+﻿@using Boardgames.NinthPlanet.Models
+@using Boardgames.BlazorClient.Extensions
+@using Boardgames.Client.ViewModels.NinthPlanet
+@inject Services.DragDropDataStore dragDropStore
+
+<div class="col-lg-10">
+    @for (int i = 0; i < LocalPlayer.Hand.Count; ++i)
+    {
+        var card = LocalPlayer.Hand[i];
+        <FrontOfTheCard CanBeDraged="true" Card="card" XPostion="i*24" />
+    }
+</div>
+<div class="col-2"
+     @ondragover:preventDefault
+     @ondragover="()=> { }"
+     @ondragenter:preventDefault
+     @ondragenter="()=> { }"
+     @ondrop="OnDropToCommunication"
+     @ondrop:preventDefault>
+    <p>Communication area</p>
+    <div class="npDropArea">
+        @if (LocalPlayer.CommunicatedCard.HasValue)
+        {
+            var card = LocalPlayer.CommunicatedCard.Value;
+
+            <FrontOfTheCard CanBeDraged="false" Card="card" />
+        }
+    </div>
+</div>
+
+@code {
+
+    private LocalPlayerViewModel localPlayer;
+
+    [Parameter]
+    public LocalPlayerViewModel LocalPlayer
+    {
+        get => localPlayer;
+        set
+        {
+            localPlayer = value;
+            if (localPlayer != null)
+            {
+                localPlayer.UpdateOnPropertyChanged(this.StateHasChanged);
+                localPlayer.Hand.UpdateOnCollectionChanged(this.StateHasChanged);
+            }
+        }
+    }
+
+    public async Task OnDropToCommunication(DragEventArgs args)
+    {
+
+        if (dragDropStore.DragDropData is Card draggedCard)
+        {
+            dragDropStore.DragDropData = null;
+
+            Console.WriteLine("Card {0} {1} was droped to communication area.", draggedCard.Color, draggedCard.Value);
+            await LocalPlayer.CommunicateCardAsync(draggedCard);
+        }
+    }
+}

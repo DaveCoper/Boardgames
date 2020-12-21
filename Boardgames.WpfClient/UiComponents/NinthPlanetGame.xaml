@@ -6,6 +6,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="clr-namespace:Boardgames.WpfClient.UiComponents"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:panels="clr-namespace:Boardgames.WpfClient.Panels"
     xmlns:svm="clr-namespace:Boardgames.Client.ViewModels;assembly=Boardgames.Client"
     d:DataContext="{d:DesignInstance Type={x:Type svm:NinthPlanetRoundViewModel},
                                      IsDesignTimeCreatable=True}"
@@ -16,10 +17,32 @@
         <Grid.Resources>
             <converters:NinthPlanetCardPositionConverter x:Key="cardPositionConverter" />
         </Grid.Resources>
-        <ItemsControl ItemsSource="{Binding Hand}">
-            <ItemsControl.ItemTemplate>
+        <ListBox
+            HorizontalAlignment="Center"
+            VerticalAlignment="Bottom"
+            Background="Transparent"
+            BorderBrush="Transparent"
+            BorderThickness="0"
+            ItemsSource="{Binding Hand}"
+            SelectionMode="Single">
+            <ListBox.ItemContainerStyle>
+                <Style TargetType="ListBoxItem">
+                    <Setter Property="BorderBrush" Value="Transparent" />
+                    <Setter Property="BorderThickness" Value="1" />
+                    <Setter Property="Background" Value="Transparent" />
+                    <Setter Property="Margin" Value="0" />
+                    <Setter Property="Padding" Value="0" />
+                    <Setter Property="Panel.ZIndex" Value="1" />
+                    <Style.Triggers>
+                        <Trigger Property="IsSelected" Value="True">
+                            <Setter Property="Panel.ZIndex" Value="2" />
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </ListBox.ItemContainerStyle>
+            <ListBox.ItemTemplate>
                 <DataTemplate>
-                    <Image Width="90" Height="140">
+                    <Image Width="180" Height="280">
                         <Image.Source>
                             <CroppedBitmap SourceRect="{Binding Converter={StaticResource cardPositionConverter}}">
                                 <CroppedBitmap.Source>
@@ -27,9 +50,29 @@
                                 </CroppedBitmap.Source>
                             </CroppedBitmap>
                         </Image.Source>
+                        <Image.InputBindings>
+                            <MouseBinding
+                                Command="{Binding Path='DataContext.CardDoubleClickCommand', RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListBox}}"
+                                CommandParameter="{Binding}"
+                                MouseAction="LeftDoubleClick" />
+                        </Image.InputBindings>
+                        <Image.ToolTip>
+                            <StackPanel Orientation="Horizontal">
+                                <Rectangle
+                                    Width="20"
+                                    Height="10"
+                                    Fill="Red" />
+                                <TextBlock Margin="10,2,2,2" Text="{Binding Value}" />
+                            </StackPanel>
+                        </Image.ToolTip>
                     </Image>
                 </DataTemplate>
-            </ItemsControl.ItemTemplate>
-        </ItemsControl>
+            </ListBox.ItemTemplate>
+            <ListBox.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <panels:CardStackPanel CardOffset="40" />
+                </ItemsPanelTemplate>
+            </ListBox.ItemsPanel>
+        </ListBox>
     </Grid>
 </UserControl>

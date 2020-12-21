@@ -13,41 +13,31 @@ namespace Boardgames.WebServer.Extensions
         public static async Task<PlayerData> GetPlayerDataAsync(this IQueryable<ApplicationUser> applicationUsers, int userId)
         {
             var user = await applicationUsers
-                .Select(x => new { x.Id, x.UserName, x.Avatar })
+                .Select(x => new PlayerData
+                {
+                    Id = x.Id,
+                    Name = x.UserName,
+                    AvatarUri = x.Avatar
+                })
                 .FirstAsync(x => x.Id == userId);
 
-            var playerData = new PlayerData
-            {
-                Id = user.Id,
-                Name = user.UserName,
-                AvatarUri = user.Avatar
-            };
-
-            return playerData;
+            return user;
         }
 
         public static async Task<List<PlayerData>> GetPlayerDataAsync(this IQueryable<ApplicationUser> applicationUsers, IEnumerable<int> userIds)
         {
             var userIdList = userIds as List<int> ?? userIds.ToList();
             var users = await applicationUsers
-                .Select(x => new { x.Id, x.UserName, x.Avatar })
-                .Where(x => userIdList.Contains(x.Id))
-                .ToListAsync();
-
-            var playerDataList = new List<PlayerData>(users.Count);
-            foreach (var user in users)
-            {
-                var playerData = new PlayerData
+                .Select(x => new PlayerData 
                 {
-                    Id = user.Id,
-                    Name = user.UserName,
-                    AvatarUri = user.Avatar
-                };
+                    Id = x.Id,
+                    Name = x.UserName,
+                    AvatarUri = x.Avatar
+                })
+                .Where(x => userIdList.Contains(x.Id))
+                .ToListAsync();            
 
-                playerDataList.Add(playerData);
-            }
-
-            return playerDataList;
+            return users;
         }
     }
 }
