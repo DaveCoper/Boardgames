@@ -25,7 +25,14 @@ namespace Boardgames.NinthPlanet
         {
             this.GameInfo = gameInfo;
 
-            CreateLobbyFromState(gameState);
+            if (gameState.BoardState == null)
+            {
+                CreateLobbyFromState(gameState);
+            }
+            else
+            {
+                throw new NotImplementedException();
+            }
         }
 
         public bool WaitingInLobby => currentRound == null;
@@ -53,7 +60,7 @@ namespace Boardgames.NinthPlanet
                         x => x.Key,
                         x => new PlayerBoardState
                         {
-                            CommunicationTokenPosition = x.Value.CommunicationTokenPosition,
+                            CommunicationTokenPosition = x.Value.ComunicationTokenPosition,
                             ComunicatedCard = x.Value.ComunicatedCard,
                             NumberOfCardsInHand = x.Value.CardsInHand.Count,
                         })
@@ -93,10 +100,8 @@ namespace Boardgames.NinthPlanet
                 if (this.playersInLobby.Count >= maximumNumberOfPlayers)
                     throw new GameIsFullException(this.GameId, maximumNumberOfPlayers);
 
-                var msg = FillGameMsgData(new NewPlayerConnected
-                {
-                    NewPlayerId = newPlayerId
-                });
+                var msg = this.CreateGameMsg<NewPlayerConnected>();
+                msg.NewPlayerId = newPlayerId;
 
                 gameMessenger.SendMessage(msg, this.playersInLobby);
                 this.playersInLobby.Add(newPlayerId);
@@ -116,16 +121,14 @@ namespace Boardgames.NinthPlanet
             {
                 bool roundIsLost = !WaitingInLobby && this.currentRound.StateOfPlayersAtTable.Remove(playerId);
 
-                var msg = FillGameMsgData(new PlayerHasLeft
-                {
-                    PlayerId = playerId,
-                });
+                var msg = this.CreateGameMsg<PlayerHasLeft>();
+                msg.PlayerId = playerId;
 
                 gameMessenger.SendMessage(msg, playersInLobby);
 
                 if (roundIsLost)
                 {
-                    var roundLostMsg = FillGameMsgData(new RoundFailed());
+                    var roundLostMsg = this.CreateGameMsg<RoundFailed>();
                     gameMessenger.SendMessage(roundLostMsg, playersInLobby);
                 }
             }
@@ -181,84 +184,38 @@ namespace Boardgames.NinthPlanet
                 return;
             }
 
-            if (this.currentRound.CurrentPlayerId == playerId &&
-                this.currentRound.StateOfPlayersAtTable.TryGetValue(playerId, out var playerState) &&
-                playerState.CardsInHand.Contains(card))
+            this.ThrowIfPlayerIsNotInGame(playerId);
+            if (!this.currentRound.CanPlayCard(playerId, card))
             {
-                var colorOfCurrentTrick = this.currentRound.ColorOfCurrentTrick;
-                if (colorOfCurrentTrick == null ||
-                    colorOfCurrentTrick.Value == card.Color ||
-                    (card.Color == CardColor.Rocket && playerState.CardsInHand.All(x => x.Color != colorOfCurrentTrick.Value)))
-                {
-                    playerState.CardsInHand.Remove(card);
-                    var msg = FillGameMsgData(new CardWasPlayed { Card = card });
-                    gameMessenger.SendMessage(msg, this.playersInLobby);
-
-                    var playerOrder = this.currentRound.PlayerOrder;
-                    var currentTrick = this.currentRound.CurrentTrick;
-
-                    currentTrick.Add(playerId, card);
-
-                    // move to next player
-                    var playerIndex = playerOrder.IndexOf(playerId);
-                    playerIndex = (playerIndex + 1) % playerOrder.Count;
-                    this.currentRound.CurrentPlayerId = playerOrder[playerIndex];
-
-                    // first card of the trick was played store its color and continue.
-                    if (colorOfCurrentTrick == null)
-                    {
-                        this.currentRound.ColorOfCurrentTrick = card.Color;
-                        return;
-                    }
-
-                    // check if all players played their card in this trick.
-                    bool someOfThePlayersDidntPlayCard = playerOrder.Except(currentTrick.Keys).Any();
-                    if (someOfThePlayersDidntPlayCard)
-                    {
-                        // some cards are still missing to finish this trick
-                        this.currentRound.CurrentPlayerId = playerIndex;
-                    }
-                    else
-                    {
-                        // trick is finished time to process it and prepare for next one.
-                        Card? winningCard = null;
-                        int trickWinner = -1;
-
-                        foreach (var playedCardPair in this.currentRound.CurrentTrick)
-                        {
-                            if (playedCardPair.Value.Color == CardColor.Rocket &&
-                                (winningCard == null ||
-                                winningCard.Value.Value < playedCardPair.Value.Value))
-                            {
-                                trickWinner = playedCardPair.Key;
-                                winningCard = playedCardPair.Value;
-                                continue;
-                            }
-
-                            if (playedCardPair.Value.Color == colorOfCurrentTrick &&
-                                (winningCard == null ||
-                                    (winningCard.Value.Value < playedCardPair.Value.Value &&
-                                     winningCard.Value.Color != CardColor.Rocket)))
-                            {
-                                trickWinner = playedCardPair.Key;
-                                winningCard = playedCardPair.Value;
-                                continue;
-                            }
-                        }
-
-                        // previous winner goes first
-                        this.currentRound.CurrentPlayerId = trickWinner;
-
-                        var trickMsg = FillGameMsgData(new TrickFinished
-                        {
-                            WinnerPlayerId = trickWinner,
-                            TakenCards = this.currentRound.CurrentTrick.Values.ToList()                            
-                        });
-
-                        gameMessenger.SendMessage(trickMsg, this.playersInLobby);
-                    }
-                }
+                throw new InvalidOperationException("You can't play this card at current time.");
             }
+
+            this.currentRound.PlayCard(playerId, card);
+            var msg = this.CreateGameMsg<CardWasPlayed>();
+            msg.Card = card;
+            gameMessenger.SendMessage(msg, this.playersInLobby);
+
+            if (this.currentRound.TrickIsComplete())
+            {
+                var trickWinnerId = this.currentRound.GetTrickWinner();
+                var finishedGoals = this.currentRound.GetFinishedTasks(trickWinnerId);
+                var failedGoals = this.currentRound.GetFailedTasks(trickWinnerId);
+
+
+                this.currentRound.GoToNextTrick(trickWinnerId);
+
+                var trickMsg = CreateGameMsg<TrickFinished>();
+                trickMsg.WinnerPlayerId = trickWinnerId;
+                trickMsg.TakenCards = this.currentRound.CurrentTrick.Values.ToList();
+
+                gameMessenger.SendMessage(trickMsg, this.playersInLobby);
+
+
+            }
+            else
+            {
+                this.currentRound.MoveToNextPlayer();
+            }            
         }
 
         public void TakeGoal(int playerId, TaskCard goal, IGameMessenger gameMessenger)
@@ -266,10 +223,14 @@ namespace Boardgames.NinthPlanet
 
         }
 
-        private TMessageType FillGameMsgData<TMessageType>(TMessageType gameMsg) where TMessageType : IGameMessage
+        private TMessageType CreateGameMsg<TMessageType>() where TMessageType : IGameMessage, new()
         {
-            gameMsg.GameId = this.GameId;
-            gameMsg.ConcurencyStamp = ++concurencyStamp;
+            var gameMsg = new TMessageType
+            {
+                GameId = this.GameId,
+                ConcurencyStamp = ++concurencyStamp,
+            };
+
             return gameMsg;
         }
 
@@ -313,6 +274,19 @@ namespace Boardgames.NinthPlanet
             }
 
             playersInLobby.Add(this.GameOwnerId);
+        }
+
+        private void ThrowIfPlayerIsNotInGame(int playerId)
+        {
+            if (!PlayerIsInGame(playerId))
+            {
+                throw new Exception();
+            }
+        }
+
+        private bool PlayerIsInGame(int playerId)
+        {
+            return this.playersInLobby.Contains(playerId);
         }
     }
 }
