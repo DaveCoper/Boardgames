@@ -5,13 +5,13 @@ using Boardgames.NinthPlanet.Models;
 
 namespace Boardgames.NinthPlanet
 {
-    internal class Round
+    public class Round
     {
-        public Dictionary<int, PlayerPrivateState> StateOfPlayersAtTable { get; set; }
+        public Dictionary<int, PlayerPrivateState> StateOfPlayersAtTable { get; set; } = new Dictionary<int, PlayerPrivateState>();
 
-        public List<TaskCard> AvailableGoals { get; set; }
+        public List<TaskCard> AvailableGoals { get; set; } = new List<TaskCard>();
 
-        public List<int> PlayerOrder { get; set; }
+        public List<int> PlayerOrder { get; set; } = new List<int>();
 
         public int CurrentPlayerId { get; set; }
 
@@ -19,7 +19,7 @@ namespace Boardgames.NinthPlanet
 
         public int CurrentCaptainPlayerId { get; set; }
 
-        public Dictionary<int, Card> CurrentTrick { get; internal set; }
+        public Dictionary<int, Card> CurrentTrick { get; set; } = new Dictionary<int, Card>();
 
         public bool CanPlayCard(int playerId, Card card)
         {
@@ -44,7 +44,7 @@ namespace Boardgames.NinthPlanet
 
         public void PlayCard(int playerId, Card card)
         {
-            if(ColorOfCurrentTrick == null)
+            if (ColorOfCurrentTrick == null)
             {
                 ColorOfCurrentTrick = card.Color;
             }
@@ -94,20 +94,28 @@ namespace Boardgames.NinthPlanet
 
         public List<TaskCard> GetFinishedTasks(int trickWinnerId)
         {
-            throw new NotImplementedException();
+            var finishedTasks = this.CurrentTrick.Join(
+                this.StateOfPlayersAtTable[trickWinnerId].UnfinishedTasks,
+                trick => trick.Value,
+                task => task.Card,
+                (trick, task) => task)
+                .ToList();
 
-            /*
-            this.CurrentTrick.Values.Join(
-                this.StateOfPlayersAtTable[trickWinnerId].TasksCards, 
-                trick => trick.Value, 
-                task => task.Card, 
-                (trick, Card) => { });
-            */
+            return finishedTasks;
         }
 
         public List<TaskCard> GetFailedTasks(int trickWinnerId)
         {
-            throw new NotImplementedException();
+            var failedTasks = this.CurrentTrick.Join(
+                this.StateOfPlayersAtTable
+                    .Where(x=> x.Key != trickWinnerId)
+                    .SelectMany(x=> x.Value.UnfinishedTasks),
+                trick => trick.Value,
+                task => task.Card,
+                (trick, task) => task)
+                .ToList();
+
+            return failedTasks;
         }
     }
 }

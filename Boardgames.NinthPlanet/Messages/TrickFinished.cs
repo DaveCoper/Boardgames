@@ -9,5 +9,7 @@ namespace Boardgames.NinthPlanet.Messages
         public int WinnerPlayerId { get; set; }
 
         public List<Card> TakenCards { get; set; }
+
+        public List<TaskCard> FinishedTasks { get; set; }
     }
 }

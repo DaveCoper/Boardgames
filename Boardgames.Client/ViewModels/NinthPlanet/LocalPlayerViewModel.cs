@@ -28,10 +28,17 @@ namespace Boardgames.Client.ViewModels.NinthPlanet
             }
 
             this.Hand = new ObservableCollection<Card>(hand);
+            this.FinishedTasks = new ObservableCollection<TaskCard>(state.FinishedTasks);
+            this.UnfinishedTasks = new ObservableCollection<TaskCard>(state.UnfinishedTasks);
+
             this.ninthPlanetService = ninthPlanetService ?? throw new ArgumentNullException(nameof(ninthPlanetService));
         }
 
         public ObservableCollection<Card> Hand { get; }
+
+        public ObservableCollection<TaskCard> UnfinishedTasks { get; }
+
+        public ObservableCollection<TaskCard> FinishedTasks { get; }
 
         protected override void OnCardWasPlayed(Card card)
         {

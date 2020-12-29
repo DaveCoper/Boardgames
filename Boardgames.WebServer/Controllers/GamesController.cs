@@ -55,7 +55,7 @@ namespace Boardgames.WebServer.Controllers
         {
             var game = await dbContext.Games
                 .OrderBy(x => x.Id)
-                .Where(x => x.IsPublic)
+                .Where(x => x.IsPublic && x.Id == gameId)
                 .Select(x => new GameInfo
                 {
                     Id = x.Id,

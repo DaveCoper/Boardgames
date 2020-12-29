@@ -1,11 +1,10 @@
-﻿using Boardgames.NinthPlanet.Models;
+﻿using Boardgames.Common.Messages;
+using Boardgames.NinthPlanet.Models;
 
 namespace Boardgames.NinthPlanet.Messages
 {
-    public class PlayerCommunicatedCard
+    public class PlayerCommunicatedCard : GameMessage
     {
-        public int GameId { get; set; }
-
         public int PlayerId { get; set; }
 
         public Card? Card { get; set; }

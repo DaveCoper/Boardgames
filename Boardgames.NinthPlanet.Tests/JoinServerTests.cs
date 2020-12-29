@@ -11,7 +11,7 @@ using NUnit.Framework.Internal;
 
 namespace Boardgames.NinthPlanet.Tests
 {
-    public class NinthPlanetServerTests
+    public class JoinServerTests
     {
         [SetUp]
         public void Setup()
