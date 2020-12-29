@@ -60,7 +60,7 @@ namespace Boardgames.NinthPlanet
                         x => x.Key,
                         x => new PlayerBoardState
                         {
-                            CommunicationTokenPosition = x.Value.ComunicationTokenPosition,
+                            CommunicationTokenPosition = x.Value.CommunicationTokenPosition,
                             ComunicatedCard = x.Value.ComunicatedCard,
                             NumberOfCardsInHand = x.Value.CardsInHand.Count,
                         })
