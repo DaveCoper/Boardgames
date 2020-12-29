@@ -37,8 +37,8 @@ namespace Boardgames.WebServer
             services.AddDbContext<ApplicationDbContext>(options =>
             {
                 //options.UseSqlServer(Configuration.GetConnectionString("SqlServerConncetion"))
-                var connection = Configuration.GetConnectionString("MariaConnection");
-                options.UseMySql(connection, ServerVersion.AutoDetect(connection));
+                //var connection = Configuration.GetConnectionString("MariaConnection");
+                //options.UseMySql(connection, ServerVersion.AutoDetect(connection));
             });
 
             services.AddDatabaseDeveloperPageExceptionFilter();

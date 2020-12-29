@@ -7,11 +7,11 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
-namespace Boardgames.WebServer.Data.Migrations
+namespace Boardgames.WebServer.Data.Migrations.SqlServerMigrations
 {
-    [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20201120151744_UserAvatar")]
-    partial class UserAvatar
+    [DbContext(typeof(SqlServerApplicationDbContext))]
+    [Migration("20201229132004_InitialCreate")]
+    partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -19,7 +19,7 @@ namespace Boardgames.WebServer.Data.Migrations
             modelBuilder
                 .UseIdentityColumns()
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
-                .HasAnnotation("ProductVersion", "5.0.0");
+                .HasAnnotation("ProductVersion", "5.0.1");
 
             modelBuilder.Entity("Boardgames.WebServer.Models.ApplicationRole", b =>
                 {
@@ -118,6 +118,55 @@ namespace Boardgames.WebServer.Data.Migrations
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.ToTable("AspNetUsers");
+                });
+
+            modelBuilder.Entity("Boardgames.WebServer.Models.DbGameInfo", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .UseIdentityColumn();
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("GameType")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
+                    b.Property<bool>("IsPublic")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("MaximumNumberOfPlayers")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)");
+
+                    b.Property<int>("OwnerId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OwnerId");
+
+                    b.ToTable("Games");
+                });
+
+            modelBuilder.Entity("Boardgames.WebServer.Models.NinthPlanetGameState", b =>
+                {
+                    b.Property<int>("GameId")
+                        .HasColumnType("int");
+
+                    b.HasKey("GameId");
+
+                    b.ToTable("NinthPlanetGames");
                 });
 
             modelBuilder.Entity("IdentityServer4.EntityFramework.Entities.DeviceFlowCodes", b =>
@@ -328,6 +377,28 @@ namespace Boardgames.WebServer.Data.Migrations
                     b.ToTable("AspNetUserTokens");
                 });
 
+            modelBuilder.Entity("Boardgames.WebServer.Models.DbGameInfo", b =>
+                {
+                    b.HasOne("Boardgames.WebServer.Models.ApplicationUser", "Owner")
+                        .WithMany("CreatedGames")
+                        .HasForeignKey("OwnerId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Owner");
+                });
+
+            modelBuilder.Entity("Boardgames.WebServer.Models.NinthPlanetGameState", b =>
+                {
+                    b.HasOne("Boardgames.WebServer.Models.DbGameInfo", "GameInfo")
+                        .WithOne()
+                        .HasForeignKey("Boardgames.WebServer.Models.NinthPlanetGameState", "GameId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("GameInfo");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
                 {
                     b.HasOne("Boardgames.WebServer.Models.ApplicationRole", null)
@@ -377,6 +448,11 @@ namespace Boardgames.WebServer.Data.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Boardgames.WebServer.Models.ApplicationUser", b =>
+                {
+                    b.Navigation("CreatedGames");
                 });
 #pragma warning restore 612, 618
         }
