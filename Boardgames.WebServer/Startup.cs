@@ -1,6 +1,7 @@
+using System.IO;
 using System.Linq;
 using System.Security.Claims;
-using Boardgames.Client.Models;
+using System.Security.Cryptography.X509Certificates;
 using Boardgames.WebServer.Data;
 using Boardgames.WebServer.Hubs;
 using Boardgames.WebServer.Models;
@@ -23,7 +24,7 @@ namespace Boardgames.WebServer
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        public Startup(IConfiguration configuration, IWebHostEnvironment env)
         {
             Configuration = configuration;
         }
@@ -36,9 +37,7 @@ namespace Boardgames.WebServer
         {
             services.AddDbContext<ApplicationDbContext>(options =>
             {
-                //options.UseSqlServer(Configuration.GetConnectionString("SqlServerConncetion"))
-                var connection = Configuration.GetConnectionString("MariaConnection");
-                options.UseMySql(connection, ServerVersion.AutoDetect(connection));
+                options.UseSqlite(Configuration.GetConnectionString("DefaultConncetion"));
             });
 
             services.AddDatabaseDeveloperPageExceptionFilter();
@@ -62,7 +61,7 @@ namespace Boardgames.WebServer
             services.AddIdentityServer()
                 .AddApiAuthorization<ApplicationUser, ApplicationDbContext>(options =>
                 {
-                    options.Clients.Add(CreateWpfClient());
+                    //options.Clients.Add(CreateWpfClient());
 
                     var identityResource = options.IdentityResources["openid"];
                     var apiResource = options.ApiResources.Single();
@@ -82,7 +81,7 @@ namespace Boardgames.WebServer
                     apiResource.UserClaims.Add(nameof(ClaimTypes.NameIdentifier));
                 });
 
-             services.AddScoped<IUserClaimsPrincipalFactory<ApplicationUser>, AdditionalUserClaimsPrincipalFactory>();
+            services.AddScoped<IUserClaimsPrincipalFactory<ApplicationUser>, AdditionalUserClaimsPrincipalFactory>();
 
             services.AddAuthentication()
                 .AddIdentityServerJwt()
@@ -180,7 +179,6 @@ namespace Boardgames.WebServer
 
             return client;
         }
-
         private void RegisterNinthPlanet(IServiceCollection services)
         {
             services.AddSingleton<

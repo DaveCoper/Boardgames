@@ -25,7 +25,7 @@ namespace Boardgames.WpfClient.Brookers
             this.accessTokenProvider = accessTokenProvider ?? throw new ArgumentNullException(nameof(accessTokenProvider));
         }
 
-        public Uri BaseAddress { get; private set; } = new Uri("https://localhost:44399/");
+        public Uri BaseAddress { get; private set; } = new Uri("https://192.168.0.125:5001/");
 
         public async Task<TReturnType> GetAsync<TReturnType>(string controllerName, string actionName = null, IEnumerable<KeyValuePair<string, string>> parameters = null, CancellationToken cancellationToken = default)
         {

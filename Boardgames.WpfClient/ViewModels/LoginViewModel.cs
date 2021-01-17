@@ -107,7 +107,7 @@ namespace Boardgames.WpfClient.ViewModels
             var options = new OidcClientOptions()
             {
                 //redirect to identity server
-                Authority = "https://localhost:44399/",
+                Authority = "http://192.168.0.125:5000/",
                 ClientId = "Boardgames.WpfClient",
                 Scope = "openid profile offline_access Boardgames.WebServerAPI",
                 //redirect back to app if auth success
@@ -117,6 +117,7 @@ namespace Boardgames.WpfClient.ViewModels
                 Browser = new ExternalBrowser()
             };
 
+            options.Policy.Discovery.RequireHttps = false;
             var client = new OidcClient(options);
             return client;
         }
