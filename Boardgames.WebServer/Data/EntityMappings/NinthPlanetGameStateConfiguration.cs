@@ -22,10 +22,9 @@ namespace Boardgames.WebServer.Data.EntityMappings
                 .Metadata.DeleteBehavior = DeleteBehavior.Restrict;
 
             gameStateBuilder
-                .Ignore(x => x.BoardState);
-
-            gameStateBuilder
-                .Ignore(x => x.LobbyState);
+                .HasMany(x => x.PlayerStates)
+                .WithOne(x => x.GameState)
+                .HasForeignKey(x => x.GameId);
         }
     }
 }

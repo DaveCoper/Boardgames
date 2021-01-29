@@ -1,6 +1,8 @@
-﻿namespace Boardgames.WebServer.Repositories
+﻿using System.Collections.Generic;
+
+namespace Boardgames.WebServer.Repositories
 {
-    public interface IGameCache<IGameType>
+    public interface IGameCache<IGameType> : IEnumerable<IGameType>
     {
         bool TryAddGame(int gameId, IGameType game);
 

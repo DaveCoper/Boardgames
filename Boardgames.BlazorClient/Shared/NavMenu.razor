@@ -1,4 +1,7 @@
-﻿<div class="top-row pl-4 navbar navbar-dark">
+﻿@using Boardgames.Client.ViewModels
+@inject MainWindowViewModel mainVm
+
+<div class="top-row pl-4 navbar navbar-dark">
     <a class="navbar-brand" href="">Boardgames.Web</a>
     <button class="navbar-toggler" @onclick="ToggleNavMenu">
         <span class="navbar-toggler-icon"></span>
@@ -12,16 +15,15 @@
                 <span class="oi oi-home" aria-hidden="true"></span> Home
             </NavLink>
         </li>
-        <li class="nav-item px-3">
-            <NavLink class="nav-link" href="joingame">
-                <span class="oi oi-plus" aria-hidden="true"></span> Join game
-            </NavLink>
-        </li>
-        <li class="nav-item px-3">
-            <NavLink class="nav-link" href="creategame">
-                <span class="oi oi-list-rich" aria-hidden="true"></span> Create game
-            </NavLink>
-        </li>
+
+        @foreach (var menuItem in mainVm.AvailableScreens)
+        {
+            <li class="nav-item px-3">
+                <NavLink class="nav-link" href="joingame">
+                    <span class="oi oi-plus" aria-hidden="true"></span> @menuItem.Label
+                </NavLink>
+            </li>
+        }
     </ul>
 </div>
 
@@ -33,5 +35,9 @@
     private void ToggleNavMenu()
     {
         collapseNavMenu = !collapseNavMenu;
+    }
+
+    protected override void OnInitialized()
+    {
     }
 }

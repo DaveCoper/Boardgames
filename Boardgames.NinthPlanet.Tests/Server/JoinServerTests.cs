@@ -1,23 +1,16 @@
-using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using Boardgames.Common.Exceptions;
 using Boardgames.Common.Messages;
 using Boardgames.Common.Models;
-using Boardgames.NinthPlanet.Models;
 using NSubstitute;
 using NUnit.Framework;
 using NUnit.Framework.Internal;
 
-namespace Boardgames.NinthPlanet.Tests
+namespace Boardgames.NinthPlanet.Tests.Server
 {
-    public class JoinServerTests
+    [TestFixture(Category = nameof(NinthPlanetServer))]
+    public class JoinServerTests : ServerTests
     {
-        [SetUp]
-        public void Setup()
-        {
-        }
-
         [Test]
         public void AddOwnerToPlayersOnStart()
         {
@@ -27,13 +20,7 @@ namespace Boardgames.NinthPlanet.Tests
 
             var gameInfo = CreateGameInfo(gameId, gameOwnerId);
 
-            var gameState = new GameState
-            {
-                GameId = gameId,
-                LobbyState = new LobbyState(),
-            };
-
-            var game = new NinthPlanetServer(gameInfo, gameState);
+            var game = GameFactory.CreateNewGame(gameInfo);
             var state = game.GetGameState(gameOwnerId);
 
             Assert.NotNull(state.LobbyState);
@@ -54,15 +41,8 @@ namespace Boardgames.NinthPlanet.Tests
             }
 
             var gameInfo = CreateGameInfo(gameId, gameOwnerId);
-
-            var gameState = new GameState
-            {
-                GameId = gameId,
-                LobbyState = new LobbyState(),
-            };
-
             var messenger = Substitute.For<IGameMessenger>();
-            var game = new NinthPlanetServer(gameInfo, gameState);
+            var game = GameFactory.CreateNewGame(gameInfo);
 
             game.JoinGame(secondPlayerId, messenger);
             var state = game.GetGameState(gameOwnerId);
@@ -78,17 +58,11 @@ namespace Boardgames.NinthPlanet.Tests
             Randomizer rng = TestContext.CurrentContext.Random;
             int gameId = rng.Next(1, 50000);
             int gameOwnerId = rng.Next(1, 50000);
-            GameInfo gameInfo = CreateGameInfo(gameId, gameOwnerId);
-
-            var gameState = new GameState
-            {
-                GameId = gameId,
-                LobbyState = new LobbyState(),
-            };
-
+            GameInfo gameInfo = CreateGameInfo(gameId, gameOwnerId); 
+            var game = GameFactory.CreateNewGame(gameInfo);
+            
             var messenger = Substitute.For<IGameMessenger>();
 
-            var game = new NinthPlanetServer(gameInfo, gameState);
             var playersInGame = new HashSet<int>();
             playersInGame.Add(gameOwnerId);
 
@@ -102,21 +76,6 @@ namespace Boardgames.NinthPlanet.Tests
             }
 
             Assert.Throws<GameIsFullException>(() => game.JoinGame(-5, messenger));
-        }
-
-        private static GameInfo CreateGameInfo(int gameId, int gameOwnerId)
-        {
-            return new GameInfo()
-            {
-                Id = gameId,
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow,
-                GameType = GameType.NinthPlanet,
-                IsPublic = true,
-                MaximumNumberOfPlayers = 5,
-                Name = "Test game",
-                OwnerId = gameOwnerId,
-            };
         }
     }
 }

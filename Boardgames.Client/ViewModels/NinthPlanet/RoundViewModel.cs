@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Windows.Input;
 using Boardgames.Client.Services;
 using Boardgames.Common.Models;
@@ -19,7 +18,7 @@ namespace Boardgames.Client.ViewModels.NinthPlanet
 
         private readonly INinthPlanetService ninthPlanetService;
 
-        private BoardState boardState;
+        private RoundState boardState;
 
         [Obsolete("Used by WPF designer", true)]
         public RoundViewModel()
@@ -29,7 +28,7 @@ namespace Boardgames.Client.ViewModels.NinthPlanet
         public RoundViewModel(
             int gameId,
             int localPlayerId,
-            BoardState boardState,
+            RoundState boardState,
             Dictionary<int, PlayerData> playerData,
             INinthPlanetService ninthPlanetService,
             IMessenger messenger)
@@ -68,7 +67,6 @@ namespace Boardgames.Client.ViewModels.NinthPlanet
         public LocalPlayerViewModel LocalPlayer { get; }
 
         public ICommand CardDoubleClickCommand { get; }
-
 
         private void OnCardWasPlayed(CardWasPlayed message)
         {

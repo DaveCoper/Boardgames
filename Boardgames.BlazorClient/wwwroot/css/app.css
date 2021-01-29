@@ -40,18 +40,18 @@ a, .btn-link {
 }
 
 .npCard {
-    border: solid;
-    border-radius: 6px;
-    border-color: white;
-    border-width: thick;
-    color: white;
-    font-family: 'Agency FB', arial;
-    font-size: 60px;
-    font-weight: bold;
     height: 140px;
     width: 80px;
     position: absolute;
     display: inline-block;
+}
+
+.npCard-backSide {
+    background: linear-gradient(to bottom right, black, #1861ac);
+    border: solid;
+    border-radius: 6px;
+    border-color: black;
+    border-width: thin;
 }
 
 .npDropArea {
@@ -62,36 +62,6 @@ a, .btn-link {
     width: 90px;
     border-radius: 5px;
     background: #dedede;
-}
-
-.npCard-backSide {
-    background: linear-gradient(to bottom right, black, #1861ac)
-}
-
-.npCard-label {
-    text-align: center;
-    vertical-align: middle;
-    line-height: 140px;
-}
-
-.npCard-rocket {
-    background: black;
-}
-
-.npCard-blue {
-    background: #4d9ebc;
-}
-
-.npCard-green {
-    background: #87b13f;
-}
-
-.npCard-pink {
-    background: #b85294;
-}
-
-.npCard-yellow {
-    background: #caa134;
 }
 
 /* ninth planet cards */

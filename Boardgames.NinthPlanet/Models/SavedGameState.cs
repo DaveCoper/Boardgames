@@ -1,15 +1,14 @@
 ﻿using System.Collections.Generic;
+using Boardgames.Common.Models;
 
 namespace Boardgames.NinthPlanet.Models
 {
     public class SavedGameState
     {
-        public int GameId { get; set; }
+        public GameInfo GameInfo { get; set; }
 
-        public int GameOwnerId { get; set; }
+        public List<int> PlayersInLobby { get; set; }
 
-        public List<int> PlayersIsLobby { get; set; }
-
-        public Round RoundState { get; set; }
+        public SavedRoundState RoundState { get; set; }
     }
 }

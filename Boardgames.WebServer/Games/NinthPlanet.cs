@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Threading;
+﻿using System.Threading;
 using System.Threading.Tasks;
 using Boardgames.Common.Messages;
 using Boardgames.NinthPlanet;
@@ -140,10 +139,23 @@ namespace Boardgames.WebServer.Games
             await semaphore.WaitAsync();
             try
             {
-                server.TakeGoal(
+                server.TakeTaskCard(
                     playerId,
                     goal,
                     gameMessenger);
+            }
+            finally
+            {
+                semaphore.Release();
+            }
+        }
+
+        public async Task<SavedGameState> SaveCurrentStateAsync()
+        {
+            await semaphore.WaitAsync();
+            try
+            {
+                return server.SaveCurrentState();
             }
             finally
             {

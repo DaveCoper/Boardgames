@@ -83,13 +83,13 @@ namespace Boardgames.Client.ViewModels.NinthPlanet
                 }
 
                 var myData = await this.playerDataService.GetMyDataAsync();
-                if (gameState.BoardState != null)
+                if (gameState.RoundState != null)
                 {
-                    var playerData = await this.playerDataService.GetPlayerDataAsync(gameState.BoardState.PlayerStates.Keys);
+                    var playerData = await this.playerDataService.GetPlayerDataAsync(gameState.RoundState.PlayerStates.Keys);
                     CurrentView = new RoundViewModel(
                         this.gameId,
                         myData.Id,
-                        gameState.BoardState,
+                        gameState.RoundState,
                         playerData.ToDictionary(x => x.Id),
                         this.ninthPlanetService,
                         this.MessengerInstance);

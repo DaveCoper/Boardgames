@@ -10,8 +10,8 @@ namespace Boardgames.NinthPlanet.Models
 
         public List<TaskCard> FinishedTasks { get; set; } = new List<TaskCard>();
 
-        public Card? ComunicatedCard { get; set; }
+        public Card? DisplayedCard { get; set; }
 
-        public CommunicationTokenPosition? CommunicationTokenPosition { get; set; }
+        public CommunicationTokenPosition? DisplayedCardTokenPosition { get; set; }
     }
 }

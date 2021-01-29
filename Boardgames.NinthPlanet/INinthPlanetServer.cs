@@ -13,6 +13,8 @@ namespace Boardgames.NinthPlanet
         int GameOwnerId { get; }
 
         GameState GetGameState(int playerId);
+        
+        SavedGameState SaveCurrentState();
 
         void PlayCard(int playerId, Card card, IGameMessenger gameMessenger);
 
@@ -22,7 +24,7 @@ namespace Boardgames.NinthPlanet
 
         void DisplayCard(int playerId, Card? card, CommunicationTokenPosition? tokenPosition, IGameMessenger gameMessenger);
 
-        void TakeGoal(int playerId, TaskCard goal, IGameMessenger gameMessenger);
+        void TakeTaskCard(int playerId, TaskCard goal, IGameMessenger gameMessenger);
 
         void CallForHelp(int playerId, IGameMessenger gameMessenger);
         

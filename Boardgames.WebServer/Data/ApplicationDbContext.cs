@@ -39,6 +39,8 @@ namespace Boardgames.WebServer.Data
 
         public DbSet<NinthPlanetGameState> NinthPlanetGames { get; set; }
 
+        public DbSet<NinthPlanetPlayerState> NinthPlanetPlayerStates { get; set; }
+
         public override int SaveChanges()
         {
             this.UpdateEntityTrackers();
@@ -60,6 +62,7 @@ namespace Boardgames.WebServer.Data
 
             builder.ApplyConfiguration(new DbGameInfoConfiguration());
             builder.ApplyConfiguration(new NinthPlanetGameStateConfiguration());
+            builder.ApplyConfiguration(new NinthPlanetPlayerStateConfiguration());
         }
 
         private void UpdateEntityTrackers()
