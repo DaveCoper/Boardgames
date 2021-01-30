@@ -1,33 +1,35 @@
-﻿using Boardgames.Client.Brookers;
+﻿using System;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Threading.Tasks;
+using Boardgames.Client.Brookers;
 using Boardgames.Client.Messages;
 using Boardgames.Client.Models;
 using Boardgames.Client.Services;
 using Boardgames.Common.Messages;
 using Boardgames.Common.Models;
+using Boardgames.Common.Services;
 using GalaSoft.MvvmLight.Command;
 using GalaSoft.MvvmLight.Messaging;
-using System;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace Boardgames.Client.ViewModels
 {
-    public class CreateGameViewModel : ScreenViewModel, IAsyncLoad
+    public class CreateGameViewModel : ContentViewModel, IAsyncLoad
     {
-        private readonly IIconUriProvider iconUriProvider;
+        private readonly IIconUriProvider iconUriBuilder;
 
-        private readonly IPlayerDataService playerDataService;
+        private readonly IPlayerDataProvider playerDataService;
 
         private readonly IWebApiBrooker webApiBrooker;
 
         private PlayerData playerData;
 
-        private ObservableCollection<GameViewModel> availableGames;
+        private ObservableCollection<NewGameOptionsViewModel> availableGames;
 
         private object gameSettings;
 
-        private GameViewModel selectedGame;
+        private NewGameOptionsViewModel selectedGame;
 
         [Obsolete("Designer use only.", true)]
         public CreateGameViewModel() : base(Resources.Strings.CreateGame_Title)
@@ -35,19 +37,24 @@ namespace Boardgames.Client.ViewModels
         }
 
         public CreateGameViewModel(
-            IIconUriProvider iconUriProvider,
-            IPlayerDataService playerDataService,
+            IIconUriProvider iconUriBuilder,
+            IPlayerDataProvider playerDataService,
             IWebApiBrooker webApiBrooker,
-            IMessenger messenger) : base(Resources.Strings.CreateGame_Title, messenger)
+            IMessenger messenger,
+            ILogger<CreateGameViewModel> logger)
+            : base(
+                Resources.Strings.CreateGame_Title,
+                messenger,
+                logger)
         {
-            this.iconUriProvider = iconUriProvider ?? throw new ArgumentNullException(nameof(iconUriProvider));
+            this.iconUriBuilder = iconUriBuilder ?? throw new ArgumentNullException(nameof(iconUriBuilder));
             this.playerDataService = playerDataService ?? throw new ArgumentNullException(nameof(playerDataService));
             this.webApiBrooker = webApiBrooker ?? throw new ArgumentNullException(nameof(webApiBrooker));
             this.CreateGameCommand = new RelayCommand(CreateGame);
-            this.AvailableGames = new ObservableCollection<GameViewModel>();
+            this.AvailableGames = new ObservableCollection<NewGameOptionsViewModel>();
         }
 
-        public ObservableCollection<GameViewModel> AvailableGames
+        public ObservableCollection<NewGameOptionsViewModel> AvailableGames
         {
             get => availableGames;
             set
@@ -61,7 +68,7 @@ namespace Boardgames.Client.ViewModels
 
         public RelayCommand CreateGameCommand { get; }
 
-        public GameViewModel SelectedGame
+        public NewGameOptionsViewModel SelectedGame
         {
             get => selectedGame;
             set
@@ -79,16 +86,16 @@ namespace Boardgames.Client.ViewModels
             set => Set(ref gameSettings, value);
         }
 
-        public async Task LoadDataAsync()
+        protected override async Task LoadDataInternalAsync()
         {
-            this.playerData = await playerDataService.GetMyDataAsync();
-            this.AvailableGames = new ObservableCollection<GameViewModel>
+            this.playerData = await playerDataService.GetPlayerDataForCurrentUserAsync();
+            this.AvailableGames = new ObservableCollection<NewGameOptionsViewModel>
                         {
-                            new GameViewModel {
+                            new NewGameOptionsViewModel {
                                 Type = GameType.NinthPlanet,
-                                Name = Boardgames.Client.Resources.Strings.PlanetNine_Title,
-                                Icon32x32 =  iconUriProvider.GetIconUri(GameType.NinthPlanet, 32),
-                                Icon128x128 =  iconUriProvider.GetIconUri(GameType.NinthPlanet, 128),
+                                Name = Resources.Strings.PlanetNine_Title,
+                                Icon32x32 =  iconUriBuilder.GetIconUri(GameType.NinthPlanet, 32),
+                                Icon128x128 =  iconUriBuilder.GetIconUri(GameType.NinthPlanet, 128),
                             }
                         };
         }
@@ -124,7 +131,6 @@ namespace Boardgames.Client.ViewModels
             };
 
             this.MessengerInstance.Send(message);
-            this.MessengerInstance.Send(new SubscribeToGameMessages { GameId = gameState.GameId });
         }
 
         private void OnAvailableGamesChanged()

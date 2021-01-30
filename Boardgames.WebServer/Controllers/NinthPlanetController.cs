@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
 using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 using Boardgames.Client.Models;
-using Boardgames.Common.Messages;
 using Boardgames.Common.Models;
 using Boardgames.NinthPlanet.Models;
 using Boardgames.WebServer.Hubs;
@@ -110,7 +107,7 @@ namespace Boardgames.WebServer.Controllers
             var game = await gameRepository.GetGameAsync(gameId, cancellationToken);
 
             cancellationToken.ThrowIfCancellationRequested();
-            
+
             await game.CallForHelpAsync(userId, this.gameMessenger);
             await this.gameMessenger.FlushAsync();
         }

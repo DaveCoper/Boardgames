@@ -4,7 +4,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Threading;
 using Boardgames.Client.Brookers;
-using Boardgames.Common.Messages;
 using Boardgames.Common.Models;
 using Boardgames.NinthPlanet.Messages;
 using Boardgames.WpfClient.Services;
@@ -25,8 +24,6 @@ namespace Boardgames.WpfClient.Brookers
 
         public SignalRBrooker(Dispatcher dispatcher, IAccessTokenProvider accessTokenProvider, IMessenger messenger)
         {
-            messenger.Register<SubscribeToGameMessages>(this, OnUserWantsToSubscribe);
-
             this.dispatcher = dispatcher ?? throw new ArgumentNullException(nameof(dispatcher));
             this.accessTokenProvider = accessTokenProvider ?? throw new ArgumentNullException(nameof(accessTokenProvider));
             this.messenger = messenger ?? throw new ArgumentNullException(nameof(messenger));
@@ -86,12 +83,6 @@ namespace Boardgames.WpfClient.Brookers
             }
 
             return $"{gamePrefix}_{messageType.Name}";
-        }
-
-        private void OnUserWantsToSubscribe(SubscribeToGameMessages obj)
-        {
-            var result = this.hub.SendAsync("SubscribeToGameMessages", obj.GameId);
-            HandleAsyncResult(result);
         }
 
         private void HandleAsyncResult(Task task)

@@ -1,18 +1,18 @@
+using System;
+using System.Net.Http;
+using System.Threading.Tasks;
 using Boardgames.BlazorClient.Brookers;
 using Boardgames.BlazorClient.Services;
 using Boardgames.Client.Brookers;
 using Boardgames.Client.Caches;
+using Boardgames.Client.Factories;
 using Boardgames.Client.Services;
 using Boardgames.Client.ViewModels;
-using Boardgames.Client.ViewModels.NinthPlanet;
-using Boardgames.Common.Models;
+using Boardgames.Common.Services;
 using GalaSoft.MvvmLight.Messaging;
 using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Net.Http;
-using System.Threading.Tasks;
 
 namespace Boardgames.BlazorClient
 {
@@ -49,7 +49,7 @@ namespace Boardgames.BlazorClient
                 x.GetRequiredService<IMessenger>(),
                 x.GetRequiredService<IAccessTokenProvider>()));
 
-            services.AddScoped<IPlayerDataService, PlayerDataService>();
+            services.AddScoped<IPlayerDataProvider, PlayerDataProvider>();
             services.AddSingleton<IPlayerDataCache, PlayerDataCache>();
 
             services.AddScoped<IGameInfoService, GameInfoService>();
@@ -60,33 +60,13 @@ namespace Boardgames.BlazorClient
 
         private static void RegisterViewModels(IServiceCollection services)
         {
-            services.AddTransient<MainWindowViewModel>();
+            services.AddTransient<MainViewModel>();
 
             services.AddTransient<GameBrowserViewModel>();
             services.AddTransient<CreateGameViewModel>();
             services.AddTransient<HomeViewModel>();
 
-            services.AddScoped<Func<int, int, NinthPlanet.Models.GameState, NinthPlanetScreenViewModel>>(
-                x => (ownerId, gameId, state) =>
-                {
-                    return new NinthPlanetScreenViewModel(
-                        ownerId,
-                        gameId,
-                        state,
-                        x.GetRequiredService<IPlayerDataService>(),
-                        x.GetRequiredService<INinthPlanetService>(),
-                        x.GetRequiredService<IMessenger>());
-                });
-
-            services.AddScoped<Func<GameInfo, PlayerData, GameInfoViewModel>>(
-                x => (gameInfo, gameOwner) =>
-                {
-                    return new GameInfoViewModel(
-                        gameInfo,
-                        gameOwner,
-                        x.GetRequiredService<IIconUriProvider>(),
-                        x.GetRequiredService<IMessenger>());
-                });
+            services.AddScoped<INinthPlanetScreenViewModelFactory, NinthPlanetScreenViewModelFactory>();
         }
     }
 }

@@ -18,7 +18,7 @@ namespace Boardgames.WpfClient
             await context.BeforeStart();
 
             this.MainWindow = context.ServiceProvider.GetRequiredService<MainWindow>();
-            this.MainWindow.DataContext = context.ServiceProvider.GetRequiredService<MainWindowViewModel>();
+            this.MainWindow.DataContext = context.ServiceProvider.GetRequiredService<MainViewModel>();
             this.MainWindow.Show();
 
             this.ShutdownMode = ShutdownMode.OnMainWindowClose;

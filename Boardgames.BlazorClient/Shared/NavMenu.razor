@@ -1,5 +1,7 @@
 ﻿@using Boardgames.Client.ViewModels
-@inject MainWindowViewModel mainVm
+@using Boardgames.Client.ViewModels.NinthPlanet
+ 
+@inject MainViewModel mainVm
 
 <div class="top-row pl-4 navbar navbar-dark">
     <a class="navbar-brand" href="">Boardgames.Web</a>
@@ -10,17 +12,11 @@
 
 <div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
     <ul class="nav flex-column">
-        <li class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="oi oi-home" aria-hidden="true"></span> Home
-            </NavLink>
-        </li>
-
-        @foreach (var menuItem in mainVm.AvailableScreens)
+        @foreach (var menuItem in mainVm.Screens)
         {
             <li class="nav-item px-3">
-                <NavLink class="nav-link" href="joingame">
-                    <span class="oi oi-plus" aria-hidden="true"></span> @menuItem.Label
+                <NavLink class="nav-link" href="@GetLink(menuItem)" Match="GetMatch(menuItem)">
+                    <span class="@GetClass(menuItem)" aria-hidden="true"></span> @menuItem.Title
                 </NavLink>
             </li>
         }
@@ -37,7 +33,61 @@
         collapseNavMenu = !collapseNavMenu;
     }
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
+        await base.OnInitializedAsync();
+        await mainVm.LoadDataAsync();
+    }
+
+    private string GetLink(ContentViewModel screen)
+    {
+        switch (screen)
+        {
+            case HomeViewModel home:
+                return string.Empty;
+
+            case CreateGameViewModel createGameViewModel:
+                return "creategame";
+
+            case GameBrowserViewModel gameBrowserViewModel:
+                return "gamebrowser";
+
+            case NinthPlanetScreenViewModel ninthPlanet:
+                return $"ninthplanet/{ninthPlanet.GameId}";
+
+            default:
+                throw new ArgumentOutOfRangeException();
+        }
+    }
+
+    private NavLinkMatch GetMatch(ContentViewModel screen)
+    {
+        switch (screen)
+        {
+            case GameBrowserViewModel gameBrowserViewModel:
+                return NavLinkMatch.Prefix;
+
+            default:
+                return NavLinkMatch.All;
+        }
+    }
+
+
+    private string GetClass(ContentViewModel screen)
+    {
+        switch (screen)
+        {
+            case HomeViewModel home:
+                return "oi oi-home";
+
+            case CreateGameViewModel createGameViewModel:
+                return "oi oi-plus";
+
+            case GameBrowserViewModel gameBrowserViewModel:
+                return "oi oi-list";
+
+            default:
+                return "oi oi-list";
+        }
     }
 }

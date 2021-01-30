@@ -26,9 +26,23 @@ namespace Boardgames.Client.Services
                 cancellationToken: cancellationToken);
         }
 
-        public async Task<List<GameInfo>> GetPublicGamesAsync(CancellationToken cancellationToken = default)
+        public Task<int> GetNumberOfPublicGamesAsync(CancellationToken cancellationToken = default)
         {
-            return await this.webApiBrooker.GetAsync<List<GameInfo>>(ControllerName, cancellationToken: cancellationToken);
+            throw new System.NotImplementedException();
+        }
+
+        public async Task<List<GameInfo>> GetPublicGamesAsync(int page = 0, int sizeOfPage = 50, CancellationToken cancellationToken = default)
+        {
+            var parameters = new Dictionary<string, string>
+            {
+                { nameof(page), page.ToString(CultureInfo.InvariantCulture) },
+                { nameof(sizeOfPage), sizeOfPage.ToString(CultureInfo.InvariantCulture) },
+            };
+
+            return await this.webApiBrooker.GetAsync<List<GameInfo>>(
+                ControllerName, 
+                parameters: parameters,
+                cancellationToken: cancellationToken);
         }
     }
 }

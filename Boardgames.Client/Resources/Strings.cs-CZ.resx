@@ -129,4 +129,7 @@
   <data name="CreateGame_Title" xml:space="preserve">
     <value>Vytvořit hru</value>
   </data>
+  <data name="GameBrowser_Title" xml:space="preserve">
+    <value>Probíhající hry</value>
+  </data>
 </root>

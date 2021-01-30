@@ -79,6 +79,15 @@ namespace Boardgames.Client.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Game browser.
+        /// </summary>
+        internal static string GameBrowser_Title {
+            get {
+                return ResourceManager.GetString("GameBrowser_Title", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to {0}&apos;s Quest for Planet Nine.
         /// </summary>
         internal static string PlanetNine_NewGameName {

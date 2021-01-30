@@ -8,6 +8,7 @@ using Boardgames.Client.Services;
 using Boardgames.Client.ViewModels;
 using Boardgames.Client.ViewModels.NinthPlanet;
 using Boardgames.Common.Models;
+using Boardgames.Common.Services;
 using Boardgames.WpfClient.Brookers;
 using Boardgames.WpfClient.Services;
 using GalaSoft.MvvmLight.Messaging;
@@ -29,8 +30,8 @@ namespace Boardgames.WpfClient.ViewModels
 
         public async Task BeforeStart()
         {
-            var playerDataService = ServiceProvider.GetRequiredService<IPlayerDataService>();
-            await playerDataService.GetMyDataAsync();
+            var playerDataService = ServiceProvider.GetRequiredService<IPlayerDataProvider>();
+            await playerDataService.GetPlayerDataForCurrentUserAsync();
 
             var signalR = ServiceProvider.GetRequiredService<ISignalRBrooker>();
             await signalR.ConnectAsync(default);
@@ -58,7 +59,7 @@ namespace Boardgames.WpfClient.ViewModels
 
         private void RegisterViewModels(ServiceCollection services)
         {
-            services.AddTransient<MainWindowViewModel>();
+            services.AddTransient<MainViewModel>();
 
             services.AddTransient<LoginViewModel>();
             services.AddSingleton<Func<LoginViewModel>>(x => () => x.GetRequiredService<LoginViewModel>());
@@ -66,18 +67,6 @@ namespace Boardgames.WpfClient.ViewModels
             services.AddTransient<GameBrowserViewModel>();
             services.AddTransient<CreateGameViewModel>();
             services.AddTransient<HomeViewModel>();
-
-            services.AddSingleton<Func<int, int, NinthPlanet.Models.GameState, NinthPlanetScreenViewModel>>(
-                x => (ownerId, gameId, state) =>
-                {
-                    return new NinthPlanetScreenViewModel(
-                        ownerId,
-                        gameId,
-                        state,
-                        x.GetRequiredService<IPlayerDataService>(),
-                        x.GetRequiredService<INinthPlanetService>(),
-                        x.GetRequiredService<IMessenger>());
-                });
 
             services.AddSingleton<Func<GameInfo, PlayerData, GameInfoViewModel>>(
                 x => (gameInfo, gameOwner) =>
@@ -107,7 +96,7 @@ namespace Boardgames.WpfClient.ViewModels
             services.AddSingleton<IWebApiBrooker, WebApiBrooker>();
             services.AddSingleton<ISignalRBrooker, SignalRBrooker>();
 
-            services.AddSingleton<IPlayerDataService, PlayerDataService>();
+            services.AddSingleton<IPlayerDataProvider, PlayerDataProvider>();
             services.AddSingleton<IPlayerDataCache, PlayerDataCache>();
 
             services.AddSingleton<IGameInfoService, GameInfoService>();

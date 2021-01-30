@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Boardgames.Common.Models;
 using Boardgames.WebServer.Data;
+using Boardgames.WebServer.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -23,16 +26,21 @@ namespace Boardgames.WebServer.Controllers
         }
 
         [HttpGet()]
-        public async Task<List<GameInfo>> GetAsync([FromQuery] int numberOfEntries = 50)
+        public async Task<List<GameInfo>> GetAsync(
+            [FromQuery] int page = 0,
+            [FromQuery] int sizeOfPage = 50)
         {
-            if (numberOfEntries < 1)
+            if (sizeOfPage < 1)
                 return new List<GameInfo>();
 
-            numberOfEntries = Math.Min(numberOfEntries, 200);
+            sizeOfPage = Math.Min(sizeOfPage, 200);
 
-            var games = await dbContext.Games
+            var gamesQuery = dbContext.Games
                 .OrderBy(x => x.Id)
                 .Where(x => x.IsPublic)
+                .OrderBy(x => x.Id);
+
+            var games = await gamesQuery
                 .Select(x => new GameInfo
                 {
                     Id = x.Id,
@@ -44,10 +52,22 @@ namespace Boardgames.WebServer.Controllers
                     UpdatedAt = x.UpdatedAt,
                     MaximumNumberOfPlayers = x.MaximumNumberOfPlayers
                 })
-                .Take(numberOfEntries)
+                .Skip(page * sizeOfPage)
+                .Take(sizeOfPage)
                 .ToListAsync();
 
             return games;
+        }
+
+        [HttpGet("Count")]
+        public async Task<int> GetNumberOfGamesAsync()
+        {
+            var numberOfGames = await dbContext.Games
+                .OrderBy(x => x.Id)
+                .Where(x => x.IsPublic)
+                .CountAsync();
+
+            return numberOfGames;
         }
 
         [HttpGet("{gameId}")]

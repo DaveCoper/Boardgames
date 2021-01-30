@@ -1,29 +1,29 @@
-﻿using Boardgames.Client.Services;
-using Boardgames.NinthPlanet.Messages;
-using Boardgames.NinthPlanet.Models;
-using GalaSoft.MvvmLight.Messaging;
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using Boardgames.Client.Services;
+using Boardgames.Common.Services;
+using Boardgames.NinthPlanet.Messages;
+using Boardgames.NinthPlanet.Models;
+using GalaSoft.MvvmLight.Messaging;
+using Microsoft.Extensions.Logging;
 
 namespace Boardgames.Client.ViewModels.NinthPlanet
 {
-    public class NinthPlanetScreenViewModel : ScreenViewModel, IAsyncLoad
+    public class NinthPlanetScreenViewModel : ContentViewModel, IAsyncLoad, IGameViewModel
     {
         private readonly int gameOwnerId;
 
         private readonly int gameId;
 
-        private readonly IPlayerDataService playerDataService;
+        private readonly IPlayerDataProvider playerDataService;
 
         private readonly INinthPlanetService ninthPlanetService;
 
         private GameState gameState;
 
         private LobbyViewModel lobbyViewModel;
-
-        private bool isNotBussy = true;
 
         private object currentView;
 
@@ -38,10 +38,11 @@ namespace Boardgames.Client.ViewModels.NinthPlanet
             int gameOwnerId,
             int gameId,
             GameState gameState,
-            IPlayerDataService playerDataService,
+            IPlayerDataProvider playerDataService,
             INinthPlanetService ninthPlanetService,
-            IMessenger messenger)
-            : base(Resources.Strings.PlanetNine_Title, messenger)
+            IMessenger messenger,
+            ILogger<NinthPlanetScreenViewModel> logger)
+            : base(Resources.Strings.PlanetNine_Title, messenger, logger)
         {
             this.gameOwnerId = gameOwnerId;
             this.gameId = gameId;
@@ -60,54 +61,42 @@ namespace Boardgames.Client.ViewModels.NinthPlanet
             messenger.Register<PlayerHasLeft>(this, OnPlayerHasLeft);
         }
 
-        public bool IsNotBussy
-        {
-            get => isNotBussy;
-            set => Set(ref isNotBussy, value);
-        }
-
         public object CurrentView
         {
             get => currentView;
             set => Set(ref currentView, value);
         }
 
-        public async Task LoadDataAsync()
+        public int GameId => gameId;
+
+        protected override async Task LoadDataInternalAsync()
         {
-            IsNotBussy = false;
-            try
+            if (gameState == null)
             {
-                if (gameState == null)
-                {
-                    gameState = await ninthPlanetService.JoinGameAsync(this.gameId);
-                }
-
-                var myData = await this.playerDataService.GetMyDataAsync();
-                if (gameState.RoundState != null)
-                {
-                    var playerData = await this.playerDataService.GetPlayerDataAsync(gameState.RoundState.PlayerStates.Keys);
-                    CurrentView = new RoundViewModel(
-                        this.gameId,
-                        myData.Id,
-                        gameState.RoundState,
-                        playerData.ToDictionary(x => x.Id),
-                        this.ninthPlanetService,
-                        this.MessengerInstance);
-
-                    return;
-                }
-
-                if (gameState.LobbyState != null)
-                {
-                    var playerData = await this.playerDataService.GetPlayerDataAsync(gameState.LobbyState.ConnectedPlayers);
-                    lobbyViewModel = new LobbyViewModel(playerData, myData.Id == gameOwnerId, this.BeginRound);
-                    CurrentView = lobbyViewModel;
-                    return;
-                }
+                gameState = await ninthPlanetService.JoinGameAsync(this.gameId);
             }
-            finally
+
+            var myData = await this.playerDataService.GetPlayerDataForCurrentUserAsync();
+            if (gameState.RoundState != null)
             {
-                IsNotBussy = true;
+                var playerData = await this.playerDataService.GetPlayerDataAsync(gameState.RoundState.PlayerStates.Keys);
+                CurrentView = new RoundViewModel(
+                    this.gameId,
+                    myData.Id,
+                    gameState.RoundState,
+                    playerData.ToDictionary(x => x.Id),
+                    this.ninthPlanetService,
+                    this.MessengerInstance);
+
+                return;
+            }
+
+            if (gameState.LobbyState != null)
+            {
+                var playerData = await this.playerDataService.GetPlayerDataAsync(gameState.LobbyState.ConnectedPlayers);
+                lobbyViewModel = new LobbyViewModel(playerData, myData.Id == gameOwnerId, this.BeginRound);
+                CurrentView = lobbyViewModel;
+                return;
             }
         }
 

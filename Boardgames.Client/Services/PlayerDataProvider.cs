@@ -4,10 +4,11 @@ using System.Threading.Tasks;
 using Boardgames.Client.Brookers;
 using Boardgames.Client.Caches;
 using Boardgames.Common.Models;
+using Boardgames.Common.Services;
 
 namespace Boardgames.Client.Services
 {
-    public class PlayerDataService : IPlayerDataService
+    public class PlayerDataProvider : IPlayerDataProvider
     {
         private const string controllerName = "PlayerData";
 
@@ -15,13 +16,13 @@ namespace Boardgames.Client.Services
 
         private readonly IPlayerDataCache cache;
 
-        public PlayerDataService(IWebApiBrooker apiBrooker, IPlayerDataCache cache)
+        public PlayerDataProvider(IWebApiBrooker apiBrooker, IPlayerDataCache cache)
         {
             this.apiBrooker = apiBrooker ?? throw new ArgumentNullException(nameof(apiBrooker));
             this.cache = cache ?? throw new ArgumentNullException(nameof(cache));
         }
 
-        public async Task<PlayerData> GetMyDataAsync()
+        public async Task<PlayerData> GetPlayerDataForCurrentUserAsync()
         {
             if (this.cache.CurrentUserData != null)
             {

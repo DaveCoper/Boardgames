@@ -11,17 +11,21 @@ namespace Boardgames.Client.ViewModels
     {
         private readonly PlayerData ownerData;
 
-        private readonly IIconUriProvider iconUriProvider;
+        private readonly IIconUriProvider iconUriBuilder;
 
         private readonly IMessenger messenger;
 
         private GameInfo gameInfo;
 
-        public GameInfoViewModel(GameInfo gameInfo, PlayerData ownerData, IIconUriProvider iconUriProvider, IMessenger messenger)
+        public GameInfoViewModel(
+            GameInfo gameInfo, 
+            PlayerData ownerData, 
+            IIconUriProvider iconUriBuilder, 
+            IMessenger messenger)
         {
             this.gameInfo = gameInfo ?? throw new ArgumentNullException(nameof(gameInfo));
             this.ownerData = ownerData ?? throw new ArgumentNullException(nameof(ownerData));
-            this.iconUriProvider = iconUriProvider ?? throw new ArgumentNullException(nameof(iconUriProvider));
+            this.iconUriBuilder = iconUriBuilder ?? throw new ArgumentNullException(nameof(iconUriBuilder));
             this.messenger = messenger ?? throw new ArgumentNullException(nameof(messenger));
 
             this.JoinGameCommand = new RelayCommand(JoinGame);
@@ -35,7 +39,7 @@ namespace Boardgames.Client.ViewModels
 
         public string GameName => gameInfo.GameType.ToString();
 
-        public Uri GameIcon => iconUriProvider.GetIconUri(gameInfo.GameType, 32);
+        public Uri GameIcon => iconUriBuilder.GetIconUri(gameInfo.GameType, 32);
 
         public GameType GameType => gameInfo.GameType;
 
