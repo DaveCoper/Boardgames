@@ -2,6 +2,7 @@
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
+using Boardgames.Client.Factories;
 using Boardgames.Client.Services;
 using Boardgames.Common.Models;
 using Boardgames.Common.Services;
@@ -17,7 +18,7 @@ namespace Boardgames.Client.ViewModels
 
         private readonly IPlayerDataProvider playerDataService;
 
-        private readonly Func<GameInfo, PlayerData, GameInfoViewModel> gameInfoVmFactory;
+        private readonly IGameInfoViewModelFactory gameInfoVmFactory;
 
         private readonly ILogger<GameBrowserViewModel> logger;
 
@@ -32,7 +33,7 @@ namespace Boardgames.Client.ViewModels
         public GameBrowserViewModel(
             IGameInfoService gameInfoService,
             IPlayerDataProvider playerDataService,
-            Func<GameInfo, PlayerData, GameInfoViewModel> gameInfoVmFactory,
+            IGameInfoViewModelFactory gameInfoVmFactory,
             IMessenger messenger,
             ILogger<GameBrowserViewModel> logger) : base(Resources.Strings.GameBrowser_Title, messenger, logger)
         {
@@ -58,7 +59,8 @@ namespace Boardgames.Client.ViewModels
             var ownerData = await playerDataService.GetPlayerDataAsync(ownerIds);
             var ownerDict = ownerData.ToDictionary(x => x.Id);
 
-            var publicGames = games.Select(x => gameInfoVmFactory(x, ownerDict[x.OwnerId]))
+            var publicGames = games
+                .Select(x => gameInfoVmFactory.CreateInstance(x, ownerDict[x.OwnerId]))
                 .ToList();
 
             PublicGames = new ObservableCollection<GameInfoViewModel>(publicGames);

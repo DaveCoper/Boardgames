@@ -1,6 +1,8 @@
 ﻿@using Boardgames.Client.ViewModels
 @using Boardgames.Client.ViewModels.NinthPlanet
- 
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
+
 @inject MainViewModel mainVm
 
 <div class="top-row pl-4 navbar navbar-dark">
@@ -36,7 +38,14 @@
     protected override async Task OnInitializedAsync()
     {
         await base.OnInitializedAsync();
-        await mainVm.LoadDataAsync();
+        try
+        {
+            await mainVm.LoadDataAsync();
+        }
+        catch (AccessTokenNotAvailableException exception)
+        {
+            exception.Redirect();
+        }
     }
 
     private string GetLink(ContentViewModel screen)

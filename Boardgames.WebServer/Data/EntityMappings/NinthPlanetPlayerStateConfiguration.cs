@@ -13,8 +13,8 @@ namespace Boardgames.WebServer.Data.EntityMappings
 
             playerStateBuilder
                 .HasOne(x => x.Player)
-                .WithOne()
-                .HasForeignKey<NinthPlanetPlayerState>(x => x.PlayerId)
+                .WithMany()
+                .HasForeignKey(x=> x.PlayerId)
                 .Metadata.DeleteBehavior = DeleteBehavior.Restrict;
 
             playerStateBuilder

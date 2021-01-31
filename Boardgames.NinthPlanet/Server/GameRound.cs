@@ -160,6 +160,7 @@ namespace Boardgames.NinthPlanet.Server
             {
                 card = playerPrivateState.DisplayedCard;
                 tokenPosition = playerPrivateState.DisplayedCardTokenPosition;
+                return;
             }
 
             throw new Exception("Player state not found!");

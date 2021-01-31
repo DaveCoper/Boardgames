@@ -66,7 +66,18 @@ namespace Boardgames.BlazorClient
             services.AddTransient<CreateGameViewModel>();
             services.AddTransient<HomeViewModel>();
 
-            services.AddScoped<INinthPlanetScreenViewModelFactory, NinthPlanetScreenViewModelFactory>();
+            services.AddScoped<
+                INinthPlanetScreenViewModelFactory, 
+                NinthPlanetScreenViewModelFactory>();
+
+            services.AddScoped<
+                INinthPlanetScreenViewModelFactory, 
+                NinthPlanetScreenViewModelFactory>();
+
+
+            services.AddScoped<
+                IGameInfoViewModelFactory,
+                GameInfoViewModelFactory>();
         }
     }
 }

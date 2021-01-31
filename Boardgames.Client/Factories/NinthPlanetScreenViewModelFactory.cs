@@ -1,5 +1,6 @@
 ﻿using Boardgames.Client.Services;
 using Boardgames.Client.ViewModels.NinthPlanet;
+using Boardgames.Common.Models;
 using Boardgames.Common.Services;
 using Boardgames.NinthPlanet.Models;
 using GalaSoft.MvvmLight.Messaging;
@@ -29,12 +30,22 @@ namespace Boardgames.Client.Factories
             this.loggerFactory = loggerFactory ?? throw new System.ArgumentNullException(nameof(loggerFactory));
         }
 
-        public NinthPlanetScreenViewModel CreateInstance(int ownerId, int gameId, GameState state)
+        public NinthPlanetScreenViewModel CreateInstance(int gameId, GameInfo gameInfo, GameState state)
+        {
+            return new NinthPlanetScreenViewModel(                       
+                       gameId,
+                       gameInfo,
+                       state,
+                       playerDataProvider,
+                       ninthPlanetService,
+                       messenger,
+                       loggerFactory.CreateLogger<NinthPlanetScreenViewModel>());
+        }
+
+        public NinthPlanetScreenViewModel CreateInstance(int gameId)
         {
             return new NinthPlanetScreenViewModel(
-                       ownerId,
                        gameId,
-                       state,
                        playerDataProvider,
                        ninthPlanetService,
                        messenger,

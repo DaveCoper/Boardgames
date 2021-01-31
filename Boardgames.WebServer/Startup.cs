@@ -1,7 +1,4 @@
-using System.IO;
-using System.Linq;
-using System.Security.Claims;
-using System.Security.Cryptography.X509Certificates;
+using Boardgames.NinthPlanet.Server;
 using Boardgames.WebServer.Data;
 using Boardgames.WebServer.Hubs;
 using Boardgames.WebServer.Models;
@@ -19,6 +16,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
+using System.Linq;
+using System.Security.Claims;
 
 namespace Boardgames.WebServer
 {
@@ -179,6 +178,7 @@ namespace Boardgames.WebServer
 
             return client;
         }
+
         private void RegisterNinthPlanet(IServiceCollection services)
         {
             services.AddSingleton<
@@ -188,6 +188,14 @@ namespace Boardgames.WebServer
             services.AddScoped<
                 Repositories.INinthPlanetGameRepository,
                 Repositories.NinthPlanetGameRepository>();
+
+            services.AddScoped<
+                IGameServerFactory,
+                GameServerFactory>();
+
+            services.AddScoped<
+                IGameRoundFactory,
+                GameRoundFactory>();
         }
     }
 }

@@ -1,15 +1,16 @@
 ﻿@page "/ninthplanet/{gameId:int}"
 @using Microsoft.AspNetCore.Authorization
 @using Microsoft.AspNetCore.Components.WebAssembly.Authentication
+@using Boardgames.Client.ViewModels
 @using Boardgames.Client.ViewModels.NinthPlanet
+@using Boardgames.Client.Factories
 @using Boardgames.Client.Services
 @using Boardgames.Client.Brookers
 @using Boardgames.NinthPlanet.Models
 @using Boardgames.BlazorClient.Components.NinthPlanet
 @using Boardgames.BlazorClient.Extensions
-@inject IGameInfoService gameInfoService
-@inject Func<int, int, GameState, NinthPlanetScreenViewModel> screenVmFactory
-@inject ISignalRBrooker signalRBroker
+@inject MainViewModel mainVm
+@inject INinthPlanetScreenViewModelFactory vmFactory
 @attribute [Authorize]
 
 @if (ScreenVm == null)
@@ -43,14 +44,19 @@ else
 
         try
         {
-            //forecasts = await Http.GetFromJsonAsync<WeatherForecast[]>("WeatherForecast");
-            var gameInfo = await gameInfoService.GetGameInfoAsync(GameId);
-            await signalRBroker.ConnectAsync();
-            var vm = screenVmFactory(gameInfo.OwnerId, GameId, null);
-            await vm.LoadDataAsync();
-            ScreenVm = vm;
+            var vm = mainVm.Screens.OfType<NinthPlanetScreenViewModel>().FirstOrDefault(x => x.GameId == this.GameId);
+            if (vm == null)
+            {
+                vm = vmFactory.CreateInstance(GameId);
+                mainVm.Screens.Add(vm);
+            }
 
+            mainVm.ActiveScreen = vm;
+
+            await vm.LoadDataAsync();
             vm.UpdateOnPropertyChanged(this.StateHasChanged);
+
+            this.ScreenVm = vm;
         }
         catch (AccessTokenNotAvailableException exception)
         {

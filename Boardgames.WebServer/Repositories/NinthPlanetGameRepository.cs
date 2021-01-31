@@ -1,8 +1,4 @@
-﻿using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using Boardgames.Client.Models;
+﻿using Boardgames.Client.Models;
 using Boardgames.Common.Models;
 using Boardgames.NinthPlanet.Models;
 using Boardgames.NinthPlanet.Server;
@@ -10,6 +6,10 @@ using Boardgames.WebServer.Data;
 using Boardgames.WebServer.Models;
 using Boardgames.WebServer.Repositories.Exceptions;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Boardgames.WebServer.Repositories
 {
@@ -160,7 +160,8 @@ namespace Boardgames.WebServer.Repositories
                     storedState.FinishedTasks = playerState.Value.FinishedTasks;
                     storedState.UnfinishedTasks = playerState.Value.UnfinishedTasks;
                     storedState.CardsInHand = playerState.Value.CardsInHand;
-                    storedState.ComunicatedCard = playerState.Value.DisplayedCard;
+                    storedState.ComunicatedCardColor = playerState.Value.DisplayedCard?.Color;
+                    storedState.ComunicatedCardValue = playerState.Value.DisplayedCard?.Value;
                     storedState.CommunicationTokenPosition = playerState.Value.DisplayedCardTokenPosition;
                 }
             }
@@ -191,7 +192,11 @@ namespace Boardgames.WebServer.Repositories
                         x => new PlayerPrivateState
                         {
                             CardsInHand = x.CardsInHand,
-                            DisplayedCard = x.ComunicatedCard,
+                            DisplayedCard = x.ComunicatedCardValue.HasValue ? new Card
+                            {
+                                Value = x.ComunicatedCardValue.Value,
+                                Color = x.ComunicatedCardColor.Value
+                            } : null,
                             DisplayedCardTokenPosition = x.CommunicationTokenPosition,
                             UnfinishedTasks = x.UnfinishedTasks,
                             FinishedTasks = x.FinishedTasks,

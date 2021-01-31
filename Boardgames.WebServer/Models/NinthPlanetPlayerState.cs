@@ -47,7 +47,9 @@ namespace Boardgames.WebServer.Models
 
         public int GameId { get; set; }
 
-        public Card? ComunicatedCard { get; set; }
+        public CardColor? ComunicatedCardColor { get; set; }
+
+        public int? ComunicatedCardValue { get; set; }
 
         public CommunicationTokenPosition? CommunicationTokenPosition { get; set; }
     }

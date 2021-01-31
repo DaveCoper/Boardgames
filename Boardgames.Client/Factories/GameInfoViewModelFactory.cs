@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Boardgames.Client.Factories
 {
-    public class GameInfoViewModelFactory
+    public class GameInfoViewModelFactory : IGameInfoViewModelFactory
     {
         private readonly IIconUriProvider iconUriBuilder;
 
