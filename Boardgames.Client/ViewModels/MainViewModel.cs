@@ -93,10 +93,7 @@ namespace Boardgames.Client.ViewModels
 
         private NinthPlanetScreenViewModel CreateNinthPlanetScreen(OpenGame msg)
         {
-            return ninthPlanetScreenViewModelFactory.CreateInstance(
-                msg.GameOwnerId, 
-                msg.GameId, 
-                msg.GameState as Boardgames.NinthPlanet.Models.GameState);
+            return ninthPlanetScreenViewModelFactory.CreateInstance(msg.GameId);
         }
     }
 }

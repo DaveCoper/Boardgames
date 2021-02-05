@@ -1,0 +1,23 @@
+﻿@using Boardgames.Common.Models
+
+@if (PlayerData != null)
+{
+    @if (string.IsNullOrWhiteSpace(PlayerData.AvatarUri))
+    {
+        <img src="/Images/missing_avatar128x128.png" width="@IconSize" height="@IconSize" />
+    }
+    else
+    {
+        <img src="@PlayerData.AvatarUri" width="@IconSize" height="@IconSize" />
+    }
+    <p style="text-align: center;">@PlayerData.Name</p>
+}
+
+@code {
+
+    [Parameter]
+    public PlayerData PlayerData { get; set; }
+
+    [Parameter]
+    public double IconSize { get; set; } = 64;
+}

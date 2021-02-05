@@ -11,7 +11,7 @@ namespace Boardgames.Client.Factories
     public class NinthPlanetScreenViewModelFactory : INinthPlanetScreenViewModelFactory
     {
         private readonly IPlayerDataProvider playerDataProvider;
-
+        private readonly IGameInfoService gameInfoService;
         private readonly INinthPlanetService ninthPlanetService;
 
         private readonly IMessenger messenger;
@@ -20,11 +20,13 @@ namespace Boardgames.Client.Factories
 
         public NinthPlanetScreenViewModelFactory(
             IPlayerDataProvider playerDataProvider,
+            IGameInfoService gameInfoService,
             INinthPlanetService ninthPlanetService,
             IMessenger messenger,
             ILoggerFactory loggerFactory)
         {
             this.playerDataProvider = playerDataProvider ?? throw new System.ArgumentNullException(nameof(playerDataProvider));
+            this.gameInfoService = gameInfoService ?? throw new System.ArgumentNullException(nameof(gameInfoService));
             this.ninthPlanetService = ninthPlanetService ?? throw new System.ArgumentNullException(nameof(ninthPlanetService));
             this.messenger = messenger ?? throw new System.ArgumentNullException(nameof(messenger));
             this.loggerFactory = loggerFactory ?? throw new System.ArgumentNullException(nameof(loggerFactory));
@@ -32,24 +34,26 @@ namespace Boardgames.Client.Factories
 
         public NinthPlanetScreenViewModel CreateInstance(int gameId, GameInfo gameInfo, GameState state)
         {
-            return new NinthPlanetScreenViewModel(                       
+            return new NinthPlanetScreenViewModel(
                        gameId,
                        gameInfo,
                        state,
-                       playerDataProvider,
-                       ninthPlanetService,
-                       messenger,
-                       loggerFactory.CreateLogger<NinthPlanetScreenViewModel>());
+                       this.playerDataProvider,
+                       this.gameInfoService,
+                       this.ninthPlanetService,
+                       this.messenger,
+                       this.loggerFactory.CreateLogger<NinthPlanetScreenViewModel>());
         }
 
         public NinthPlanetScreenViewModel CreateInstance(int gameId)
         {
             return new NinthPlanetScreenViewModel(
                        gameId,
-                       playerDataProvider,
-                       ninthPlanetService,
-                       messenger,
-                       loggerFactory.CreateLogger<NinthPlanetScreenViewModel>());
+                       this.playerDataProvider,
+                       this.gameInfoService,
+                       this.ninthPlanetService,
+                       this.messenger,
+                       this.loggerFactory.CreateLogger<NinthPlanetScreenViewModel>());
         }
     }
 }

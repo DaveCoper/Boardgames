@@ -6,6 +6,7 @@ using Boardgames.BlazorClient.Services;
 using Boardgames.Client.Brookers;
 using Boardgames.Client.Caches;
 using Boardgames.Client.Factories;
+using Boardgames.Client.Messages;
 using Boardgames.Client.Services;
 using Boardgames.Client.ViewModels;
 using Boardgames.Common.Services;
@@ -28,7 +29,6 @@ namespace Boardgames.BlazorClient
 
             // Supply HttpClient instances that include access tokens when making requests to the server project
             builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>().CreateClient("Boardgames.WebServerAPI"));
-
             builder.Services.AddApiAuthorization();
 
             RegisterServices(builder, builder.Services);
@@ -44,16 +44,18 @@ namespace Boardgames.BlazorClient
             services.AddSingleton<IMessenger, Messenger>();
 
             services.AddScoped<IWebApiBrooker, WebApiBrooker>();
-            services.AddScoped<ISignalRBrooker>(x => new SignalRBrooker(
-                new Uri(builder.HostEnvironment.BaseAddress),
-                x.GetRequiredService<IMessenger>(),
-                x.GetRequiredService<IAccessTokenProvider>()));
 
             services.AddScoped<IPlayerDataProvider, PlayerDataProvider>();
             services.AddSingleton<IPlayerDataCache, PlayerDataCache>();
 
             services.AddScoped<IGameInfoService, GameInfoService>();
             services.AddScoped<INinthPlanetService, NinthPlanetService>();
+
+            services.AddScoped<ISignalRBrooker, SignalRBrooker>(x =>
+            new SignalRBrooker(
+                new Uri(builder.HostEnvironment.BaseAddress),
+                x.GetRequiredService<MessageRouter>(),
+                x.GetRequiredService<IAccessTokenProvider>()));
 
             services.AddScoped<BrowserService>();
         }
@@ -67,17 +69,20 @@ namespace Boardgames.BlazorClient
             services.AddTransient<HomeViewModel>();
 
             services.AddScoped<
-                INinthPlanetScreenViewModelFactory, 
+                INinthPlanetScreenViewModelFactory,
                 NinthPlanetScreenViewModelFactory>();
 
             services.AddScoped<
-                INinthPlanetScreenViewModelFactory, 
+                INinthPlanetScreenViewModelFactory,
                 NinthPlanetScreenViewModelFactory>();
-
 
             services.AddScoped<
                 IGameInfoViewModelFactory,
                 GameInfoViewModelFactory>();
+
+            services.AddScoped<
+                MessageRouter,
+                MessageRouter>();
         }
     }
 }

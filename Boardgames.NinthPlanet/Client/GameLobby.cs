@@ -1,12 +1,33 @@
-﻿using System.Collections.Generic;
-using Boardgames.Common.Models;
+﻿using Boardgames.Common.Models;
+using Boardgames.Common.Observables;
+using GalaSoft.MvvmLight;
 
 namespace Boardgames.NinthPlanet.Client
 {
-    public class GameLobby
+    public class GameLobby : ObservableObject
     {
-        public List<PlayerData> ConnectedPlayers { get; set; }
+        private bool currentUserIsGameOwner;
 
-        public int SelectedMission { get; set; }
+        private int selectedMission;
+
+        private ObservableList<PlayerData> connectedPlayers;
+
+        public ObservableList<PlayerData> ConnectedPlayers
+        {
+            get => connectedPlayers;
+            set => Set(ref connectedPlayers, value);
+        }
+
+        public bool CurrentUserIsGameOwner
+        {
+            get => currentUserIsGameOwner;
+            set => Set(ref currentUserIsGameOwner, value);
+        }
+
+        public int SelectedMission
+        {
+            get => selectedMission;
+            set => Set(ref selectedMission, value);
+        }
     }
 }

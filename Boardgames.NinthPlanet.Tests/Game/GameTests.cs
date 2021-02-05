@@ -29,16 +29,16 @@ namespace Boardgames.NinthPlanet.Tests.Game
             // game owner must go first
             var gameOwner = players[0];
 
-            var clients = players.ToDictionary(
-                x => x.Id,
-                x => new NinthPlanetClient(
-                    gameId,
-                    new MemoryPlayerDataProvider(x.Id, players),
-                    null));
-
             var gameInfo = CreateGameInfo(gameId: gameId, gameOwnerId: gameOwner.Id);
             var messageRouter = new TestMessengeRouter();
             var gameServer = GameFactory.CreateNewGame(gameInfo);
+
+            var clients = players.ToDictionary(
+                x => x.Id,
+                x => new NinthPlanetClient(
+                    gameInfo,
+                    new MemoryPlayerDataProvider(x.Id, players),
+                    null));
 
             foreach (var player in players)
             {

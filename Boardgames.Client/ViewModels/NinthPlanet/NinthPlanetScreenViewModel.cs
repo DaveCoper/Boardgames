@@ -1,15 +1,13 @@
-﻿using Boardgames.Client.Services;
+﻿using System;
+using System.Diagnostics;
+using System.Threading.Tasks;
+using Boardgames.Client.Services;
 using Boardgames.Common.Models;
 using Boardgames.Common.Services;
 using Boardgames.NinthPlanet;
-using Boardgames.NinthPlanet.Messages;
 using Boardgames.NinthPlanet.Models;
 using GalaSoft.MvvmLight.Messaging;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Boardgames.Client.ViewModels.NinthPlanet
 {
@@ -27,15 +25,11 @@ namespace Boardgames.Client.ViewModels.NinthPlanet
 
         private GameInfo gameInfo;
 
-        private LobbyViewModel lobbyViewModel;
-
-        private object currentView;
+        private NinthPlanetClient client;
 
         [Obsolete("Used by WPF designer", true)]
         public NinthPlanetScreenViewModel() : base(Resources.Strings.PlanetNine_Title)
         {
-            lobbyViewModel = new LobbyViewModel();
-            this.CurrentView = lobbyViewModel;
         }
 
         public NinthPlanetScreenViewModel(
@@ -56,10 +50,6 @@ namespace Boardgames.Client.ViewModels.NinthPlanet
             this.playerDataService = playerDataService ?? throw new ArgumentNullException(nameof(playerDataService));
             this.gameInfoService = gameInfoService ?? throw new ArgumentNullException(nameof(gameInfoService));
             this.ninthPlanetService = ninthPlanetService ?? throw new ArgumentNullException(nameof(ninthPlanetService));
-
-            messenger.Register<GameHasStarted>(this, OnGameHasStarted);
-            messenger.Register<NewPlayerConnected>(this, OnPlayerHasConnected);
-            messenger.Register<PlayerHasLeft>(this, OnPlayerHasLeft);
         }
 
         public NinthPlanetScreenViewModel(
@@ -73,101 +63,46 @@ namespace Boardgames.Client.ViewModels.NinthPlanet
             ILogger<NinthPlanetScreenViewModel> logger)
             : this(gameId, playerDataService, gameInfoService, ninthPlanetService, messenger, logger)
         {
-            this.gameId = gameId;
             this.gameInfo = gameInfo;
             this.gameState = gameState;
-
-            if (gameState != null)
-            {
-                Debug.Assert(gameState.GameId == gameId, "Game ids are not the same!");
-            }
-
-            this.playerDataService = playerDataService ?? throw new ArgumentNullException(nameof(playerDataService));
-            this.ninthPlanetService = ninthPlanetService ?? throw new ArgumentNullException(nameof(ninthPlanetService));
-
-            messenger.Register<GameHasStarted>(this, OnGameHasStarted);
-            messenger.Register<NewPlayerConnected>(this, OnPlayerHasConnected);
-            messenger.Register<PlayerHasLeft>(this, OnPlayerHasLeft);
-        }
-
-        public object CurrentView
-        {
-            get => currentView;
-            set => Set(ref currentView, value);
         }
 
         public int GameId => gameId;
 
-        protected override async Task LoadDataInternalAsync()
+        public NinthPlanetClient Client
         {
-            if (gameInfo == null)
-            {
-                this.gameInfo = await this.gameInfoService.GetGameInfoAsync(GameId);
-            }
-
-            if (gameInfo.GameType != GameType.NinthPlanet)
-            {
-                throw new InvalidOperationException();
-            }
-
-            if (gameState == null)
-            {
-                this.gameState = await ninthPlanetService.JoinGameAsync(this.gameId);
-            }
-
-            var client = new NinthPlanetClient(this.GameId, playerDataService, null);
-            await client.UpdateStateAsync(gameState);
-
+            get => client;
+            private set => Set(ref client, value);
         }
 
-        private async void BeginRound()
+        public async void BeginRound()
         {
             await this.ninthPlanetService.BeginRoundAsync(this.gameId);
         }
 
-        private void OnPlayerHasLeft(PlayerHasLeft msg)
+        protected override async Task LoadDataInternalAsync()
         {
-            if (msg.GameId != this.gameState.GameId)
-                return;
-
-            if (this.lobbyViewModel == null)
+            if (this.gameInfo == null)
             {
-                Debug.WriteLine($"Game {this.gameState.GameId} has corrupted state!");
-                return;
+                this.gameInfo = await this.gameInfoService.GetGameInfoAsync(GameId);
             }
 
-            var player = this.lobbyViewModel.PlayerData.FirstOrDefault(x => x.Id == msg.PlayerId);
-            if (player == null)
+            if (this.gameInfo.GameType != GameType.NinthPlanet)
             {
-                Debug.WriteLine($"Game {this.gameState.GameId} has corrupted state!");
-                return;
+                throw new InvalidOperationException();
             }
 
-            this.lobbyViewModel.PlayerData.Remove(player);
-        }
-
-        private async void OnPlayerHasConnected(NewPlayerConnected msg)
-        {
-            if (msg.GameId != this.gameState.GameId)
-                return;
-
-            if (this.lobbyViewModel == null)
+            if (this.gameState == null)
             {
-                Debug.WriteLine($"Game {this.gameState.GameId} has corrupted state!");
-                return;
+                this.gameState = await ninthPlanetService.JoinGameAsync(this.gameId);
             }
 
-            var playerData = await this.playerDataService.GetPlayerDataAsync(msg.NewPlayerId);
-            this.lobbyViewModel.PlayerData.Add(playerData);
-        }
+            if (this.Client == null)
+            {
+                this.Client = new NinthPlanetClient(this.gameInfo, playerDataService, null);
+            }
 
-        private async void OnGameHasStarted(GameHasStarted msg)
-        {
-            if (msg.State.GameId != this.gameState.GameId)
-                return;
-
-            gameState = msg.State;
-            await LoadDataAsync();
+            await this.Client.UpdateStateAsync(gameState);
         }
     }
 }

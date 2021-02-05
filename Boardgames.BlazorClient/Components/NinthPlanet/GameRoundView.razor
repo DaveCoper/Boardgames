@@ -3,11 +3,12 @@
 @using Boardgames.BlazorClient.Components
 @using Boardgames.BlazorClient.Components.NinthPlanet
 @using Boardgames.Client.ViewModels.NinthPlanet
+@using Boardgames.NinthPlanet.Client
 @inject Services.DragDropDataStore dragDropStore
 
 <div class="container">
     <div class="row">
-        @foreach (var player in roundViewModel.OtherPlayers)
+        @foreach (var player in roundViewModel.StateOfAllies)
         {
             <div class="col-auto" style="height:250px">
                 <RemotePlayerView Player="player" />
@@ -25,17 +26,17 @@
     </div>
     <div class="row" style="height:250px">
         <div class="col-lg-12">
-            <LocalPlayerView LocalPlayer="@RoundViewModel.LocalPlayer" />
+            <LocalPlayerView LocalPlayer="@roundViewModel.UserState" />
         </div>
     </div>
 </div>
 
 @code {
 
-    private RoundViewModel roundViewModel;
+    private GameRound roundViewModel;
 
     [Parameter]
-    public RoundViewModel RoundViewModel
+    public GameRound RoundViewModel
     {
         get => roundViewModel;
         set
@@ -43,7 +44,7 @@
             roundViewModel = value;
             if (roundViewModel != null)
             {
-                roundViewModel.UpdateOnPropertyChanged(this.StateHasChanged);
+                //roundViewModel.UpdateOnPropertyChanged(this.StateHasChanged);
             }
         }
     }
@@ -52,7 +53,7 @@
     {
         if (dragDropStore.DragDropData is Card card)
         {
-            await roundViewModel.LocalPlayer.PlayCardAsync(card);
+            //await roundViewModel.LocalPlayer.PlayCardAsync(card);
         }
     }
 }

@@ -1,16 +1,19 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Boardgames.Common.Messages;
+using Boardgames.Common.Models;
+using Boardgames.Common.Observables;
 using Boardgames.Common.Services;
 using Boardgames.NinthPlanet.Client;
 using Boardgames.NinthPlanet.Messages;
 using Boardgames.NinthPlanet.Models;
+using GalaSoft.MvvmLight;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 
 namespace Boardgames.NinthPlanet
 {
-    public class NinthPlanetClient
+    public class NinthPlanetClient : ObservableObject
     {
         private readonly IPlayerDataProvider playerDataProvider;
 
@@ -18,9 +21,14 @@ namespace Boardgames.NinthPlanet
 
         private int concurencyStamp;
 
-        public NinthPlanetClient(int gameId, IPlayerDataProvider playerDataProvider, ILogger<NinthPlanetClient> logger)
+        private GameRound currentRound;
+
+        public NinthPlanetClient(
+            GameInfo gameInfo,
+            IPlayerDataProvider playerDataProvider,
+            ILogger<NinthPlanetClient> logger)
         {
-            this.GameId = gameId;
+            this.GameInfo = gameInfo;
             this.playerDataProvider = playerDataProvider ?? throw new System.ArgumentNullException(nameof(playerDataProvider));
             this.logger = logger ?? NullLogger<NinthPlanetClient>.Instance;
             this.GameLobby = new GameLobby();
@@ -29,9 +37,15 @@ namespace Boardgames.NinthPlanet
 
         public GameLobby GameLobby { get; }
 
-        public GameRound CurrentRound { get; private set; }
+        public GameRound CurrentRound
+        {
+            get => currentRound;
+            private set => Set(ref currentRound, value);
+        }
 
-        public int GameId { get; }
+        public GameInfo GameInfo { get; }
+
+        public int GameId => GameInfo.Id;
 
         public async Task UpdateStateAsync(GameState gameState)
         {
@@ -56,64 +70,24 @@ namespace Boardgames.NinthPlanet
                 await CurrentRound.UpdateState(gameState.RoundState);
             }
 
-            this.GameLobby.ConnectedPlayers = await playerDataProvider.GetPlayerDataAsync(gameState.LobbyState.ConnectedPlayers);
+            var players = await playerDataProvider.GetPlayerDataAsync(gameState.LobbyState.ConnectedPlayers);
+            var currentPlayer = await playerDataProvider.GetPlayerDataForCurrentUserAsync();
+            this.GameLobby.ConnectedPlayers = new ObservableList<PlayerData>(players);
+            this.GameLobby.CurrentUserIsGameOwner = GameInfo.OwnerId == currentPlayer.Id;
         }
 
-        public async Task RouteMessage(IGameMessage gameMessage)
-        {
-            switch (gameMessage)
-            {
-                case CardWasPlayed cardWasPlayed:
-                    await this.ReceiveMessage(cardWasPlayed);
-                    break;
-
-                case SelectedMissionHasChanged selectedMissionHasChanged:
-                    await this.ReceiveMessage(selectedMissionHasChanged);
-                    break;
-
-                case GameHasStarted gameHasStarted:
-                    await this.ReceiveMessage(gameHasStarted);
-                    break;
-
-                case NewPlayerConnected newPlayerConnected:
-                    await ReceiveMessage(newPlayerConnected);
-                    break;
-
-                case PlayerCommunicatedCard playerCommunicatedCard:
-                    await ReceiveMessage(playerCommunicatedCard);
-                    break;
-
-                case PlayerHasLeft playerHasLeft:
-                    await ReceiveMessage(playerHasLeft);
-                    break;
-
-                case RoundFailed roundFailed:
-                    await ReceiveMessage(roundFailed);
-                    break;
-
-                case TaskWasTaken taskWasTaken:
-                    await ReceiveMessage(taskWasTaken);
-                    break;
-
-                case TrickFinished trickFinished:
-                    await ReceiveMessage(trickFinished);
-                    break;
-            }
-        }
-
-        public Task ReceiveMessage(CardWasPlayed cardWasPlayed)
+        public async Task ReceiveMessageAsync(CardWasPlayed cardWasPlayed)
         {
             if (!ProcessMessage(cardWasPlayed))
-                return Task.CompletedTask;
+                return;
 
             if (this.CurrentRound == null)
                 throw new InvalidOperationException("Round was not started!");
 
-            this.CurrentRound.CardWasPlayed(cardWasPlayed.PlayerId, cardWasPlayed.Card);
-            return Task.CompletedTask;
+            await this.CurrentRound.CardWasPlayedAsync(cardWasPlayed.PlayerId, cardWasPlayed.Card);
         }
 
-        public async Task ReceiveMessage(GameHasStarted gameHasStarted)
+        public async Task ReceiveMessageAsync(GameHasStarted gameHasStarted)
         {
             if (!ProcessMessage(gameHasStarted))
                 return;
@@ -121,7 +95,7 @@ namespace Boardgames.NinthPlanet
             await this.UpdateStateAsync(gameHasStarted.State);
         }
 
-        public async Task ReceiveMessage(NewPlayerConnected newPlayerConnected)
+        public async Task ReceiveMessageAsync(NewPlayerConnected newPlayerConnected)
         {
             if (!ProcessMessage(newPlayerConnected))
                 return;
@@ -130,7 +104,7 @@ namespace Boardgames.NinthPlanet
             this.GameLobby.ConnectedPlayers.Add(newPlayerData);
         }
 
-        private Task ReceiveMessage(SelectedMissionHasChanged selectedMissionHasChanged)
+        public Task ReceiveMessageAsync(SelectedMissionHasChanged selectedMissionHasChanged)
         {
             if (!ProcessMessage(selectedMissionHasChanged))
                 return Task.CompletedTask;
@@ -142,7 +116,7 @@ namespace Boardgames.NinthPlanet
             return Task.CompletedTask;
         }
 
-        private Task ReceiveMessage(TrickFinished trickFinished)
+        public Task ReceiveMessageAsync(TrickFinished trickFinished)
         {
             if (!ProcessMessage(trickFinished))
                 return Task.CompletedTask;
@@ -155,7 +129,7 @@ namespace Boardgames.NinthPlanet
             return Task.CompletedTask;
         }
 
-        private Task ReceiveMessage(TaskWasTaken taskWasTaken)
+        public Task ReceiveMessageAsync(TaskWasTaken taskWasTaken)
         {
             if (!ProcessMessage(taskWasTaken))
                 return Task.CompletedTask;
@@ -167,7 +141,7 @@ namespace Boardgames.NinthPlanet
             return Task.CompletedTask;
         }
 
-        private Task ReceiveMessage(RoundFailed roundFailed)
+        public Task ReceiveMessageAsync(RoundFailed roundFailed)
         {
             if (!ProcessMessage(roundFailed))
                 return Task.CompletedTask;
@@ -179,7 +153,7 @@ namespace Boardgames.NinthPlanet
             return Task.CompletedTask;
         }
 
-        private Task ReceiveMessage(PlayerHasLeft playerHasLeft)
+        public Task ReceiveMessageAsync(PlayerHasLeft playerHasLeft)
         {
             if (!ProcessMessage(playerHasLeft))
                 return Task.CompletedTask;
@@ -187,7 +161,7 @@ namespace Boardgames.NinthPlanet
             throw new NotImplementedException();
         }
 
-        private Task ReceiveMessage(PlayerCommunicatedCard playerCommunicatedCard)
+        public Task ReceiveMessageAsync(PlayerCommunicatedCard playerCommunicatedCard)
         {
             if (!ProcessMessage(playerCommunicatedCard))
                 return Task.CompletedTask;

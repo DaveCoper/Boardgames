@@ -1,11 +1,11 @@
 ﻿using System;
-using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Boardgames.Client.Brookers;
+using Boardgames.Client.Messages;
+using Boardgames.Common.Messages;
 using Boardgames.Common.Models;
 using Boardgames.NinthPlanet.Messages;
-using GalaSoft.MvvmLight.Messaging;
 using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
 using Microsoft.AspNetCore.SignalR.Client;
 
@@ -15,17 +15,19 @@ namespace Boardgames.BlazorClient.Brookers
     {
         private readonly Uri baseAddress;
 
-        private readonly IMessenger messenger;
+        private readonly MessageRouter messageQueue;
 
         private readonly IAccessTokenProvider accessTokenProvider;
 
         private HubConnection hub;
 
-        public SignalRBrooker(Uri baseAddress, IMessenger messenger, IAccessTokenProvider accessTokenProvider)
+        public SignalRBrooker(
+            Uri baseAddress,
+            MessageRouter messageQueue,
+            IAccessTokenProvider accessTokenProvider)
         {
-
             this.baseAddress = baseAddress ?? throw new ArgumentNullException(nameof(baseAddress));
-            this.messenger = messenger ?? throw new ArgumentNullException(nameof(messenger));
+            this.messageQueue = messageQueue ?? throw new ArgumentNullException(nameof(messageQueue));
             this.accessTokenProvider = accessTokenProvider ?? throw new ArgumentNullException(nameof(accessTokenProvider));
         }
 
@@ -73,19 +75,20 @@ namespace Boardgames.BlazorClient.Brookers
 
             this.RegiserMessage<CardWasPlayed>(
                 hub,
-                GameType.NinthPlanet); 
+                GameType.NinthPlanet);
 
             this.hub = hub;
         }
 
         private void RegiserMessage<T>(HubConnection hub, GameType gameType)
+            where T : IGameMessage
         {
             hub.On<T>(
                 FromatMethodName(gameType, typeof(T)),
-                msg =>
+                async msg =>
                 {
                     Console.WriteLine($"Message of type {msg.GetType().Name} arrived.");
-                    this.messenger.Send(msg);
+                    await this.messageQueue.RouteMessage(msg);
                 });
         }
 

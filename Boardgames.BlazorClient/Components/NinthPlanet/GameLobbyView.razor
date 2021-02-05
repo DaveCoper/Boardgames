@@ -1,0 +1,55 @@
+﻿@using Boardgames.Client.ViewModels.NinthPlanet
+@using Boardgames.NinthPlanet.Client
+@using Boardgames.BlazorClient.Extensions
+
+<div class="container">
+    <div class="row">
+        <div class="col-sm">
+            <p>Current mission: </p>
+        </div>
+    </div>
+    <div class="row justify-content-center">
+        @foreach (var user in LobbyViewModel.ConnectedPlayers)
+        {
+            <div class="col-sm-auto">
+                <PlayerDataDisplay PlayerData="user" IconSize="128" />
+            </div>
+        }
+    </div>
+
+    @if (LobbyViewModel.CurrentUserIsGameOwner)
+    {
+        <div class="row">
+            <button @onclick="BeginRound" class="btn btn-primary">Begin round</button>
+        </div>
+    }
+</div>
+
+@code {
+
+    private GameLobby lobbyViewModel;
+
+    [Parameter]
+    public GameLobby LobbyViewModel
+    {
+        get => lobbyViewModel;
+        set
+        {
+            lobbyViewModel = value;
+            if (lobbyViewModel != null)
+            {
+                lobbyViewModel.ConnectedPlayers.UpdateOnCollectionChanged<Boardgames.Common.Models.PlayerData>(this.StateHasChanged);
+            }
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+    }
+
+    private void BeginRound()
+    {
+        //lobbyViewModel.StartGame.Execute(null);
+    }
+}

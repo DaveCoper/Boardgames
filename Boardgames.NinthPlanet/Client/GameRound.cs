@@ -2,62 +2,115 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Boardgames.Common.Models;
+using Boardgames.Common.Observables;
 using Boardgames.Common.Services;
 using Boardgames.NinthPlanet.Messages;
 using Boardgames.NinthPlanet.Models;
+using GalaSoft.MvvmLight;
 
 namespace Boardgames.NinthPlanet.Client
 {
-    public class GameRound
+    public class GameRound : ObservableObject
     {
         private readonly IPlayerDataProvider playerDataProvider;
 
         private Dictionary<int, PlayerState> playerStates;
+
+        private ObservableList<TaskCard> availableGoals;
+
+        private PlayerData captain;
+
+        private ObservableList<TrickPlay> currentTrick;
+
+        private CardColor? colorOfCurrentTrick;
+
+        private UserState userState;
+
+        private ObservableList<PlayerState> stateOfAllies;
+
+        private bool helpIsAvailable;
 
         public GameRound(IPlayerDataProvider playerDataProvider)
         {
             this.playerDataProvider = playerDataProvider ?? throw new System.ArgumentNullException(nameof(playerDataProvider));
         }
 
-        public List<TaskCard> AvailableGoals { get; set; }
+        public ObservableList<TaskCard> AvailableGoals
+        {
+            get => availableGoals;
+            set => Set(ref availableGoals, value);
+        }
 
-        public PlayerData Captain { get; set; }
+        public PlayerData Captain
+        {
+            get => captain;
+            set => Set(ref captain, value);
+        }
 
-        public Dictionary<int, Card> CurrentTrick { get; set; }
+        public ObservableList<TrickPlay> CurrentTrick
+        {
+            get => currentTrick;
+            set => Set(ref currentTrick, value);
+        }
 
-        public CardColor? ColorOfCurrentTrick { get; set; }
+        public CardColor? ColorOfCurrentTrick
+        {
+            get => colorOfCurrentTrick;
+            set => Set(ref colorOfCurrentTrick, value);
+        }
 
-        public UserState UserState { get; set; }
+        public UserState UserState
+        {
+            get => userState;
+            set => Set(ref userState, value);
+        }
 
-        public List<PlayerState> StateOfAllies { get; set; }
+        public ObservableList<PlayerState> StateOfAllies
+        {
+            get => stateOfAllies;
+            set => Set(ref stateOfAllies, value);
+        }
 
-        public bool HelpIsAvailable { get; set; }
+        public bool HelpIsAvailable
+        {
+            get => helpIsAvailable;
+            set => Set(ref helpIsAvailable, value);
+        }
 
         public async Task UpdateState(RoundState roundState)
         {
             var userPlayerData = await this.playerDataProvider.GetPlayerDataForCurrentUserAsync();
-            var otherPlayers = await this.playerDataProvider.GetPlayerDataAsync(roundState.PlayerStates.Keys);
-            var otherPlayersDict = otherPlayers.ToDictionary(x => x.Id);
+            var playerData = await this.playerDataProvider.GetPlayerDataAsync(roundState.PlayerStates.Keys);
+            var playersDict = playerData.ToDictionary(x => x.Id);
 
-            this.AvailableGoals = roundState.AvailableGoals;
-            this.Captain = otherPlayersDict[roundState.CaptainId];
-            this.CurrentTrick = roundState.CurrentTrick;
+            this.AvailableGoals = new ObservableList<TaskCard>(roundState.AvailableGoals);
+            this.Captain = playersDict[roundState.CaptainId];
+
+            var currentTrick = roundState.CurrentTrick.Select(x => new TrickPlay
+            {
+                Card = x.Value,
+                CardPlayer = playersDict[x.Key]
+            }).ToList();
+
+            this.CurrentTrick = new ObservableList<TrickPlay>(currentTrick);
             this.HelpIsAvailable = roundState.HelpIsAvailable;
             this.ColorOfCurrentTrick = roundState.ColorOfCurrentTrick;
 
-            this.StateOfAllies = roundState.PlayerStates
+            var allies = roundState.PlayerStates
                 .Where(x => x.Key != userPlayerData.Id)
                 .Select(x => new PlayerState
                 {
-                    PlayerData = otherPlayersDict[x.Key],
+                    PlayerData = playersDict[x.Key],
                     DisplayedCard = x.Value.ComunicatedCard,
                     CommunicationTokenPosition = x.Value.CommunicationTokenPosition,
-                    TakenCards = x.Value.TakenCards,
+                    TakenCards = new ObservableList<Card>(x.Value.TakenCards),
                     NumberOfCards = x.Value.NumberOfCardsInHand,
-                    UnfinishedTasks = x.Value.UnfinishedTasks,
-                    FinishedTasks = x.Value.FinishedTasks,
+                    UnfinishedTasks = new ObservableList<TaskCard>(x.Value.UnfinishedTasks),
+                    FinishedTasks = new ObservableList<TaskCard>(x.Value.FinishedTasks),
                 })
                 .ToList();
+
+            this.StateOfAllies = new ObservableList<PlayerState>(allies);
 
             var userState = roundState.PlayerStates[userPlayerData.Id];
             this.UserState = new UserState
@@ -65,18 +118,26 @@ namespace Boardgames.NinthPlanet.Client
                 PlayerData = userPlayerData,
                 DisplayedCard = userState.ComunicatedCard,
                 CommunicationTokenPosition = userState.CommunicationTokenPosition,
-                TakenCards = userState.TakenCards,
-                CardsInHand = roundState.CardsInHand,
-                NumberOfCards = roundState.CardsInHand.Count,
+                TakenCards = new ObservableList<Card>(userState.TakenCards),
+                NumberOfCards = userState.NumberOfCardsInHand,
+                UnfinishedTasks = new ObservableList<TaskCard>(userState.UnfinishedTasks),
+                FinishedTasks = new ObservableList<TaskCard>(userState.FinishedTasks),
+                CardsInHand = new ObservableList<Card>(roundState.CardsInHand)
             };
 
             this.playerStates = this.StateOfAllies.ToDictionary(x => x.PlayerData.Id);
             this.playerStates.Add(userPlayerData.Id, this.UserState);
         }
 
-        public void CardWasPlayed(int playerId, Card card)
+        public async Task CardWasPlayedAsync(int playerId, Card card)
         {
-            this.CurrentTrick.Add(playerId, card);
+            var playerData = await playerDataProvider.GetPlayerDataAsync(playerId);
+
+            this.CurrentTrick.Add(new TrickPlay
+            {
+                CardPlayer = playerData,
+                Card = card
+            });
 
             if (playerId == this.UserState.PlayerData.Id)
             {

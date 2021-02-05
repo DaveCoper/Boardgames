@@ -1,23 +1,66 @@
-﻿using System.Collections.Generic;
-using Boardgames.Common.Models;
+﻿using Boardgames.Common.Models;
+using Boardgames.Common.Observables;
 using Boardgames.NinthPlanet.Models;
+using GalaSoft.MvvmLight;
 
 namespace Boardgames.NinthPlanet.Client
 {
-    public class PlayerState
+    public class PlayerState : ObservableObject
     {
-        public Card? DisplayedCard { get; set; }
+        private Card? displayedCard;
 
-        public CommunicationTokenPosition? CommunicationTokenPosition { get; set; }
+        private CommunicationTokenPosition? communicationTokenPosition;
 
-        public List<Card> TakenCards { get; set; }
+        private PlayerData playerData;
 
-        public PlayerData PlayerData { get; set; }
+        private ObservableList<Card> takenCards = new ObservableList<Card>();
 
-        public int NumberOfCards { get; set; }
+        private int numberOfCards;
 
-        public List<TaskCard> UnfinishedTasks { get; set; } = new List<TaskCard>();
+        private ObservableList<TaskCard> unfinishedTasks = new ObservableList<TaskCard>();
 
-        public List<TaskCard> FinishedTasks { get; set; } = new List<TaskCard>();
+        private ObservableList<TaskCard> finishedTasks = new ObservableList<TaskCard>();
+
+        public Card? DisplayedCard
+        {
+            get => displayedCard;
+            set => Set(ref displayedCard, value);
+        }
+
+        public CommunicationTokenPosition? CommunicationTokenPosition
+        {
+            get => communicationTokenPosition;
+            set => Set(ref communicationTokenPosition, value);
+        }
+
+        public ObservableList<Card> TakenCards
+        {
+            get => takenCards;
+            set => Set(ref takenCards, value);
+        }
+
+        public PlayerData PlayerData
+        {
+            get => playerData;
+            set => Set(ref playerData, value);
+        }
+
+        public int NumberOfCards
+        {
+            get => numberOfCards;
+            set => Set(ref numberOfCards, value);
+        }
+
+        public ObservableList<TaskCard> UnfinishedTasks
+        {
+            get => unfinishedTasks;
+            set => Set(ref unfinishedTasks, value);
+        }
+
+        public ObservableList<TaskCard> FinishedTasks
+        {
+            get => finishedTasks;
+            set => Set(ref finishedTasks, value);
+        }
     }
 }

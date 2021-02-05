@@ -1,24 +1,25 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Boardgames.Common.Messages;
+using Boardgames.NinthPlanet.Client;
 
 namespace Boardgames.NinthPlanet.Tests.Utilitites
 {
     internal class TestMessengeRouter : IGameMessenger
     {
-        private readonly Dictionary<int, NinthPlanetClient> gameClients;
+        private readonly Dictionary<int, ClientMessageRouter> gameClients;
 
         private Queue<Message> messageQueue;
 
         public TestMessengeRouter()
         {
-            this.gameClients = new Dictionary<int, NinthPlanetClient>();
+            this.gameClients = new Dictionary<int, ClientMessageRouter>();
             this.messageQueue = new Queue<Message>();
         }
 
         public void AddClient(int playerId, NinthPlanetClient client)
         {
-            this.gameClients.Add(playerId, client);
+            this.gameClients.Add(playerId, new ClientMessageRouter(client));
         }
 
         public void SendMessage<TMessageType>(TMessageType message, IEnumerable<int> receiverPlayerIds) where TMessageType : IGameMessage

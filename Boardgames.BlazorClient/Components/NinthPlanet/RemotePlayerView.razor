@@ -1,22 +1,22 @@
-﻿@using Client.ViewModels.NinthPlanet
+﻿@using Boardgames.NinthPlanet.Client
 @using BlazorClient.Extensions
 
 @for (int i = 0; i < Player.NumberOfCards; ++i)
 {
-   <BackOfTheCard XPostion="i*24" />
+    <BackOfTheCard XPostion="i*24" />
 }
 
-@if (Player.CommunicatedCard.HasValue)
+@if (Player.DisplayedCard.HasValue)
 {
-    <FrontOfTheCard Card="Player.CommunicatedCard.Value" CanBeDraged="false" XPostion="(Player.NumberOfCards+5)*24" />
+    <FrontOfTheCard Card="Player.DisplayedCard.Value" CanBeDraged="false" XPostion="(Player.NumberOfCards+5)*24" />
 }
 
 @code {
 
-    private RemotePlayerViewModel player;
+    private PlayerState player;
 
     [Parameter]
-    public RemotePlayerViewModel Player
+    public PlayerState Player
     {
         get => player;
         set

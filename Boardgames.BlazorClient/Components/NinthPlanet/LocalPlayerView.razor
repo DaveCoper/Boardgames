@@ -1,4 +1,5 @@
 ﻿@using Boardgames.NinthPlanet.Models
+@using Boardgames.NinthPlanet.Client
 @using Boardgames.BlazorClient.Extensions
 @using Boardgames.Client.ViewModels.NinthPlanet
 @inject Services.DragDropDataStore dragDropStore
@@ -16,9 +17,9 @@
         </div>
         <div class="row">
             <div class="col-lg-9">
-                @for (int i = 0; i < LocalPlayer.Hand.Count; ++i)
+                @for (int i = 0; i < LocalPlayer.CardsInHand.Count; ++i)
                 {
-                    var card = LocalPlayer.Hand[i];
+                    var card = LocalPlayer.CardsInHand[i];
                     <FrontOfTheCard CanBeDraged="true" Card="card" XPostion="i*24" />
                 }
             </div>
@@ -33,9 +34,9 @@
          @ondrop:preventDefault>
         <p>Communication area</p>
         <div class="npDropArea">
-            @if (LocalPlayer.CommunicatedCard.HasValue)
+            @if (LocalPlayer.DisplayedCard.HasValue)
             {
-                var card = LocalPlayer.CommunicatedCard.Value;
+                var card = LocalPlayer.DisplayedCard.Value;
                 <FrontOfTheCard CanBeDraged="false" Card="card" />
             }
         </div>
@@ -44,21 +45,21 @@
 
 @code {
 
-    private LocalPlayerViewModel localPlayer;
+    private UserState localPlayer;
 
     [Parameter]
-    public LocalPlayerViewModel LocalPlayer
+    public UserState LocalPlayer
     {
         get => localPlayer;
         set
         {
             localPlayer = value;
             if (localPlayer != null)
-            {
+            {                
                 localPlayer.UpdateOnPropertyChanged(this.StateHasChanged);
-                localPlayer.Hand.UpdateOnCollectionChanged(this.StateHasChanged);
-                localPlayer.FinishedTasks.UpdateOnCollectionChanged(this.StateHasChanged);
-                localPlayer.UnfinishedTasks.UpdateOnCollectionChanged(this.StateHasChanged);
+                localPlayer.CardsInHand.UpdateOnCollectionChanged<Card>(this.StateHasChanged);
+                localPlayer.FinishedTasks.UpdateOnCollectionChanged<TaskCard>(this.StateHasChanged);
+                localPlayer.UnfinishedTasks.UpdateOnCollectionChanged<TaskCard>(this.StateHasChanged);                
             }
         }
     }
@@ -71,7 +72,7 @@
             dragDropStore.DragDropData = null;
 
             Console.WriteLine("Card {0} {1} was droped to communication area.", draggedCard.Color, draggedCard.Value);
-            await LocalPlayer.CommunicateCardAsync(draggedCard);
+            //await LocalPlayer.CommunicateCardAsync(draggedCard);
         }
     }
 }
