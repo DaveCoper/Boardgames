@@ -1,0 +1,48 @@
+﻿@using Boardgames.NinthPlanet.Models
+@using Boardgames.NinthPlanet.Client
+@using Boardgames.BlazorClient.Extensions
+
+<div class="row">
+    <div class="col-lg-9">
+        <div class="row">
+            <div class="col-lg-9">
+                <p>Unfinished tasks:</p>
+                <CardList ContentContainerStyle="npCard"
+                          Cards="LocalPlayer.UnfinishedTasks"
+                          CardSpace="20"
+                          CardHeight="140"
+                          CardWidth="80">
+                    <NpTaskCard Task="@context" />
+                </CardList>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-9">
+                <CardList ContentContainerStyle="npCard"
+                          Cards="LocalPlayer.CardsInHand"
+                          CardSpace="20"
+                          CardHeight="140"
+                          CardWidth="80">
+                    <NpCard Card="@context" />
+                </CardList>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-3"
+         @ondragover:preventDefault
+         @ondragover="()=> { }"
+         @ondragenter:preventDefault
+         @ondragenter="()=> { }"
+         @ondrop="OnDropToCommunication"
+         @ondrop:preventDefault>
+        <p>Communication area</p>
+        <div class="npDropArea">
+            @if (LocalPlayer.DisplayedCard.HasValue)
+            {
+                <div class="npCard">
+                    <NpCard CanBeDraged="false" Card="LocalPlayer.DisplayedCard.Value" />
+                </div>
+            }
+        </div>
+    </div>
+</div>

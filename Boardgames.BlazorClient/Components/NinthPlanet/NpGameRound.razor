@@ -1,0 +1,50 @@
+﻿@using Boardgames.NinthPlanet.Models
+@using Boardgames.BlazorClient.Extensions
+@using Boardgames.Client.Services
+@using Boardgames.NinthPlanet.Client
+
+<div class="container">
+    <div class="row" style="height:250px">
+        @foreach (var player in gameRound.StateOfAllies)
+        {
+            <div class="col-auto">
+                <NpRemotePlayer Player="player" />
+            </div>
+        }
+    </div>
+    @if (gameRound.AvailableGoals.Count > 0)
+    {
+        <div class="row" style="height:250px">
+            <CardList ContentContainerStyle="npCard"
+                      Cards="gameRound.AvailableGoals"
+                      CardSpace="100"
+                      CardHeight="140"
+                      CardWidth="80">
+                <NpTaskCard Task="@context" />
+            </CardList>
+        </div>
+    }
+    else
+    {
+        <div class="row" style="height:250px"
+             @ondragover:preventDefault
+             @ondragover="() => { }"
+             @ondragenter:preventDefault
+             @ondragenter="() => { }"
+             @ondrop="OnDropToPlayArea"
+             @ondrop:preventDefault>
+            <CardList ContentContainerStyle="npCard"
+                      Cards="gameRound.CurrentTrick"
+                      CardSpace="90"
+                      CardHeight="140"
+                      CardWidth="80">
+                <NpCard Card="@context.Card" />
+            </CardList>
+        </div>
+    }
+    <div class="row" style="height:250px">
+        <div class="col-lg-12">
+            <NpLocalPlayer LocalPlayer="@gameRound.UserState" />
+        </div>
+    </div>
+</div>

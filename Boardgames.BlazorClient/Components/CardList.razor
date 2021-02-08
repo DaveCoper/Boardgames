@@ -1,7 +1,54 @@
-﻿<h3>CardList</h3>
+﻿@typeparam TCardType
 
- @code{
+<div style="width:@ToPx(CardWidth + (this.Cards.Count * CardSpace)); height:@ToPx(CardHeight)">
+    @for (int i = 0; i < this.Cards.Count; ++i)
+    {
+        var card = this.Cards[i];
+        var xPos = i * CardSpace;
 
-     [Parameter]
-     public double CardSpace { get; set; }
- }
+        <div class="@ContentContainerStyle"
+             @key="card"
+             title="@card.ToString()"
+             draggable="true"
+             @ondragstart="OnDragStart"
+             style="transform: translate(@ToPx(xPos), 0.0px)">
+            @ChildContent(card)
+        </div>
+    }
+</div>
+
+@code{
+
+    [Parameter]
+    public double CardSpace { get; set; }
+
+    [Parameter]
+    public double CardWidth { get; set; }
+
+    [Parameter]
+    public double CardHeight { get; set; }
+
+    [Parameter]
+    public string ContentContainerStyle { get; set; }
+
+    [Parameter]
+    public IList<TCardType> Cards { get; set; }
+
+    [Parameter]
+    public RenderFragment<TCardType> ChildContent { get; set; }
+
+    protected void OnDragStart(DragEventArgs args)
+    {
+        /*
+        if (CanBeDraged)
+        {
+            //dragDropData.DragDropData = Card;
+        }
+        */
+    }
+
+    protected string ToPx(double value)
+    {
+        return $"{value}px";
+    }
+}

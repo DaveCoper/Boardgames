@@ -1,14 +1,17 @@
 ﻿@using Boardgames.NinthPlanet.Client
 @using BlazorClient.Extensions
 
-@for (int i = 0; i < Player.NumberOfCards; ++i)
-{
-    <BackOfTheCard XPostion="i*24" />
-}
+<CardList ContentContainerStyle="npCard npCard-backSide"
+          Cards="Enumerable.Range(0, Player.NumberOfCards).ToList()"
+          CardSpace="10"
+          CardHeight="140"
+          CardWidth="80">
+    <div />
+</CardList>
 
 @if (Player.DisplayedCard.HasValue)
 {
-    <FrontOfTheCard Card="Player.DisplayedCard.Value" CanBeDraged="false" XPostion="(Player.NumberOfCards+5)*24" />
+    <NpCard Card="@Player.DisplayedCard.Value" />
 }
 
 @code {

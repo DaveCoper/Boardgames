@@ -1,12 +1,12 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Boardgames.Common.Models;
+﻿using Boardgames.Common.Models;
 using Boardgames.Common.Observables;
 using Boardgames.Common.Services;
 using Boardgames.NinthPlanet.Messages;
 using Boardgames.NinthPlanet.Models;
 using GalaSoft.MvvmLight;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Boardgames.NinthPlanet.Client
 {
@@ -14,21 +14,21 @@ namespace Boardgames.NinthPlanet.Client
     {
         private readonly IPlayerDataProvider playerDataProvider;
 
-        private Dictionary<int, PlayerState> playerStates;
-
-        private ObservableList<TaskCard> availableGoals;
-
         private PlayerData captain;
-
-        private ObservableList<TrickPlay> currentTrick;
 
         private CardColor? colorOfCurrentTrick;
 
         private UserState userState;
 
-        private ObservableList<PlayerState> stateOfAllies;
-
         private bool helpIsAvailable;
+
+        private Dictionary<int, PlayerState> playerStates = new Dictionary<int, PlayerState>();
+
+        private ObservableList<TrickPlay> currentTrick = new ObservableList<TrickPlay>();
+
+        private ObservableList<TaskCard> availableGoals = new ObservableList<TaskCard>();
+
+        private ObservableList<PlayerState> stateOfAllies = new ObservableList<PlayerState>();
 
         public GameRound(IPlayerDataProvider playerDataProvider)
         {
@@ -158,11 +158,11 @@ namespace Boardgames.NinthPlanet.Client
             this.CurrentTrick.Clear();
             this.ColorOfCurrentTrick = null;
             var winnerState = playerStates[trickFinished.WinnerPlayerId];
-            winnerState.TakenCards.AddRange(trickFinished.TakenCards);
-            winnerState.FinishedTasks.AddRange(trickFinished.FinishedTasks);
 
-            // TODO: create collection with RemoveRange accepting IEnumerable for group operations.
-            trickFinished.FinishedTasks.ForEach(x => winnerState.UnfinishedTasks.Remove(x));
+            winnerState.TakenCards.AddRange(trickFinished.TakenCards);
+
+            winnerState.FinishedTasks.AddRange(trickFinished.FinishedTasks);
+            winnerState.UnfinishedTasks.RemoveRange(trickFinished.FinishedTasks);
         }
 
         public void TrickWasTaken(int playerId, TaskCard taskCard)

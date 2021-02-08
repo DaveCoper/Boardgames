@@ -1,0 +1,14 @@
+﻿@using Boardgames.NinthPlanet.Models
+@inject BlazorClient.Services.DragDropDataStore dragDropData
+
+@if (Task.Modifier.HasValue)
+{
+
+}
+
+<NpCard Card="Task.Card" />
+
+@code {
+    [Parameter]
+    public TaskCard Task { get; set; }
+}

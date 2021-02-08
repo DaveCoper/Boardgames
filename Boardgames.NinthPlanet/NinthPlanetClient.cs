@@ -62,12 +62,13 @@ namespace Boardgames.NinthPlanet
             this.concurencyStamp = gameState.ConcurencyStamp;
             if (gameState.RoundState == null)
             {
-                CurrentRound = null;
+                this.CurrentRound = null;
             }
             else
             {
-                CurrentRound = new GameRound(this.playerDataProvider);
-                await CurrentRound.UpdateState(gameState.RoundState);
+                var round = new GameRound(this.playerDataProvider);
+                await round.UpdateState(gameState.RoundState);
+                this.CurrentRound = round;
             }
 
             var players = await playerDataProvider.GetPlayerDataAsync(gameState.LobbyState.ConnectedPlayers);

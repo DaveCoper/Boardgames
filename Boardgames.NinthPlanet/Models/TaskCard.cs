@@ -9,6 +9,6 @@ namespace Boardgames.NinthPlanet.Models
     {
         public Card Card { get; set; }
 
-        public TaskCardModifier? Token { get; set; }
+        public TaskCardModifier? Modifier { get; set; }
     }
 }

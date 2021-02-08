@@ -11,11 +11,11 @@ else
 
     if (client.CurrentRound != null)
     {
-        <GameRoundView RoundViewModel="client.CurrentRound" />
+        <NpGameRound GameRound="client.CurrentRound" GameId="client.GameId" />
     }
     else if (client.GameLobby != null)
     {
-        <GameLobbyView LobbyViewModel="client.GameLobby" />
+        <NpGameLobby GameLobby="client.GameLobby" GameId="client.GameId" />
     }
     else
     {
