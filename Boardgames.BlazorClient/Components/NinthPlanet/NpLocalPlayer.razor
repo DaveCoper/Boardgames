@@ -3,12 +3,17 @@
 @using Boardgames.BlazorClient.Extensions
 
 <div class="row">
-    <div class="col-lg-9">
+    <div class="col-lg-9"        
+         @ondragover:preventDefault
+         @ondragover="()=> { }"
+         @ondragenter:preventDefault
+         @ondragenter="()=> { }"
+         @ondrop="OnDropToDeck"
+         @ondrop:preventDefault>
         <div class="row">
             <div class="col-lg-9">
                 <p>Unfinished tasks:</p>
-                <CardList ContentContainerStyle="npCard"
-                          Cards="LocalPlayer.UnfinishedTasks"
+                <CardList Cards="LocalPlayer.UnfinishedTasks"
                           CardSpace="20"
                           CardHeight="140"
                           CardWidth="80">

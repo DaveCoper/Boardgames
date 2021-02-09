@@ -1,12 +1,11 @@
-﻿using Boardgames.BlazorClient.Extensions;
+﻿using System.Threading.Tasks;
+using Boardgames.BlazorClient.Extensions;
 using Boardgames.BlazorClient.Services;
+using Boardgames.Client.Services;
 using Boardgames.NinthPlanet.Client;
 using Boardgames.NinthPlanet.Models;
-using Boardgames.Client.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
-using System;
-using System.Threading.Tasks;
 
 namespace Boardgames.BlazorClient.Components.NinthPlanet
 {
@@ -15,10 +14,10 @@ namespace Boardgames.BlazorClient.Components.NinthPlanet
         private GameRound gameRound;
 
         [Inject]
-        public Services.DragDropDataStore dragDropStore { get; set; }
+        public DragDropDataStore dragDropStore { get; set; }
 
         [Inject]
-        public INinthPlanetService ninthPlanetService { get; set; }
+        public INinthPlanetService NinthPlanetService { get; set; }
 
         [Parameter]
         public GameRound GameRound
@@ -42,8 +41,18 @@ namespace Boardgames.BlazorClient.Components.NinthPlanet
         {
             if (dragDropStore.DragDropData is Card card)
             {
-                await ninthPlanetService.PlayCardAsync(this.GameId, card);
+                await NinthPlanetService.PlayCardAsync(this.GameId, card);
             }
+        }
+
+        private async Task CardDroppedToCommunicationArea(Card card)
+        {
+            await NinthPlanetService.DisplayCardAsync(this.GameId, card, null);
+        }
+
+        private async Task CardDroppedToDeckArea(TaskCard taskCard)
+        {
+            await NinthPlanetService.TakeGoalAsync(this.GameId, taskCard);
         }
     }
 }

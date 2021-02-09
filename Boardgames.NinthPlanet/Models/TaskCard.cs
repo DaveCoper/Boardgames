@@ -10,5 +10,15 @@ namespace Boardgames.NinthPlanet.Models
         public Card Card { get; set; }
 
         public TaskCardModifier? Modifier { get; set; }
+
+        public override string ToString()
+        {
+            if (Modifier.HasValue)
+            {
+                return $"{Modifier.Value} {Card}";
+            }
+
+            return Card.ToString();
+        }
     }
 }

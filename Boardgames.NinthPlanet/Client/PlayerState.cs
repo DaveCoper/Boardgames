@@ -13,13 +13,15 @@ namespace Boardgames.NinthPlanet.Client
 
         private PlayerData playerData;
 
-        private ObservableList<Card> takenCards = new ObservableList<Card>();
-
         private int numberOfCards;
+
+        private ObservableList<Card> takenCards = new ObservableList<Card>();
 
         private ObservableList<TaskCard> unfinishedTasks = new ObservableList<TaskCard>();
 
         private ObservableList<TaskCard> finishedTasks = new ObservableList<TaskCard>();
+
+        private bool isOnTurn;
 
         public Card? DisplayedCard
         {
@@ -49,6 +51,12 @@ namespace Boardgames.NinthPlanet.Client
         {
             get => numberOfCards;
             set => Set(ref numberOfCards, value);
+        }
+
+        public bool IsOnTurn
+        {
+            get => isOnTurn;
+            set => Set(ref isOnTurn, value);
         }
 
         public ObservableList<TaskCard> UnfinishedTasks

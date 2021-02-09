@@ -138,7 +138,7 @@ namespace Boardgames.NinthPlanet
             if (this.CurrentRound == null)
                 throw new InvalidOperationException("Round was not started!");
 
-            this.CurrentRound.TrickWasTaken(taskWasTaken.PlayerId, taskWasTaken.TaskCard);
+            this.CurrentRound.TaskWasTaken(taskWasTaken.PlayerId, taskWasTaken.TaskCard);
             return Task.CompletedTask;
         }
 

@@ -1,12 +1,12 @@
-﻿using Boardgames.Common.Models;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Boardgames.Common.Models;
 using Boardgames.Common.Observables;
 using Boardgames.Common.Services;
 using Boardgames.NinthPlanet.Messages;
 using Boardgames.NinthPlanet.Models;
 using GalaSoft.MvvmLight;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Boardgames.NinthPlanet.Client
 {
@@ -29,6 +29,10 @@ namespace Boardgames.NinthPlanet.Client
         private ObservableList<TaskCard> availableGoals = new ObservableList<TaskCard>();
 
         private ObservableList<PlayerState> stateOfAllies = new ObservableList<PlayerState>();
+
+        private PlayerState playerOnTurn;
+
+        private bool userCanPlay;
 
         public GameRound(IPlayerDataProvider playerDataProvider)
         {
@@ -77,6 +81,18 @@ namespace Boardgames.NinthPlanet.Client
             set => Set(ref helpIsAvailable, value);
         }
 
+        public PlayerState PlayerOnTurn
+        {
+            get => playerOnTurn;
+            set => Set(ref playerOnTurn, value);
+        }
+
+        public bool UserCanPlay
+        {
+            get => userCanPlay;
+            set => Set(ref userCanPlay, value);
+        }
+
         public async Task UpdateState(RoundState roundState)
         {
             var userPlayerData = await this.playerDataProvider.GetPlayerDataForCurrentUserAsync();
@@ -122,11 +138,13 @@ namespace Boardgames.NinthPlanet.Client
                 NumberOfCards = userState.NumberOfCardsInHand,
                 UnfinishedTasks = new ObservableList<TaskCard>(userState.UnfinishedTasks),
                 FinishedTasks = new ObservableList<TaskCard>(userState.FinishedTasks),
-                CardsInHand = new ObservableList<Card>(roundState.CardsInHand)
+                CardsInHand = new ObservableList<Card>(roundState.CardsInHand),
             };
 
             this.playerStates = this.StateOfAllies.ToDictionary(x => x.PlayerData.Id);
             this.playerStates.Add(userPlayerData.Id, this.UserState);
+
+            this.ChangePlayerOnTurn(playerStates[roundState.CurrentPlayer]);
         }
 
         public async Task CardWasPlayedAsync(int playerId, Card card)
@@ -165,11 +183,13 @@ namespace Boardgames.NinthPlanet.Client
             winnerState.UnfinishedTasks.RemoveRange(trickFinished.FinishedTasks);
         }
 
-        public void TrickWasTaken(int playerId, TaskCard taskCard)
+        public void TaskWasTaken(int playerId, TaskCard taskCard)
         {
             this.AvailableGoals.Remove(taskCard);
             var playerState = playerStates[playerId];
             playerState.UnfinishedTasks.Add(taskCard);
+
+            this.ChangePlayerOnTurn();
         }
 
         public void PlayerComunicatedCard(int playerId, Card? card, CommunicationTokenPosition? tokenPosition)
@@ -177,6 +197,19 @@ namespace Boardgames.NinthPlanet.Client
             var playerState = playerStates[playerId];
             playerState.DisplayedCard = card;
             playerState.CommunicationTokenPosition = tokenPosition;
+        }
+
+        private void ChangePlayerOnTurn(PlayerState playerOnTurn)
+        {
+            if (this.PlayerOnTurn != null)
+            {
+                this.PlayerOnTurn.IsOnTurn = false;
+
+            }
+
+            this.UserCanPlay = playerOnTurn == UserState;
+            this.PlayerOnTurn = playerOnTurn;
+            playerOnTurn.IsOnTurn = true;
         }
     }
 }

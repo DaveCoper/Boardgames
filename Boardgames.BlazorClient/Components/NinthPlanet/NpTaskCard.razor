@@ -3,12 +3,44 @@
 
 @if (Task.Modifier.HasValue)
 {
-
+    <p>@GetModifierIcon(Task.Modifier.Value)"</p>
 }
 
-<NpCard Card="Task.Card" />
+<div class="npCard">
+    <NpCard Card="Task.Card" />
+</div>
 
 @code {
     [Parameter]
     public TaskCard Task { get; set; }
+
+    private string GetModifierIcon(TaskCardModifier modifier)
+    {
+        switch (modifier)
+        {
+            case TaskCardModifier.First:
+                return "1";
+            case TaskCardModifier.Second:
+                return "2";
+            case TaskCardModifier.Third:
+                return "3";
+            case TaskCardModifier.Fourth:
+                return "4";
+            case TaskCardModifier.Fifth:
+                return "5";
+            case TaskCardModifier.Last:
+                return "Ω";
+            case TaskCardModifier.CriticalPriority:
+                return ">";
+            case TaskCardModifier.HighPriority:
+                return ">>";
+            case TaskCardModifier.MediumPriority:
+                return ">>>";
+            case TaskCardModifier.LowPriority:
+                return ">>>>";
+
+            default:
+                throw new ArgumentOutOfRangeException(nameof(modifier));
+        }
+    }
 }
