@@ -1,13 +1,13 @@
-﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
-using Boardgames.Client.Brookers;
+﻿using Boardgames.Client.Brookers;
 using Boardgames.Client.Messages;
 using Boardgames.Common.Messages;
 using Boardgames.Common.Models;
 using Boardgames.NinthPlanet.Messages;
 using Microsoft.AspNetCore.Components.WebAssembly.Authentication;
 using Microsoft.AspNetCore.SignalR.Client;
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Boardgames.BlazorClient.Brookers
 {
@@ -57,11 +57,11 @@ namespace Boardgames.BlazorClient.Brookers
 
             await hub.StartAsync(cancellationToken);
 
-            this.RegiserMessage<NewPlayerConnected>(
+            this.RegiserMessage<CardWasPlayed>(
                 hub,
                 GameType.NinthPlanet);
 
-            this.RegiserMessage<PlayerHasLeft>(
+            this.RegiserMessage<SelectedMissionHasChanged>(
                 hub,
                 GameType.NinthPlanet);
 
@@ -69,11 +69,27 @@ namespace Boardgames.BlazorClient.Brookers
                 hub,
                 GameType.NinthPlanet);
 
+            this.RegiserMessage<NewPlayerConnected>(
+                hub,
+                GameType.NinthPlanet);
+
             this.RegiserMessage<PlayerCommunicatedCard>(
                 hub,
                 GameType.NinthPlanet);
 
-            this.RegiserMessage<CardWasPlayed>(
+            this.RegiserMessage<PlayerHasLeft>(
+                hub,
+                GameType.NinthPlanet);
+
+            this.RegiserMessage<RoundFailed>(
+                hub,
+                GameType.NinthPlanet);
+
+            this.RegiserMessage<TaskWasTaken>(
+                hub,
+                GameType.NinthPlanet);
+
+            this.RegiserMessage<TrickFinished>(
                 hub,
                 GameType.NinthPlanet);
 

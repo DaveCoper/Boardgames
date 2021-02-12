@@ -1,4 +1,6 @@
-﻿@typeparam TCardType
+﻿@using BlazorClient.Services
+@typeparam TCardType
+@inject DragDropDataStore dragDropDataStore
 
 <div style="width:@ToPx(CardWidth + (this.Cards.Count * CardSpace)); height:@ToPx(CardHeight)">
     @for (int i = 0; i < this.Cards.Count; ++i)
@@ -10,7 +12,7 @@
              @key="card"
              title="@card.ToString()"
              draggable="true"
-             @ondragstart="OnDragStart"
+             @ondragstart="(DragEventArgs args) => OnDragStart(card)"
              style="transform: translate(@ToPx(xPos), 0.0px)">
             @ChildContent(card)
         </div>
@@ -37,14 +39,9 @@
     [Parameter]
     public RenderFragment<TCardType> ChildContent { get; set; }
 
-    protected void OnDragStart(DragEventArgs args)
+    protected void OnDragStart(TCardType card)
     {
-        /*
-        if (CanBeDraged)
-        {
-            //dragDropData.DragDropData = Card;
-        }
-        */
+        dragDropDataStore.DragDropData = card;
     }
 
     protected string ToPx(double value)
