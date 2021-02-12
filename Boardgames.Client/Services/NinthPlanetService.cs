@@ -60,9 +60,12 @@ namespace Boardgames.Client.Services
                    $"{gameId}/Play");
         }
 
-        public Task TakeGoalAsync(int gameId, TaskCard goal)
+        public async Task TakeGoalAsync(int gameId, TaskCard goal)
         {
-            throw new NotImplementedException();
+            await this.webApiBrooker.PostAsync(
+                   ControllerName,
+                   goal,
+                   $"{gameId}/TakeGoal");
         }
     }
 }

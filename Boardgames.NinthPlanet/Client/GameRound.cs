@@ -33,6 +33,7 @@ namespace Boardgames.NinthPlanet.Client
         private PlayerState playerOnTurn;
 
         private bool userCanPlay;
+        private List<PlayerState> playOrder;
 
         public GameRound(IPlayerDataProvider playerDataProvider)
         {
@@ -92,6 +93,11 @@ namespace Boardgames.NinthPlanet.Client
             get => userCanPlay;
             set => Set(ref userCanPlay, value);
         }
+        public List<PlayerState> PlayOrder
+        {
+            get => playOrder;
+            private set => Set(ref playOrder, value);
+        }
 
         public async Task UpdateState(RoundState roundState)
         {
@@ -143,6 +149,7 @@ namespace Boardgames.NinthPlanet.Client
 
             this.playerStates = this.StateOfAllies.ToDictionary(x => x.PlayerData.Id);
             this.playerStates.Add(userPlayerData.Id, this.UserState);
+            this.PlayOrder = roundState.PlayOrder.Select(x => playerStates[x]).ToList();
 
             this.ChangePlayerOnTurn(playerStates[roundState.CurrentPlayer]);
         }
@@ -188,8 +195,7 @@ namespace Boardgames.NinthPlanet.Client
             this.AvailableGoals.Remove(taskCard);
             var playerState = playerStates[playerId];
             playerState.UnfinishedTasks.Add(taskCard);
-
-            this.ChangePlayerOnTurn(this.PlayerOnTurn);
+            this.MoveToNextPlayer();
         }
 
         public void PlayerComunicatedCard(int playerId, Card? card, CommunicationTokenPosition? tokenPosition)
@@ -197,6 +203,13 @@ namespace Boardgames.NinthPlanet.Client
             var playerState = playerStates[playerId];
             playerState.DisplayedCard = card;
             playerState.CommunicationTokenPosition = tokenPosition;
+        }
+
+        private void MoveToNextPlayer()
+        {
+            var index = this.PlayOrder.IndexOf(this.PlayerOnTurn);
+            index = (index + 1) % this.PlayOrder.Count;
+            this.ChangePlayerOnTurn(this.PlayOrder[index]);
         }
 
         private void ChangePlayerOnTurn(PlayerState playerOnTurn)
