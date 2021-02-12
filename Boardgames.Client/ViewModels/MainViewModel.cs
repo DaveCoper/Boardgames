@@ -15,10 +15,15 @@ namespace Boardgames.Client.ViewModels
     public class MainViewModel : ViewModelBase, IAsyncLoad
     {
         private readonly CreateGameViewModel createGameViewModel;
+
         private readonly GameBrowserViewModel gameBrowserViewModel;
+
         private readonly INinthPlanetScreenViewModelFactory ninthPlanetScreenViewModelFactory;
+
         private readonly IPlayerDataProvider playerDataProvider;
+
         private readonly IMessenger messenger;
+
         private PlayerData currentUser;
 
         private ContentViewModel activeScreen;
@@ -44,8 +49,6 @@ namespace Boardgames.Client.ViewModels
                 createGameViewModel,
                 gameBrowserViewModel,
             };
-
-
 
             messenger.Register<OpenGame>(this, OnUserWantsToOpenGame);
         }
@@ -75,7 +78,7 @@ namespace Boardgames.Client.ViewModels
         private void OnUserWantsToOpenGame(OpenGame msg)
         {
             var existingScreen = (ContentViewModel)this.Screens.OfType<IGameViewModel>().FirstOrDefault(x => x.GameId == msg.GameId);
-            if(existingScreen == null)
+            if (existingScreen == null)
             {
                 switch (msg.GameType)
                 {

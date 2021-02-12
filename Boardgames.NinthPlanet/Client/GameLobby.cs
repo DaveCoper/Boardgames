@@ -10,7 +10,7 @@ namespace Boardgames.NinthPlanet.Client
 
         private int selectedMission;
 
-        private ObservableList<PlayerData> connectedPlayers;
+        private ObservableList<PlayerData> connectedPlayers = new ObservableList<PlayerData>();
 
         public ObservableList<PlayerData> ConnectedPlayers
         {

@@ -6,10 +6,11 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="clr-namespace:Boardgames.WpfClient.UiComponents"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:npclient="clr-namespace:Boardgames.NinthPlanet.Client;assembly=Boardgames.NinthPlanet"
     xmlns:panels="clr-namespace:Boardgames.WpfClient.Panels"
     xmlns:svm="clr-namespace:Boardgames.Client.ViewModels;assembly=Boardgames.Client"
-    d:DataContext="{d:DesignInstance Type={x:Type svm:NinthPlanetRoundViewModel},
-                                     IsDesignTimeCreatable=True}"
+    d:DataContext="{d:DesignInstance Type={x:Type npclient:GameRound},
+                                     IsDesignTimeCreatable=False}"
     d:DesignHeight="450"
     d:DesignWidth="800"
     mc:Ignorable="d">
@@ -23,7 +24,7 @@
             Background="Transparent"
             BorderBrush="Transparent"
             BorderThickness="0"
-            ItemsSource="{Binding Hand}"
+            ItemsSource="{Binding UserState.CardsInHand}"
             SelectionMode="Single">
             <ListBox.ItemContainerStyle>
                 <Style TargetType="ListBoxItem">
@@ -52,7 +53,7 @@
                         </Image.Source>
                         <Image.InputBindings>
                             <MouseBinding
-                                Command="{Binding Path='DataContext.CardDoubleClickCommand', RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListBox}}"
+                                Command="{Binding Path='CardPlayedCommandProperty', RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=local:NinthPlanetGame}}"
                                 CommandParameter="{Binding}"
                                 MouseAction="LeftDoubleClick" />
                         </Image.InputBindings>

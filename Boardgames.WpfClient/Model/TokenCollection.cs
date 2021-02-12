@@ -9,6 +9,7 @@ namespace Boardgames.WpfClient.Model
         public string RefreshToken { get; set; }
 
         public string IdentityToken { get; set; }
-        public DateTime AccessTokenExpiration { get; internal set; }
+
+        public DateTime AccessTokenExpiration { get; set; }
     }
 }

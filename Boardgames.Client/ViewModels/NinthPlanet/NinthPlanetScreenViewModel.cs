@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using Boardgames.Client.Services;
@@ -26,6 +27,7 @@ namespace Boardgames.Client.ViewModels.NinthPlanet
         private GameInfo gameInfo;
 
         private NinthPlanetClient client;
+        private object currentView;
 
         [Obsolete("Used by WPF designer", true)]
         public NinthPlanetScreenViewModel() : base(Resources.Strings.PlanetNine_Title)
@@ -75,6 +77,12 @@ namespace Boardgames.Client.ViewModels.NinthPlanet
             private set => Set(ref client, value);
         }
 
+        public object CurrentView
+        {
+            get => currentView;
+            set => Set(ref currentView, value);
+        }
+
         public async void BeginRound()
         {
             await this.ninthPlanetService.BeginRoundAsync(this.gameId);
@@ -100,9 +108,26 @@ namespace Boardgames.Client.ViewModels.NinthPlanet
             if (this.Client == null)
             {
                 this.Client = new NinthPlanetClient(this.gameInfo, playerDataService, null);
+                this.Client.PropertyChanged += OnClientPropertyChanged;
+                this.UpdateCurrentView();
             }
 
             await this.Client.UpdateStateAsync(gameState);
+        }
+
+        private void OnClientPropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            switch (e.PropertyName)
+            {
+                case nameof(Client.GameLobby):
+                case nameof(Client.CurrentRound):
+                    this.UpdateCurrentView();
+                    break;
+            }
+        }
+        private void UpdateCurrentView()
+        {
+            CurrentView = Client.CurrentRound == null ? Client.GameLobby : Client.CurrentRound;
         }
     }
 }

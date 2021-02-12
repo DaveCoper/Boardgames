@@ -189,7 +189,7 @@ namespace Boardgames.NinthPlanet.Client
             var playerState = playerStates[playerId];
             playerState.UnfinishedTasks.Add(taskCard);
 
-            this.ChangePlayerOnTurn();
+            this.ChangePlayerOnTurn(this.PlayerOnTurn);
         }
 
         public void PlayerComunicatedCard(int playerId, Card? card, CommunicationTokenPosition? tokenPosition)

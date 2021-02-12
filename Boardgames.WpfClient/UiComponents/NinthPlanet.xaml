@@ -5,6 +5,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="clr-namespace:Boardgames.WpfClient.UiComponents"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:npclient="clr-namespace:Boardgames.NinthPlanet.Client;assembly=Boardgames.NinthPlanet"
     xmlns:npvm="clr-namespace:Boardgames.Client.ViewModels.NinthPlanet;assembly=Boardgames.Client"
     xmlns:svm="clr-namespace:Boardgames.Client.ViewModels;assembly=Boardgames.Client"
     d:DataContext="{d:DesignInstance Type={x:Type npvm:NinthPlanetScreenViewModel},
@@ -21,11 +22,11 @@
         </Grid.Background>
         <ContentControl Content="{Binding CurrentView}">
             <ContentControl.Resources>
-                <DataTemplate DataType="{x:Type npvm:LobbyViewModel}">
+                <DataTemplate DataType="{x:Type npclient:GameLobby}">
                     <local:NinthPlanetLobby DataContext="{Binding}" />
                 </DataTemplate>
 
-                <DataTemplate DataType="{x:Type npvm:RoundViewModel}">
+                <DataTemplate DataType="{x:Type npclient:GameRound}">
                     <local:NinthPlanetGame DataContext="{Binding}" />
                 </DataTemplate>
             </ContentControl.Resources>

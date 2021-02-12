@@ -11,8 +11,8 @@
     Title="{x:Static res:Strings.MainWindow_Title}"
     Width="800"
     Height="450"
-    d:DataContext="{d:DesignInstance Type=svm:MainWindowViewModel,
-                                     IsDesignTimeCreatable=True}"
+    d:DataContext="{d:DesignInstance Type=svm:MainViewModel,
+                                     IsDesignTimeCreatable=False}"
     mc:Ignorable="d">
     <Grid Margin="0,-2,0,2">
         <Grid.RowDefinitions>
@@ -89,8 +89,8 @@
             Background="Transparent"
             BorderBrush="Transparent"
             BorderThickness="0"
-            ItemsSource="{Binding AvailableScreens}"
-            SelectedItem="{Binding SelectedScreen}"
+            ItemsSource="{Binding Screens}"
+            SelectedItem="{Binding ActiveScreen}"
             SelectionMode="Single">
             <ListBox.ItemContainerStyle>
                 <Style TargetType="ListBoxItem">
@@ -109,7 +109,7 @@
                             HorizontalAlignment="Left"
                             VerticalAlignment="Center"
                             Foreground="White"
-                            Text="{Binding Label}" />
+                            Text="{Binding Title}" />
                     </StackPanel>
                 </DataTemplate>
             </ListBox.ItemTemplate>
@@ -120,7 +120,7 @@
             HorizontalAlignment="Right"
             VerticalAlignment="Center"
             Panel.ZIndex="4"
-            DataContext="{Binding UserInfo}"
+            DataContext="{Binding CurrentUser}"
             Orientation="Horizontal">
             <Border
                 BorderBrush="Gray"
