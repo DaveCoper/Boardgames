@@ -9,9 +9,9 @@
     <div />
 </CardList>
 
-@if (Player.DisplayedCard.HasValue)
+@if (Player.DisplayedCard != null)
 {
-    <NpCard Card="@Player.DisplayedCard.Value" />
+    <NpCard Card="@Player.DisplayedCard" />
 }
 
 @code {

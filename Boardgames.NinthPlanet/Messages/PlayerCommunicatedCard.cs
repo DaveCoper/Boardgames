@@ -7,7 +7,7 @@ namespace Boardgames.NinthPlanet.Messages
     {
         public int PlayerId { get; set; }
 
-        public Card? Card { get; set; }
+        public Card Card { get; set; }
 
         public CommunicationTokenPosition? TokenPosition { get; set; }
     }

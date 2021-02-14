@@ -50,7 +50,7 @@ namespace Boardgames.WebServer.Games
 
         public async Task DisplayCardAsync(
             int playerId,
-            Card? card,
+            Card card,
             CommunicationTokenPosition? tokenPosition,
             IGameMessenger gameMessenger)
         {

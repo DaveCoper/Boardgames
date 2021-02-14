@@ -13,7 +13,7 @@
         <div class="row">
             <div class="col-lg-9">
                 <p>Unfinished tasks:</p>
-                <CardList Cards="LocalPlayer.UnfinishedTasks"
+                <CardList Cards="@LocalPlayer.UnfinishedTasks"
                           CardSpace="20"
                           CardHeight="140"
                           CardWidth="80">
@@ -24,10 +24,11 @@
         <div class="row">
             <div class="col-lg-9">
                 <CardList ContentContainerStyle="npCard"
-                          Cards="LocalPlayer.CardsInHand"
+                          Cards="@LocalPlayer.CardsInHand"
                           CardSpace="20"
                           CardHeight="140"
-                          CardWidth="80">
+                          CardWidth="80"
+                          CardsCanBeDragged="@LocalPlayer.IsOnTurn">
                     <NpCard Card="@context" />
                 </CardList>
             </div>
@@ -42,10 +43,10 @@
          @ondrop:preventDefault>
         <p>Communication area</p>
         <div class="npDropArea">
-            @if (LocalPlayer.DisplayedCard.HasValue)
+            @if (LocalPlayer.DisplayedCard != null)
             {
                 <div class="npCard">
-                    <NpCard Card="LocalPlayer.DisplayedCard.Value" />
+                    <NpCard Card="LocalPlayer.DisplayedCard" />
                 </div>
             }
         </div>

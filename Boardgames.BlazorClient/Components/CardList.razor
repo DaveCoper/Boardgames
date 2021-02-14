@@ -1,51 +1,36 @@
-﻿@using BlazorClient.Services
-@typeparam TCardType
-@inject DragDropDataStore dragDropDataStore
+﻿@typeparam TCardType
 
 <div style="width:@ToPx(CardWidth + (this.Cards.Count * CardSpace)); height:@ToPx(CardHeight)">
     @for (int i = 0; i < this.Cards.Count; ++i)
     {
         var card = this.Cards[i];
-        var xPos = i * CardSpace;
+        if (card == null)
+            continue;
 
-        <div class="@ContentContainerStyle"
-             @key="card"
-             title="@card.ToString()"
-             draggable="true"
-             @ondragstart="(DragEventArgs args) => OnDragStart(card)"
-             style="transform: translate(@ToPx(xPos), 0.0px)">
-            @ChildContent(card)
-        </div>
+        var xPos = i * CardSpace;
+        var yPos = card.Equals(this.SelectedCard) ? 15.0 : 0.0;
+
+        if (CardsCanBeDragged)
+        {
+            <div class="@ContentContainerStyle"
+                 @key="card"
+                 title="@card.ToString()"
+                 draggable="true"
+                 @ondragstart="args => OnDragStart(card)"
+                 @onclick="args => CardCliecked(card)"
+                 style="transform: translate(@ToPx(xPos), @ToPx(yPos))">
+                @ChildContent(card)
+            </div>
+        }
+        else
+        {
+            <div class="@ContentContainerStyle"
+                 @key="card"
+                 title="@card.ToString()"
+                 @onclick="args => CardCliecked(card)"
+                 style="transform: translate(@ToPx(xPos), @ToPx(yPos))">
+                @ChildContent(card)
+            </div>
+        }
     }
 </div>
-
-@code{
-
-    [Parameter]
-    public double CardSpace { get; set; }
-
-    [Parameter]
-    public double CardWidth { get; set; }
-
-    [Parameter]
-    public double CardHeight { get; set; }
-
-    [Parameter]
-    public string ContentContainerStyle { get; set; }
-
-    [Parameter]
-    public IList<TCardType> Cards { get; set; }
-
-    [Parameter]
-    public RenderFragment<TCardType> ChildContent { get; set; }
-
-    protected void OnDragStart(TCardType card)
-    {
-        dragDropDataStore.DragDropData = card;
-    }
-
-    protected string ToPx(double value)
-    {
-        return $"{value}px";
-    }
-}

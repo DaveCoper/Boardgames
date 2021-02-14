@@ -160,8 +160,8 @@ namespace Boardgames.WebServer.Repositories
                     storedState.FinishedTasks = playerState.Value.FinishedTasks;
                     storedState.UnfinishedTasks = playerState.Value.UnfinishedTasks;
                     storedState.CardsInHand = playerState.Value.CardsInHand;
-                    storedState.ComunicatedCardColor = playerState.Value.DisplayedCard?.Color;
-                    storedState.ComunicatedCardValue = playerState.Value.DisplayedCard?.Value;
+                    storedState.ComunicatedCardColor = playerState.Value.DisplayedCard.Color;
+                    storedState.ComunicatedCardValue = playerState.Value.DisplayedCard.Value;
                     storedState.CommunicationTokenPosition = playerState.Value.DisplayedCardTokenPosition;
                 }
             }

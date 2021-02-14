@@ -1,5 +1,5 @@
-﻿using System.Threading.Tasks;
-using Boardgames.BlazorClient.Extensions;
+﻿using System.ComponentModel;
+using System.Threading.Tasks;
 using Boardgames.BlazorClient.Services;
 using Boardgames.Client.Services;
 using Boardgames.NinthPlanet.Client;
@@ -25,11 +25,19 @@ namespace Boardgames.BlazorClient.Components.NinthPlanet
             get => gameRound;
             set
             {
-                gameRound = value;
-                if (gameRound != null)
+                if (gameRound != value)
                 {
-                    gameRound.UpdateOnPropertyChanged(this.StateHasChanged);
-                    gameRound.AvailableGoals.UpdateOnCollectionChanged<TaskCard>(this.StateHasChanged);
+                    if (gameRound != null)
+                    {
+                        value.PropertyChanged -= OnModelPropertyChanged;
+                    }
+
+                    gameRound = value;
+
+                    if (value != null)
+                    {
+                        value.PropertyChanged += OnModelPropertyChanged;
+                    }
                 }
             }
         }
@@ -37,12 +45,19 @@ namespace Boardgames.BlazorClient.Components.NinthPlanet
         [Parameter]
         public int GameId { get; set; }
 
+        public string PlayAreaBackground => this.GameRound.UserCanPlay ? "#d8d8d8ff" : "#ffffff00";
+
         public async Task OnDropToPlayArea(DragEventArgs args)
         {
             if (dragDropStore.DragDropData is Card card)
             {
                 await NinthPlanetService.PlayCardAsync(this.GameId, card);
             }
+        }
+
+        private void OnModelPropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            this.StateHasChanged();
         }
 
         private async Task CardDroppedToCommunicationArea(Card card)

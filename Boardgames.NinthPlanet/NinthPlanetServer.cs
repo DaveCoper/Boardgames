@@ -103,7 +103,7 @@ namespace Boardgames.NinthPlanet
         /// <param name="gameMessenger">Game messenger used to contact other players.</param>
         public void DisplayCard(
             int playerId,
-            Card? card,
+            Card card,
             CommunicationTokenPosition? tokenPosition,
             IGameMessenger gameMessenger)
         {
@@ -225,6 +225,16 @@ namespace Boardgames.NinthPlanet
 
         public void PlayCard(int playerId, Card card, IGameMessenger gameMessenger)
         {
+            if (card is null)
+            {
+                throw new ArgumentNullException(nameof(card));
+            }
+
+            if (gameMessenger is null)
+            {
+                throw new ArgumentNullException(nameof(gameMessenger));
+            }
+
             this.ThrowIfPlayerIsNotInGame(playerId);
             if (GameIsInLobby)
                 throw new InvalidOperationException("Round is not started.");

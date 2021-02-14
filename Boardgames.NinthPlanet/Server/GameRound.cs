@@ -111,7 +111,7 @@ namespace Boardgames.NinthPlanet.Server
             */
         }
 
-        public bool DisplayCard(int playerId, Card? card, CommunicationTokenPosition? tokenPosition)
+        public bool DisplayCard(int playerId, Card card, CommunicationTokenPosition? tokenPosition)
         {
             if (this.roundState.PlayerStates.TryGetValue(playerId, out var playerPrivateState))
             {
@@ -125,7 +125,7 @@ namespace Boardgames.NinthPlanet.Server
                 }
 
                 // you can't change displayed card.
-                if (playerPrivateState.DisplayedCard.HasValue && card != playerPrivateState.DisplayedCard)
+                if (playerPrivateState.DisplayedCard != null && card != playerPrivateState.DisplayedCard)
                 {
                     logger.LogWarning($"Denied request for change of displayed card by player {playerId} in game {gameId}. Player already has card displayed.");
                     throw new Exception("You can't change displayed card.");
@@ -140,7 +140,7 @@ namespace Boardgames.NinthPlanet.Server
                 }
 
                 // null value is ignored.
-                if (card.HasValue)
+                if (card != null)
                 {
                     // player didn't display card this round.
                     changeOccured = true;
@@ -154,7 +154,7 @@ namespace Boardgames.NinthPlanet.Server
             throw new Exception("Player state not found!");
         }
 
-        public void GetDisplayedCard(int playerId, out Card? card, out CommunicationTokenPosition? tokenPosition)
+        public void GetDisplayedCard(int playerId, out Card card, out CommunicationTokenPosition? tokenPosition)
         {
             if (this.roundState.PlayerStates.TryGetValue(playerId, out var playerPrivateState))
             {
@@ -238,21 +238,29 @@ namespace Boardgames.NinthPlanet.Server
 
         public void TakeTaskCard(int playerId, TaskCard task)
         {
-            if (this.roundState.PlayerStates.TryGetValue(playerId, out var playerPrivateState))
+            if (!this.roundState.PlayerStates.TryGetValue(playerId, out var playerPrivateState))
             {
-                if (this.roundState.AvailableGoals.Remove(task))
-                {
-                    playerPrivateState.UnfinishedTasks.Add(task);
-                    return;
-                }
+                logger.LogWarning($"Denied request to take task card by player {playerId} in game {gameId}. Player is not in the game.");
+                throw new Exception("Player state not found!");
+            }
 
+
+            if (this.roundState.CurrentPlayerId != playerId)
+            {
+                logger.LogWarning($"Denied request to take task card by player {playerId} in game {gameId}. Player is not on turn.");
+                throw new Exception("Player no on turn!");
+            }
+
+            if (!this.roundState.AvailableGoals.Remove(task))
+            {
                 var msg = $"Task card {task} is not available in current round of game {gameId}.";
                 logger.LogWarning(msg);
                 throw new Exception(msg);
             }
 
-            logger.LogWarning($"Denied request to play card by player {playerId} in game {gameId}. Player is not in the game.");
-            throw new Exception("Player state not found!");
+            playerPrivateState.UnfinishedTasks.Add(task);
+            MoveToNextPlayer();
+            return;
         }
     }
 }

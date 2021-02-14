@@ -1,5 +1,6 @@
-﻿using System.Threading.Tasks;
-using Boardgames.BlazorClient.Extensions;
+﻿using System;
+using System.ComponentModel;
+using System.Threading.Tasks;
 using Boardgames.BlazorClient.Services;
 using Boardgames.Client.Services;
 using Boardgames.NinthPlanet.Client;
@@ -9,7 +10,7 @@ using Microsoft.AspNetCore.Components.Web;
 
 namespace Boardgames.BlazorClient.Components.NinthPlanet
 {
-    public partial class NpLocalPlayer : ComponentBase
+    public partial class NpLocalPlayer : ComponentBase, IDisposable
     {
         private UserState localPlayer;
 
@@ -25,13 +26,19 @@ namespace Boardgames.BlazorClient.Components.NinthPlanet
             get => localPlayer;
             set
             {
-                localPlayer = value;
-                if (localPlayer != null)
+                if (localPlayer != value)
                 {
-                    localPlayer.UpdateOnPropertyChanged(this.StateHasChanged);
-                    localPlayer.CardsInHand.UpdateOnCollectionChanged<Card>(this.StateHasChanged);
-                    localPlayer.FinishedTasks.UpdateOnCollectionChanged<TaskCard>(this.StateHasChanged);
-                    localPlayer.UnfinishedTasks.UpdateOnCollectionChanged<TaskCard>(this.StateHasChanged);
+                    if (localPlayer != null)
+                    {
+                        localPlayer.PropertyChanged -= OnModelPropertyChanged;
+                    }
+
+                    localPlayer = value;
+
+                    if (value != null)
+                    {
+                        localPlayer.PropertyChanged += OnModelPropertyChanged;
+                    }
                 }
             }
         }
@@ -52,10 +59,20 @@ namespace Boardgames.BlazorClient.Components.NinthPlanet
 
         public async Task OnDropToDeck(DragEventArgs args)
         {
-            if (DragDropStore.DragDropData is TaskCard card)
+            if (this.LocalPlayer.IsOnTurn && DragDropStore.DragDropData is TaskCard card)
             {
                 await CardDroppedToDeckArea.InvokeAsync(card);
             }
+        }
+
+        void IDisposable.Dispose()
+        {
+            this.LocalPlayer = null;
+        }
+
+        private void OnModelPropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            this.StateHasChanged();
         }
     }
 }

@@ -2,8 +2,12 @@
 
 namespace Boardgames.NinthPlanet.Models
 {
-    public struct Card
+    public class Card
     {
+        public Card()
+        {
+        }
+
         public Card(CardColor color, int value)
         {
             Color = color;
@@ -13,6 +17,16 @@ namespace Boardgames.NinthPlanet.Models
         public CardColor Color { get; set; }
 
         public int Value { get; set; }
+
+        public static bool operator ==(Card c1, Card c2)
+        {
+            return ReferenceEquals(c1, c2) || (!ReferenceEquals(c1, null) && c1.Equals(c2));
+        }
+
+        public static bool operator !=(Card c1, Card c2)
+        {
+            return !ReferenceEquals(c1, c2) && (ReferenceEquals(c1, null) || !c1.Equals(c2));
+        }
 
         public override bool Equals(object obj)
         {
@@ -24,16 +38,6 @@ namespace Boardgames.NinthPlanet.Models
         public override int GetHashCode()
         {
             return HashCode.Combine(Color, Value);
-        }
-
-        public static bool operator ==(Card c1, Card c2)
-        {
-            return c1.Equals(c2);
-        }
-
-        public static bool operator !=(Card c1, Card c2)
-        {
-            return !c1.Equals(c2);
         }
 
         public override string ToString()

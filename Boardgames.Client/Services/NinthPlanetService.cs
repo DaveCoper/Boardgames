@@ -30,7 +30,7 @@ namespace Boardgames.Client.Services
             throw new NotImplementedException();
         }
 
-        public async Task DisplayCardAsync(int gameId, Card? card, CommunicationTokenPosition? tokenPosition)
+        public async Task DisplayCardAsync(int gameId, Card card, CommunicationTokenPosition? tokenPosition)
         {
             await this.webApiBrooker.PostAsync<CardDisplayInfo>(
                 ControllerName,

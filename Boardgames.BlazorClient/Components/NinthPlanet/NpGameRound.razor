@@ -2,49 +2,52 @@
 @using Boardgames.BlazorClient.Extensions
 @using Boardgames.Client.Services
 @using Boardgames.NinthPlanet.Client
+@using Boardgames.BlazorClient.Components
+@using Boardgames.BlazorClient.Components.NinthPlanet
 
 <div class="container">
     <div class="row" style="height:250px">
-        @foreach (var player in gameRound.StateOfAllies)
+        @foreach (var player in GameRound.StateOfAllies)
         {
-            <div class="col-auto">
-                <NpRemotePlayer Player="player" />
-            </div>
+        <div class="col-auto">
+            <NpRemotePlayer Player="@player" />
+        </div>
         }
     </div>
-    @if (gameRound.AvailableGoals.Count > 0)
+    @if (gameRound.HasAvailableGoals)
     {
-        <div class="row" style="height:250px">
-            <CardList Cards="gameRound.AvailableGoals"
-                      CardSpace="100"
-                      CardHeight="140"
-                      CardWidth="80">
-                <NpTaskCard Task="@context" />
-            </CardList>
-        </div>
+    <div class="row" style="height:250px; background-color:@PlayAreaBackground;">
+        <CardList Cards="@GameRound.AvailableGoals"
+                  CardSpace="100"
+                  CardHeight="140"
+                  CardWidth="80"
+                  CardsCanBeDragged="@GameRound.UserCanPlay">
+            <NpTaskCard Task="@context" />
+        </CardList>
+    </div>
     }
     else
     {
-        <div class="row" style="height:250px"
-             @ondragover:preventDefault
-             @ondragover="() => { }"
-             @ondragenter:preventDefault
-             @ondragenter="() => { }"
-             @ondrop="OnDropToPlayArea"
-             @ondrop:preventDefault>
-            <CardList ContentContainerStyle="npCard"
-                      Cards="gameRound.CurrentTrick"
-                      CardSpace="90"
-                      CardHeight="140"
-                      CardWidth="80">
-                <NpCard Card="@context.Card" />
-            </CardList>
-        </div>
+    <div class="row" style="height:250px; background-color:@PlayAreaBackground;"
+         @ondragover:preventDefault
+         @ondragover="() => { }"
+         @ondragenter:preventDefault
+         @ondragenter="() => { }"
+         @ondrop="OnDropToPlayArea"
+         @ondrop:preventDefault>
+        <CardList ContentContainerStyle="npCard"
+                  Cards="@GameRound.CurrentTrick"
+                  CardSpace="90"
+                  CardHeight="140"
+                  CardWidth="80">
+            <NpCard Card="@context.Card" />
+        </CardList>
+    </div>
     }
     <div class="row" style="height:250px">
         <div class="col-lg-12">
-            <NpLocalPlayer LocalPlayer="@gameRound.UserState" 
-                           CardDroppedToCommunicationArea="CardDroppedToCommunicationArea" 
+            <NpLocalPlayer LocalPlayer="@GameRound.UserState"
+                           CardDroppedToCommunicationArea="CardDroppedToCommunicationArea"
                            CardDroppedToDeckArea="CardDroppedToDeckArea" />
         </div>
     </div>

@@ -22,7 +22,7 @@ namespace Boardgames.NinthPlanet
 
         void LeaveGame(int playerId, IGameMessenger gameMessenger);
 
-        void DisplayCard(int playerId, Card? card, CommunicationTokenPosition? tokenPosition, IGameMessenger gameMessenger);
+        void DisplayCard(int playerId, Card card, CommunicationTokenPosition? tokenPosition, IGameMessenger gameMessenger);
 
         void TakeTaskCard(int playerId, TaskCard goal, IGameMessenger gameMessenger);
 

@@ -7,7 +7,7 @@ namespace Boardgames.NinthPlanet.Client
 {
     public class PlayerState : ObservableObject
     {
-        private Card? displayedCard;
+        private Card displayedCard;
 
         private CommunicationTokenPosition? communicationTokenPosition;
 
@@ -23,7 +23,7 @@ namespace Boardgames.NinthPlanet.Client
 
         private bool isOnTurn;
 
-        public Card? DisplayedCard
+        public Card DisplayedCard
         {
             get => displayedCard;
             set => Set(ref displayedCard, value);

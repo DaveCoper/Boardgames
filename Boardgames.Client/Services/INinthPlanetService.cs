@@ -11,7 +11,7 @@ namespace Boardgames.Client.Services
 
         Task PlayCardAsync(int gameId, Card card);
 
-        Task DisplayCardAsync(int gameId, Card? card, CommunicationTokenPosition? tokenPosition);
+        Task DisplayCardAsync(int gameId, Card card, CommunicationTokenPosition? tokenPosition);
 
         Task TakeGoalAsync(int gameId, TaskCard goal);
 
