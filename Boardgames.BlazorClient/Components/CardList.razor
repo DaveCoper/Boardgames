@@ -1,6 +1,6 @@
 ﻿@typeparam TCardType
 
-<div style="width:@ToPx(CardWidth + (this.Cards.Count * CardSpace)); height:@ToPx(CardHeight)">
+<div style="width:@ToPx(CardWidth + (this.Cards.Count * CardSpace)); height:@ToPx(CardHeight + 15)">
     @for (int i = 0; i < this.Cards.Count; ++i)
     {
         var card = this.Cards[i];
@@ -8,29 +8,16 @@
             continue;
 
         var xPos = i * CardSpace;
-        var yPos = card.Equals(this.SelectedCard) ? 15.0 : 0.0;
+        var yPos = card.Equals(this.SelectedCard) ? 0.0 : 15.0;
 
-        if (CardsCanBeDragged)
-        {
-            <div class="@ContentContainerStyle"
-                 @key="card"
-                 title="@card.ToString()"
-                 draggable="true"
-                 @ondragstart="args => OnDragStart(card)"
-                 @onclick="args => CardCliecked(card)"
-                 style="transform: translate(@ToPx(xPos), @ToPx(yPos))">
-                @ChildContent(card)
-            </div>
-        }
-        else
-        {
-            <div class="@ContentContainerStyle"
-                 @key="card"
-                 title="@card.ToString()"
-                 @onclick="args => CardCliecked(card)"
-                 style="transform: translate(@ToPx(xPos), @ToPx(yPos))">
-                @ChildContent(card)
-            </div>
-        }
+
+        <div @key="card"
+             title="@card.ToString()"
+             draggable="@CardsCanBeDragged"
+             @ondragstart="args => OnDragStart(card)"
+             @onclick="args => CardCliecked(card)"
+             style="transform: translate(@ToPx(xPos), @ToPx(yPos))">
+            @ChildContent(card)
+        </div>
     }
 </div>

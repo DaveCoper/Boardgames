@@ -30,42 +30,6 @@ a, .btn-link {
     color: red;
 }
 
-/* ninth planet cards */
-
-@font-face {
-    font-family: agency fb;
-    font-style: normal;
-    font-weight: 400;
-    src: local('Agency FB'),local('AgencyFB-Regular'),url(../Fonts/agency-fb.woff) format('woff'),url(../Fonts/agency-fb.ttf) format('truetype')
-}
-
-.npCard {
-    height: 140px;
-    width: 80px;
-    position: absolute;
-    display: inline-block;
-}
-
-.npCard-backSide {
-    background: linear-gradient(to bottom right, black, #1861ac);
-    border: solid;
-    border-radius: 6px;
-    border-color: black;
-    border-width: thin;
-}
-
-.npDropArea {
-    border: dashed;
-    border-color: slategray;
-    border-width: medium;
-    height: 150px;
-    width: 90px;
-    border-radius: 5px;
-    background: #dedede;
-}
-
-/* ninth planet cards */
-
 #blazor-error-ui {
     background: lightyellow;
     bottom: 0;

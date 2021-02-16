@@ -22,9 +22,6 @@ namespace Boardgames.BlazorClient.Components
         public double CardHeight { get; set; }
 
         [Parameter]
-        public string ContentContainerStyle { get; set; } = null;
-
-        [Parameter]
         public bool CardsCanBeDragged { get; set; } = false;
 
         [Parameter]

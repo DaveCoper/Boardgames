@@ -1,8 +1,16 @@
 ﻿@using Boardgames.NinthPlanet.Models
 
-<img src="/Images/NpCards/{@Card.Color@Card.Value}.svg" />
+<div class="npCard npCard-front @ColorClass">
+    <p class="npCard-smallValue npCard-leftTop">@Card.Value</p>
+    <p class="npCard-smallValue npCard-leftBottom">@Card.Value</p>
+    <p class="npCard-smallValue npCard-rightTop">@Card.Value</p>
+    <p class="npCard-smallValue npCard-rightBottom">@Card.Value</p>
+    <p class="npCard-bigValue">@Card.Value</p>
+</div>
 
 @code {
     [Parameter]
     public Card Card { get; set; }
+
+    private string ColorClass => $"np{Card.Value}";
 }

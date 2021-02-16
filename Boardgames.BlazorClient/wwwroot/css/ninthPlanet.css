@@ -1,0 +1,136 @@
+/* ninth planet cards */
+
+@font-face {
+    font-family: agency fb;
+    font-style: normal;
+    font-weight: 400;
+    src: local('Agency FB'),local('AgencyFB-Regular'),url(../Fonts/agency-fb.woff) format('woff'),url(../Fonts/agency-fb.ttf) format('truetype')
+}
+
+.npCard {
+    height: 140px;
+    width: 80px;
+    position: absolute;
+    display: inline-block;
+    border-radius: 6px;
+    border: 1px solid black;
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+}
+
+.npCard-back {
+    background-image: url("../Images/NpCards/card_back.svg");
+}
+
+.npCard-front {
+    background-image: url("../Images/NpCards/card_front.svg");
+}
+
+.npCard-bigValue {
+    position: absolute;
+    top: 40px;
+    width:80px;
+    color: white;
+    font-size: 4.0rem;
+    font-weight: bold;
+    text-align: center;
+    line-height: 4.0rem;
+    font-family: 'Agency FB', sans-serif;
+    white-space: pre-line;
+}
+
+.npCard-smallValue {
+    width: 22px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    text-align: center;
+    line-height: 1.2rem;
+    font-family: 'Agency FB', sans-serif;
+    white-space: pre-line;
+}
+
+.npCard-leftTop {
+    position: absolute;
+    top: 8px;
+    left: 0px;
+}
+
+.npCard-leftBottom {
+    position: absolute;
+    bottom: -8px;
+    left: 0px;
+    -webkit-transform: rotate(180deg);
+    -moz-transform: rotate(180deg);
+    -o-transform: rotate(180deg);
+    -ms-transform: rotate(180deg);
+    transform: rotate(180deg);
+}
+
+.npCard-rightTop {
+    position: absolute;
+    top: 8px;
+    right: 0px;
+}
+
+.npCard-rightBottom {
+    position: absolute;
+    bottom: -8px;
+    right: 0px;
+    -webkit-transform: rotate(180deg);
+    -moz-transform: rotate(180deg);
+    -o-transform: rotate(180deg);
+    -ms-transform: rotate(180deg);
+    transform: rotate(180deg);
+}
+
+.npRocket {
+    color: black;
+    background-color: black;
+}
+
+.npBlue {
+    color: #4d9ebc;
+    background-color: #4d9ebc;
+}
+
+.npGreen {
+    color: #87b13f;
+    background-color: #87b13f;
+}
+
+.npPink {
+    color: #b85294;
+    background-color: #b85294;
+}
+
+.npYellow {
+    color: #caa134;
+    background-color: #caa134;
+}
+
+.npTaskCard {
+    height: 140px;
+    width: 80px;
+    position: absolute;
+    display: inline-block;
+}
+
+.npCard-backSide {
+    background: linear-gradient(to bottom right, black, #1861ac);
+    border: solid;
+    border-radius: 6px;
+    border-color: black;
+    border-width: thin;
+}
+
+.npDropArea {
+    border: dashed;
+    border-color: slategray;
+    border-width: medium;
+    height: 150px;
+    width: 90px;
+    border-radius: 5px;
+    background: #eeeeee;
+}
+
+/* ninth planet cards */

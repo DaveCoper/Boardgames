@@ -1,0 +1,4 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<svg height="140" width="80" xmlns="http://www.w3.org/2000/svg">
+  <path d="M 0 0 L 0 140 L 80 140 L 80 0 L 0 0 A 6 6 0 0 0 0 6  M 6 37 L 6 103 A 3 3 0 0 0 9 106 L 19 106 A 3 3 0 0 1 22 109 L 22 131 A 3 3 0 0 0 25 134 L 55 134 A 3 3 0 0 0 58 131 L 58 109 A 3 3 0 0 1 61 106 L 71  106 A 3 3 0 0 0 74 103L 74 37 A 3 3 0 0 0 71 34 L 61 34 A 3 3 0 0 1 58 31 L 58 9 A 3 3 0 0 0 55 6 L 25 6 A 3 3 0 0 0 22 9 L 22 31 A 3 3 0 0 1 19 34 L 9 34 A 3 3 0 0 0 6 37" fill="white" fill-rule="evenodd" />  
+</svg>
